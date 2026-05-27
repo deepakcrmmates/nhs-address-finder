@@ -1,0 +1,3569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NHS Address Finder — free partner tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+  :root {
+    --nhs-dk: #075F50;
+    --nhs-dark: #053f34;
+    --nhs-mid: #4A6B5E;
+    --nhs-soft: #6B9080;
+    --nhs-sage: #C9D5CB;
+    --nhs-pale: #EAF4EF;
+    --nhs-pale-2: #F4F9F6;
+    --nhs-border: #C5DCCC;
+    --gold: #C9A84C;
+    --gold-tint: #FFF8E7;
+    --gold-dark: #8E743A;
+    --blue: #4682A9;
+    --blue-tint: #DCEAF1;
+    --blue-dark: #2C5475;
+    --red: #B8341F;
+    --red-tint: #FCEAE6;
+    --green-ok: #15803D;
+    --green-tint: #DCFCE7;
+    --ink: #1F3D34;
+    --ink-soft: #5A6B7C;
+    --ink-mute: #9AA8A2;
+    --border: #DDE5E1;
+    --bg: #F7FAF8;
+    --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 6px 16px rgba(15,23,42,0.04);
+    --shadow-lift: 0 12px 36px rgba(15,23,42,0.14), 0 4px 12px rgba(15,23,42,0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── App bar — typographic NHS logo per branding guidelines ───
+     Source: docs/branding/NHS_Email_Template_Guidelines.md
+       · Logo font: Futura LT Light (used exclusively for brand mark)
+       · Header background: #075F50 (dark sage)
+       · Position: top-left
+     Font stack: prefer the real Futura on Mac (which has it built-in),
+     fall back to Windows' Century Gothic, then a generic geometric. */
+  header.appbar {
+    background: var(--nhs-dk);
+    color: #fff;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  header.appbar .brand { display: flex; align-items: center; gap: 18px; }
+
+  .nhs-wordmark {
+    font-family: 'Futura LT Light', 'Futura', 'Futura LT', 'ITC Futura',
+                 'Century Gothic', 'Avenir Next', 'Avenir', 'Trebuchet MS', sans-serif;
+    font-weight: 300;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #fff;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .nhs-wordmark .wm-row-1 { font-size: 16px; opacity: 0.92; }
+  .nhs-wordmark .wm-row-2 { font-size: 20px; font-weight: 300; }
+  .nhs-wordmark .wm-row-3 {
+    font-size: 9.5px; letter-spacing: 0.28em;
+    color: var(--gold); opacity: 0.95;
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    margin-top: 2px;
+  }
+
+  header.appbar .brand-divider {
+    width: 1px;
+    height: 36px;
+    background: rgba(255,255,255,0.22);
+    flex-shrink: 0;
+  }
+  header.appbar .brand-text { line-height: 1.25; }
+  header.appbar .brand-text .title { font-size: 14px; font-weight: 700; }
+  header.appbar .brand-meta { font-size: 10.5px; opacity: 0.75; font-weight: 500; margin-top: 2px; letter-spacing: 0.08em; text-transform: uppercase; font-family: 'Inter', sans-serif; }
+  header.appbar .right-actions { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+  header.appbar .right-actions a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  header.appbar .right-actions a:hover { background: rgba(255,255,255,0.10); color: #fff; }
+
+  /* ── Hero ───────────────────────────────────────────── */
+  .hero {
+    background:
+      radial-gradient(at 10% 0%, rgba(7,95,80,0.08) 0%, transparent 40%),
+      radial-gradient(at 90% 100%, rgba(201,168,76,0.08) 0%, transparent 50%),
+      var(--bg);
+    padding: 56px 28px 32px;
+    text-align: center;
+  }
+  .hero .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green-tint);
+    color: var(--green-ok);
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+    border: 1px solid #BDF0CC;
+  }
+  .hero .eyebrow svg { width: 14px; height: 14px; }
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 10px;
+    letter-spacing: -0.022em;
+    line-height: 1.1;
+  }
+  .hero h1 .accent { color: var(--nhs-dk); }
+  .hero .sub {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin: 0 auto 12px;
+  }
+  .hero .audience {
+    margin-top: 14px;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+  }
+  .aud-pill {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    color: var(--nhs-dk);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 5px;
+    box-shadow: var(--shadow);
+  }
+  .aud-pill svg { width: 12px; height: 12px; color: var(--gold-dark); }
+
+  /* ── Search ─────────────────────────────────────────── */
+  .search-wrap {
+    max-width: 720px;
+    margin: 28px auto 0;
+    padding: 0 16px;
+  }
+  .search-card {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 14px;
+    box-shadow: var(--shadow-lift);
+    padding: 18px;
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .search-card .pc-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--nhs-pale-2);
+    border: 1.5px solid var(--nhs-border);
+    border-radius: 10px;
+    padding: 4px 16px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .search-card .pc-wrap:focus-within {
+    border-color: var(--nhs-dk);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(7,95,80,0.08);
+  }
+  .search-card .pc-wrap svg { width: 18px; height: 18px; color: var(--nhs-soft); flex-shrink: 0; }
+  .search-card input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    padding: 14px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .search-card input::placeholder { color: var(--ink-mute); font-weight: 500; }
+  .search-card button {
+    background: var(--nhs-dk);
+    color: #fff;
+    border: none;
+    padding: 0 26px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: background 0.15s;
+  }
+  .search-card button:hover { background: var(--nhs-dark); }
+  .search-card button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .search-card button svg { width: 14px; height: 14px; }
+
+  .presets {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    align-items: center;
+  }
+  .presets .lbl { margin-right: 4px; font-weight: 600; }
+  .presets .preset {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    color: var(--nhs-dk);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .presets .preset:hover {
+    background: var(--nhs-dk);
+    color: #fff;
+    border-color: var(--nhs-dk);
+  }
+
+  /* ── Results ────────────────────────────────────────── */
+  .results-wrap {
+    max-width: 1180px;
+    margin: 36px auto 0;
+    padding: 0 28px;
+  }
+  .results-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .results-head h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .results-head h2 .count {
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 999px;
+    margin-left: 8px;
+    vertical-align: 2px;
+  }
+  .results-head .meta { font-size: 12px; color: var(--ink-soft); }
+
+  /* ── View toggle (List / Card) ────────────────── */
+  .view-switch {
+    display: inline-flex;
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  .view-switch button {
+    background: #fff;
+    color: var(--ink-soft);
+    border: none;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .view-switch button + button { border-left: 1px solid var(--nhs-border); }
+  .view-switch button:hover { background: var(--nhs-pale); color: var(--nhs-dk); }
+  .view-switch button.active { background: var(--nhs-dk); color: #fff; }
+  .view-switch svg { width: 13px; height: 13px; }
+
+  /* ── Card view grid ───────────────────────────── */
+  .results-cards-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .results-cards-head .left h2 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--ink);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .results-cards-head .left h2 .count {
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+  .results-cards-head .left .meta {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+  .results-cards-head .left .meta strong { color: var(--ink); font-weight: 700; }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 14px;
+  }
+  .addr-card {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 12px;
+    padding: 14px 16px 16px;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s, transform 0.05s;
+  }
+  .addr-card:hover {
+    box-shadow: var(--shadow-lift);
+    border-color: var(--nhs-soft);
+  }
+  .addr-card .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .addr-card .uprn-pill {
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 5px;
+    letter-spacing: 0.04em;
+    display: inline-flex; align-items: center; gap: 5px;
+    white-space: nowrap;
+  }
+  .addr-card .uprn-pill .lbl {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+  .addr-card .clf-pill {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .addr-card .clf-pill.r { background: var(--green-tint); color: var(--green-ok); }
+  .addr-card .clf-pill.c { background: var(--gold-tint); color: var(--gold-dark); }
+  .addr-card .clf-pill.x { background: var(--red-tint); color: var(--red); }
+  .addr-card .clf-pill.other { background: var(--nhs-pale-2); color: var(--ink-soft); border: 1px solid var(--nhs-border); }
+  .addr-card .addr-line {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.35;
+    margin-top: 2px;
+  }
+  .addr-card .coords-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--nhs-border);
+  }
+  .addr-card .actions {
+    display: flex; gap: 8px; margin-top: 2px;
+  }
+  .addr-card .actions button {
+    flex: 1;
+    border: 1px solid var(--nhs-border);
+    padding: 8px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    transition: background 0.12s, color 0.12s;
+  }
+  .addr-card .actions .btn-map {
+    background: var(--nhs-dk);
+    color: #fff;
+    border-color: var(--nhs-dk);
+  }
+  .addr-card .actions .btn-map:hover { background: var(--nhs-dark); }
+  .addr-card .actions .btn-copy {
+    background: var(--nhs-pale-2);
+    color: var(--nhs-dk);
+  }
+  .addr-card .actions .btn-copy:hover { background: var(--nhs-pale); }
+  .addr-card .actions svg { width: 12px; height: 12px; }
+
+  /* ── Results table ────────────────────────────── */
+  .results-table-wrap {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .results-table-head {
+    padding: 14px 18px;
+    background: var(--nhs-pale-2);
+    border-bottom: 1px solid var(--nhs-border);
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .results-table-head > div:first-child { flex: 1; min-width: 0; }
+  .results-table-head h2 {
+    margin: 0;
+    font-size: 13px; font-weight: 800;
+    color: var(--nhs-dk);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .results-table-head h2 svg { width: 16px; height: 16px; }
+  .results-table-head .count-meta {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .results-table-head .count-meta strong { color: var(--ink); font-weight: 700; }
+  .results-table-scroll { overflow-x: auto; }
+  table.results-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12.5px;
+  }
+  table.results-table thead th {
+    background: #fff;
+    color: var(--ink-soft);
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--nhs-border);
+    white-space: nowrap;
+    position: sticky; top: 0; z-index: 2;
+  }
+  table.results-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--nhs-pale-2);
+    vertical-align: middle;
+  }
+  table.results-table tbody tr {
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  table.results-table tbody tr:hover td { background: var(--nhs-pale); }
+  table.results-table tbody tr:last-child td { border-bottom: none; }
+  table.results-table .col-num { color: var(--ink-mute); font-variant-numeric: tabular-nums; width: 36px; }
+  table.results-table .col-uprn {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    color: var(--nhs-dk);
+    white-space: nowrap;
+  }
+  table.results-table .col-addr { font-weight: 600; color: var(--ink); }
+  table.results-table .col-class .clf-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.06em;
+  }
+  table.results-table .col-class .clf-pill.r { background: var(--green-tint); color: var(--green-ok); }
+  table.results-table .col-class .clf-pill.c { background: var(--gold-tint); color: var(--gold-dark); }
+  table.results-table .col-class .clf-pill.x { background: var(--red-tint); color: var(--red); }
+  table.results-table .col-class .clf-pill.other { background: var(--nhs-pale-2); color: var(--ink-soft); }
+  table.results-table .col-coord {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink-soft);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  table.results-table .col-match { font-variant-numeric: tabular-nums; }
+  table.results-table .col-chevron {
+    color: var(--ink-mute);
+    text-align: right;
+    padding-right: 14px;
+  }
+  table.results-table tbody tr:hover .col-chevron { color: var(--nhs-dk); }
+
+  /* ── EPC certificate lightbox (the staircase ladder) ─── */
+  .epc-modal {
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.78);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 28px;
+  }
+  .epc-modal.open { display: flex; animation: fadeIn 0.18s ease-out; }
+  .epc-shell {
+    background: #fff;
+    border-radius: 12px;
+    max-width: 1100px;
+    width: 100%;
+    max-height: calc(100vh - 56px);
+    overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+  }
+  .epc-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--nhs-border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .epc-head .rrn-pill {
+    background: var(--nhs-dk); color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 9px; border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  .epc-head .epc-addr { font-weight: 700; color: var(--ink); font-size: 14px; }
+  .epc-head .epc-actions { margin-left: auto; display: flex; gap: 8px; }
+  .epc-head .epc-actions a, .epc-head .epc-actions button {
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    border: 1px solid var(--nhs-border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .epc-head .epc-actions a:hover, .epc-head .epc-actions button:hover { background: var(--nhs-dk); color: #fff; }
+  .epc-head .epc-actions svg { width: 12px; height: 12px; }
+  .epc-head .close-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--red-tint);
+    color: var(--red);
+    border: none;
+    cursor: pointer;
+    font-size: 18px; line-height: 1; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .epc-head .close-btn:hover { background: var(--red); color: #fff; }
+
+  .epc-loading {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 13px;
+  }
+
+  .epc-body {
+    padding: 22px 24px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 880px) {
+    .epc-body { grid-template-columns: 1fr; row-gap: 18px; }
+  }
+  .epc-col { min-width: 0; }
+
+  .epc-title {
+    font-size: 11px; font-weight: 800; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 10px;
+  }
+
+  /* The actual ladder */
+  .epc-ladder {
+    border: 1px solid #444;
+    background: #fff;
+    font-family: Arial, sans-serif;
+  }
+  .epc-ladder .lad-head {
+    display: grid;
+    grid-template-columns: 64px 1fr 88px 88px;
+    font-weight: 800;
+    font-size: 12px;
+    color: #000;
+    border-bottom: 1px solid #444;
+  }
+  .epc-ladder .lad-head > div {
+    padding: 8px 10px;
+    border-right: 1px solid #444;
+  }
+  .epc-ladder .lad-head > div:last-child { border-right: none; }
+  .epc-ladder .lad-row {
+    display: grid;
+    grid-template-columns: 64px 1fr 88px 88px;
+    align-items: stretch;
+    min-height: 36px;
+    border-bottom: 1px solid #ddd;
+  }
+  .epc-ladder .lad-row:last-child { border-bottom: none; }
+  .epc-ladder .lad-row .col-score {
+    padding: 9px 10px;
+    font-weight: 800;
+    font-size: 12px;
+    color: #000;
+    border-right: 1px solid #444;
+    background: #fff;
+  }
+  .epc-ladder .lad-row .col-rating {
+    position: relative;
+    border-right: 1px solid #444;
+    background: #fff;
+  }
+  .epc-ladder .lad-row .col-rating .step {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    font-weight: 900;
+    font-size: 20px;
+    color: #000;
+    box-sizing: border-box;
+  }
+  .epc-ladder .lad-row .col-current,
+  .epc-ladder .lad-row .col-potential {
+    background: #fff;
+    border-right: 1px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .epc-ladder .lad-row .col-potential { border-right: none; }
+
+  /* Pentagon arrows */
+  .epc-arrow {
+    display: inline-block;
+    padding: 4px 8px;
+    font-weight: 900;
+    font-size: 13px;
+    color: #000;
+    text-align: center;
+    line-height: 1;
+    position: relative;
+  }
+  .epc-arrow.left {
+    clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%);
+    padding-left: 14px;
+  }
+  .epc-arrow.right {
+    clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%);
+    padding-right: 14px;
+  }
+
+  /* Per-band step widths (visual staircase) and colours */
+  .epc-ladder .lad-row.band-a .step { width: 18%; background: #008C44; color: #fff; }
+  .epc-ladder .lad-row.band-b .step { width: 30%; background: #19B459; color: #fff; }
+  .epc-ladder .lad-row.band-c .step { width: 44%; background: #8DCE46; color: #000; }
+  .epc-ladder .lad-row.band-d .step { width: 58%; background: #FFD500; color: #000; }
+  .epc-ladder .lad-row.band-e .step { width: 70%; background: #FCAA65; color: #000; }
+  .epc-ladder .lad-row.band-f .step { width: 84%; background: #EF8023; color: #000; }
+  .epc-ladder .lad-row.band-g .step { width: 100%; background: #E9153B; color: #fff; }
+
+  /* Arrow colours match their band */
+  .epc-arrow.band-a { background: #008C44; color: #fff; }
+  .epc-arrow.band-b { background: #19B459; color: #fff; }
+  .epc-arrow.band-c { background: #8DCE46; color: #000; }
+  .epc-arrow.band-d { background: #FFD500; color: #000; }
+  .epc-arrow.band-e { background: #FCAA65; color: #000; }
+  .epc-arrow.band-f { background: #EF8023; color: #fff; }
+  .epc-arrow.band-g { background: #E9153B; color: #fff; }
+
+  /* Summary table — side-by-side with the ladder */
+  .epc-summary {
+    border: 1px solid var(--nhs-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .epc-summary table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
+  .epc-summary th, .epc-summary td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--nhs-border);
+    text-align: left;
+    vertical-align: top;
+  }
+  .epc-summary th {
+    background: var(--nhs-pale-2);
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 10.5px;
+    width: 44%;
+    white-space: nowrap;
+  }
+  .epc-summary td {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .epc-summary tr:last-child th, .epc-summary tr:last-child td { border-bottom: none; }
+  @media (max-width: 880px) {
+    .epc-summary th { width: 38%; }
+  }
+
+  /* ── Property-portal quick-links strip ─────────────── */
+  .portal-strip {
+    background: linear-gradient(90deg, var(--nhs-pale-2) 0%, #fff 100%);
+    border: 1px solid var(--nhs-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow);
+  }
+  .portal-strip .ps-label {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .portal-strip .ps-label .pc-chip {
+    background: var(--nhs-dk);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 6px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+  .portal-strip .ps-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .portal-strip .ps-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    color: var(--ink);
+    transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.05s;
+  }
+  .portal-strip .ps-btn:hover { transform: translateY(-1px); }
+  .portal-strip .ps-btn svg { width: 12px; height: 12px; opacity: 0.55; flex-shrink: 0; }
+  .portal-strip .ps-btn .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .portal-strip .ps-btn.rightmove   .dot { background: #00DEB6; }
+  .portal-strip .ps-btn.zoopla      .dot { background: #5C2D91; }
+  .portal-strip .ps-btn.onthemarket .dot { background: #2E2B7A; }
+  .portal-strip .ps-btn.rightmove:hover   { border-color: #00B89A; background: #E6FBF6; }
+  .portal-strip .ps-btn.zoopla:hover      { border-color: #5C2D91; background: #F1E8F8; }
+  .portal-strip .ps-btn.onthemarket:hover { border-color: #2E2B7A; background: #E8E8F5; }
+
+  /* ── EPC band pill (gov.uk-style colour coding) ─── */
+  .epc-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border: 1px solid rgba(0,0,0,0.15);
+    transition: transform 0.1s, box-shadow 0.1s;
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  button.epc-pill { font-family: inherit; }
+  button.epc-pill { font-family: 'JetBrains Mono', monospace; }
+  .epc-pill:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.18); }
+  .epc-a { background: #008C44; color: #fff; }
+  .epc-b { background: #19B459; color: #fff; }
+  .epc-c { background: #8DCE46; color: #1F3D34; }
+  .epc-d { background: #FFD500; color: #5A4A1E; }
+  .epc-e { background: #FCAA65; color: #5A2D0B; }
+  .epc-f { background: #EF8023; color: #fff; }
+  .epc-g { background: #E9153B; color: #fff; }
+  .epc-none {
+    background: var(--nhs-pale-2);
+    color: var(--ink-mute);
+    cursor: default;
+    border-style: dashed;
+  }
+  .epc-none:hover { transform: none; box-shadow: none; }
+
+  /* ── Detail view (separate "page") ─────────────── */
+  .detail-view { display: none; }
+  .detail-view.active { display: block; }
+  .results-section.detail-mode { display: none; }
+
+  .detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--nhs-dk);
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 12.5px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .detail-back:hover { background: var(--nhs-pale); border-color: var(--nhs-dk); }
+  .detail-back svg { width: 14px; height: 14px; }
+
+  /* ── Detail action bar (back button + generate report) ──────── */
+  .detail-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .detail-actions .detail-back { margin-bottom: 0; }
+  .detail-actions .spacer { flex: 1; }
+  .generate-report-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--nhs-dk);
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background 0.15s, transform 0.05s;
+  }
+  .generate-report-btn:hover { background: var(--nhs-dark); }
+  .generate-report-btn:active { transform: translateY(1px); }
+  .generate-report-btn:disabled { opacity: 0.55; cursor: progress; }
+  .generate-report-btn svg { width: 15px; height: 15px; }
+  .generate-report-btn .gr-spin {
+    width: 13px; height: 13px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: gr-spin 0.7s linear infinite;
+  }
+  @keyframes gr-spin { to { transform: rotate(360deg); } }
+
+  /* ── List view (default) ──────────────────────── */
+  .results-grid { display: flex; flex-direction: column; gap: 14px; }
+  .results-grid.view-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  /* Card-view-specific tweaks — body is the compact summary; details
+     still inside .result-rows and revealed only when expanded */
+  .results-grid.view-card .result-card { cursor: pointer; }
+  .results-grid.view-card .card-body {
+    padding: 12px 16px 14px;
+    display: none;          /* hidden by default in compact card mode */
+    flex-direction: column; gap: 10px;
+  }
+  .results-grid.view-card .result-card.expanded .card-body { display: flex; }
+  .results-grid.view-card .card-body .uprn-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+  .results-grid.view-card .card-body .uprn-line .lbl {
+    font-family: 'Inter', sans-serif;
+    color: var(--ink-mute);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .results-grid.view-card .card-body .coords-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .results-grid.view-card .card-body .pending-row {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--ink-mute);
+    padding: 4px 0;
+    border-top: 1px dashed var(--border);
+  }
+  .results-grid.view-card .card-body .pending-row:first-of-type { border-top: 1px solid var(--border); padding-top: 8px; }
+  .results-grid.view-card .card-body .pending-row svg { width: 11px; height: 11px; color: var(--gold-dark); }
+  .results-grid.view-card .card-body .pending-row .name { flex: 1; font-weight: 600; }
+  .results-grid.view-card .card-body .pending-row .badge {
+    background: var(--gold-tint); color: var(--gold-dark);
+    font-size: 8.5px; font-weight: 800;
+    padding: 2px 6px; border-radius: 999px;
+    letter-spacing: 0.07em;
+    border: 1px dashed var(--gold);
+  }
+  .results-grid.view-card .card-body .map-cta {
+    margin-top: 6px;
+    width: 100%;
+    background: var(--nhs-dk); color: #fff;
+    border: none;
+    padding: 9px 12px;
+    border-radius: 7px;
+    font-weight: 700; font-size: 12.5px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .results-grid.view-card .card-body .map-cta:hover { background: var(--nhs-dark); }
+  .results-grid.view-card .card-body .map-cta svg { width: 12px; height: 12px; }
+  .results-grid.view-card .result-head { padding: 12px 16px; gap: 10px; }
+  .results-grid.view-card .result-head .addr { font-size: 13.5px; }
+  .results-grid.view-card .result-head .ico-wrap { width: 28px; height: 28px; }
+  .results-grid.view-card .result-head .postcode { font-size: 11px; padding: 3px 8px; }
+
+  /* Each result is a vertical card with address heading + sub-row list */
+  .result-card {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .result-card:hover {
+    box-shadow: var(--shadow-lift);
+    border-color: var(--nhs-soft);
+  }
+
+  /* Header: address + postcode pill — clickable to toggle expand */
+  .result-head {
+    background: var(--nhs-pale-2);
+    border-bottom: 1px solid var(--nhs-border);
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 32px 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .result-card.expanded .result-head { border-bottom-color: var(--nhs-dk); }
+  .result-card:not(.expanded) {
+    /* When collapsed, kill the bottom border of the header so the card looks like a single chip */
+  }
+  .result-card:not(.expanded) .result-head { border-bottom: none; }
+  .result-head .expand-toggle {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    color: var(--nhs-dk);
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: transform 0.2s, background 0.15s;
+    flex-shrink: 0;
+  }
+  .result-head .expand-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .result-card.expanded .expand-toggle { background: var(--nhs-dk); color: #fff; border-color: var(--nhs-dk); }
+  .result-card.expanded .expand-toggle svg { transform: rotate(180deg); }
+  .result-head .expand-toggle:hover { background: var(--nhs-dk); color: #fff; border-color: var(--nhs-dk); }
+
+  /* The address column inside the header */
+  .result-head .head-text {
+    min-width: 0;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .result-head .head-line-1 {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.3;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .result-head .head-line-2 {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11.5px; color: var(--ink-soft);
+  }
+  .result-head .uprn-tag {
+    background: var(--nhs-dk);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 9px;
+    border-radius: 5px;
+    letter-spacing: 0.04em;
+    display: inline-flex; align-items: center; gap: 5px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .result-head .uprn-tag:hover { background: var(--nhs-dark); }
+  .result-head .uprn-tag .uprn-prefix {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    opacity: 0.75;
+    text-transform: uppercase;
+  }
+  .result-head .uprn-tag svg { width: 11px; height: 11px; opacity: 0.7; }
+  .result-head .ico-wrap {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--nhs-dk);
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .result-head .ico-wrap svg { width: 16px; height: 16px; }
+  .result-head .postcode {
+    background: #fff;
+    color: var(--nhs-dk);
+    border: 1.5px solid var(--nhs-dk);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 5px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .result-head .clf-pill {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .result-head .clf-pill.r { background: var(--green-tint); color: var(--green-ok); }
+  .result-head .clf-pill.c { background: var(--gold-tint); color: var(--gold-dark); }
+  .result-head .clf-pill.x { background: var(--red-tint); color: var(--red); }
+  .result-head .clf-pill.other { background: #fff; color: var(--ink-soft); border: 1px solid var(--nhs-border); }
+
+  /* Sub-row list — only shown when card is marked .expanded
+     (set on the detail-page render so it's always visible there) */
+  .result-rows {
+    padding: 4px 0;
+    display: none;
+  }
+  .result-card.expanded .result-rows { display: block; }
+  /* Inside the detail view, force the rows to render even if no .expanded */
+  #detail-view .result-rows { display: block !important; }
+  .result-row {
+    display: grid;
+    grid-template-columns: 32px 170px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 18px;
+    border-top: 1px solid var(--nhs-pale-2);
+  }
+  .result-row:first-child { border-top: none; }
+  .result-row .rl-ico {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .result-row .rl-ico svg { width: 14px; height: 14px; }
+  .result-row .rl-label {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .result-row .rl-value {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .result-row .rl-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+  .result-row .rl-action {
+    background: var(--nhs-dk);
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .result-row .rl-action:hover { background: var(--nhs-dark); }
+  .result-row .rl-action.secondary {
+    background: #fff;
+    color: var(--nhs-dk);
+    border: 1px solid var(--nhs-border);
+  }
+  .result-row .rl-action.secondary:hover { background: var(--nhs-pale); }
+  .result-row .rl-action svg { width: 12px; height: 12px; }
+
+  /* Tall row variant — for inline iframes (e.g. Street View) */
+  .result-row.tall {
+    align-items: start;
+    padding: 14px 18px;
+  }
+  .result-row.tall .rl-ico,
+  .result-row.tall .rl-label { margin-top: 2px; }
+  .result-row .rl-iframe-wrap {
+    width: 100%;
+    height: 260px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--nhs-border);
+    background: var(--nhs-pale-2);
+    position: relative;
+  }
+  .result-row .rl-iframe-wrap iframe {
+    width: 100%; height: 100%; border: 0; display: block;
+  }
+  .result-row .rl-iframe-wrap .sv-loading {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-mute);
+    font-size: 12px;
+    background: var(--nhs-pale-2);
+    pointer-events: none;
+  }
+  .result-row .rl-iframe-wrap iframe + .sv-loading { display: none; }
+  .result-row.tall .rl-action { align-self: start; margin-top: 2px; }
+
+  /* "API pending" placeholder rows */
+  .result-row.pending {
+    background: linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.04) 100%);
+  }
+  .result-row.pending .rl-ico { background: var(--gold-tint); color: var(--gold-dark); }
+  .result-row.pending .rl-value {
+    color: var(--ink-mute);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 12.5px;
+  }
+  .result-row.pending .rl-coming {
+    background: var(--gold-tint);
+    color: var(--gold-dark);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px dashed var(--gold);
+    white-space: nowrap;
+  }
+
+  /* ── Coverage rows (Broadband + Mobile, Ofcom Connected Nations) ── */
+  .result-row.coverage {
+    align-items: start;
+    padding: 14px 18px;
+  }
+  .result-row.coverage .rl-ico,
+  .result-row.coverage .rl-label { margin-top: 2px; }
+  .result-row.coverage .rl-value { display: block; min-width: 0; }
+  .result-row.coverage .cov-head {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .result-row.coverage .cov-head .pill {
+    display: inline-block;
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.06em;
+    margin-left: 6px;
+    text-transform: uppercase;
+  }
+  .result-row.coverage .cov-head .pill.green {
+    background: var(--green-tint); color: var(--green-ok);
+  }
+  .result-row.coverage .cov-head .pill.amber {
+    background: var(--gold-tint); color: var(--gold-dark);
+  }
+  .result-row.coverage .cov-head .pill.red {
+    background: var(--red-tint); color: var(--red);
+  }
+
+  /* ── Broadband speedometer ───────────────────────── */
+  .bb-shell {
+    background: linear-gradient(180deg, var(--nhs-pale-2) 0%, #fff 60%);
+    border: 1px solid var(--nhs-border);
+    border-radius: 10px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 22px;
+    align-items: center;
+  }
+  @media (max-width: 720px) {
+    .bb-shell { grid-template-columns: 1fr; gap: 14px; }
+  }
+  .bb-gauge { width: 240px; margin: 0 auto; }
+  .bb-gauge svg { display: block; width: 100%; height: auto; }
+  .bb-gauge .gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 4px 0;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .bb-gauge .gauge-readout {
+    margin-top: 10px;
+    text-align: center;
+  }
+  .bb-gauge .gauge-readout .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--nhs-dk);
+    letter-spacing: -0.01em;
+  }
+  .bb-gauge .gauge-readout .num .unit {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-left: 4px;
+  }
+  .bb-gauge .gauge-readout .sub {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+  .bb-gauge .gauge-readout .sub .arrow {
+    color: var(--nhs-dk);
+    font-weight: 800;
+    margin-right: 2px;
+  }
+
+  .bb-side .tier-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .bb-side .tier-chip.green { background: var(--green-tint); color: var(--green-ok); border: 1px solid #BDF0CC; }
+  .bb-side .tier-chip.amber { background: var(--gold-tint);  color: var(--gold-dark); border: 1px solid #F0E0B0; }
+  .bb-side .tier-chip.red   { background: var(--red-tint);   color: var(--red);       border: 1px solid #F2C7C0; }
+  .bb-side .tier-chip svg { width: 12px; height: 12px; }
+
+  .bb-tiers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bb-tier-row {
+    display: grid;
+    grid-template-columns: 84px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 10px;
+    background: #fff;
+    border: 1px solid var(--nhs-pale-2);
+    border-radius: 8px;
+  }
+  .bb-tier-row.has-coverage { border-color: var(--nhs-border); }
+  .bb-tier-row.is-best {
+    background: linear-gradient(90deg, var(--green-tint) 0%, #fff 70%);
+    border-color: #BDF0CC;
+  }
+  .bb-tier-row .t-name {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--nhs-dk);
+    letter-spacing: 0.02em;
+  }
+  .bb-tier-row .t-name .t-hint {
+    display: block;
+    font-weight: 500;
+    color: var(--ink-mute);
+    font-size: 9.5px;
+    margin-top: 1px;
+    letter-spacing: 0;
+  }
+  .bb-tier-row .t-bar {
+    height: 7px;
+    border-radius: 999px;
+    background: var(--nhs-pale-2);
+    overflow: hidden;
+    position: relative;
+  }
+  .bb-tier-row .t-bar .fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--nhs-soft), var(--nhs-dk));
+    transition: width 0.3s ease;
+  }
+  .bb-tier-row.is-best .t-bar .fill { background: linear-gradient(90deg, #19B459, #008C44); }
+  .bb-tier-row .t-bar.empty { background: repeating-linear-gradient(45deg, var(--nhs-pale-2), var(--nhs-pale-2) 4px, #fff 4px, #fff 8px); }
+  .bb-tier-row .t-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .bb-tier-row .t-num .dir { color: var(--nhs-dk); font-weight: 800; margin: 0 1px; }
+  .bb-tier-row .t-num .sep { color: var(--ink-mute); margin: 0 4px; }
+  .bb-tier-row .t-num.muted { color: var(--ink-mute); font-weight: 500; font-family: 'Inter', sans-serif; font-style: italic; font-size: 11px; }
+
+  /* ── Mobile operator brand cards ─────────────────── */
+  .mob-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 720px) {
+    .mob-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .mob-card {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+  }
+  .mob-card .brand {
+    padding: 9px 12px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .mob-card .brand .name {
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+  .mob-card .brand .best {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 11px;
+    background: rgba(255,255,255,0.22);
+    padding: 2px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+  }
+  .mob-card .brand.ee { background: #00B5B0; }
+  .mob-card .brand.h3 { background: #000000; }
+  .mob-card .brand.tf { background: #0050C8; }
+  .mob-card .brand.vo { background: #E60000; }
+  .mob-card .body {
+    padding: 10px 12px 12px;
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    column-gap: 10px;
+    row-gap: 6px;
+    align-items: center;
+  }
+  .mob-card .col-head {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+  .mob-card .row-head {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .mob-card .sig-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 0;
+  }
+
+  /* 4-bar phone-style signal indicator */
+  .sigbars {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 16px;
+  }
+  .sigbars .bar {
+    width: 4px;
+    border-radius: 1.5px;
+    background: var(--nhs-pale-2);
+    border: 1px solid var(--border);
+  }
+  .sigbars .bar.b1 { height: 5px; }
+  .sigbars .bar.b2 { height: 9px; }
+  .sigbars .bar.b3 { height: 12px; }
+  .sigbars .bar.b4 { height: 16px; }
+  .sigbars .bar.on {
+    background: var(--ink-soft);
+    border-color: var(--ink-soft);
+  }
+  /* Color the filled bars by score (operator brand is on the header, score colour for bars) */
+  .sigbars[data-score="4"] .bar.on { background: #19B459; border-color: #19B459; }
+  .sigbars[data-score="3"] .bar.on { background: #8DCE46; border-color: #8DCE46; }
+  .sigbars[data-score="2"] .bar.on { background: #FFD500; border-color: #E6BE00; }
+  .sigbars[data-score="1"] .bar.on { background: #EF8023; border-color: #EF8023; }
+  .sigbars[data-score="0"] .bar.on { background: #E9153B; border-color: #E9153B; }
+
+  .cov-legend {
+    margin-top: 8px;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .cov-legend .item { display: inline-flex; align-items: center; gap: 5px; }
+  .cov-legend .swatch {
+    width: 10px; height: 10px; border-radius: 2px;
+    display: inline-block;
+  }
+  .cov-legend .src {
+    margin-left: auto;
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+
+  @media (max-width: 720px) {
+    .result-head { padding: 12px 14px; gap: 10px; }
+    .result-row {
+      grid-template-columns: 28px 1fr;
+      grid-template-rows: auto auto;
+      gap: 6px 12px;
+      padding: 10px 14px;
+    }
+    .result-row .rl-label { grid-column: 2; }
+    .result-row .rl-value, .result-row .rl-action {
+      grid-column: 1 / -1;
+      justify-self: stretch;
+    }
+    .result-row .rl-action { justify-content: center; }
+  }
+
+  /* ── Empty + status ─────────────────────────────────── */
+  .state-msg {
+    text-align: center;
+    padding: 48px 16px;
+    color: var(--ink-mute);
+    font-size: 14px;
+    background: #fff;
+    border: 1px dashed var(--nhs-border);
+    border-radius: 12px;
+  }
+  .state-msg svg {
+    width: 48px; height: 48px;
+    color: var(--nhs-soft);
+    margin-bottom: 14px;
+    opacity: 0.7;
+  }
+  .state-msg .title {
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .state-msg.error svg { color: var(--red); }
+  .state-msg.error .title { color: var(--red); }
+
+  .toast-line {
+    margin: 14px auto;
+    max-width: 720px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    background: var(--nhs-pale-2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    border-left: 3px solid var(--nhs-dk);
+  }
+  .toast-line.err { background: var(--red-tint); border-left-color: var(--red); color: var(--red); }
+  .toast-line .v { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* ── Spinner ────────────────────────────────────────── */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Map modal ──────────────────────────────────────── */
+  .map-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.78);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    animation: fadeIn 0.18s ease-out;
+  }
+  .map-modal.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .map-shell {
+    background: #fff;
+    border-radius: 14px;
+    max-width: 1100px;
+    width: 100%;
+    max-height: calc(100vh - 56px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+    overflow: hidden;
+  }
+  .map-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .map-head .uprn-pill {
+    background: var(--nhs-dk); color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 9px; border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  .map-head .map-addr { font-weight: 700; color: var(--ink); font-size: 14px; }
+  .map-head .map-coords { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--ink-soft); }
+  .map-head .map-actions {
+    margin-left: auto;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .map-head .map-actions a, .map-head .map-actions button {
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    border: 1px solid var(--nhs-border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .map-head .map-actions a:hover, .map-head .map-actions button:hover {
+    background: var(--nhs-dk); color: #fff;
+  }
+  .map-head .map-actions svg { width: 12px; height: 12px; }
+  .map-head .style-switch {
+    display: inline-flex;
+    border: 1px solid var(--nhs-border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .map-head .style-switch button {
+    background: #fff;
+    color: var(--ink-soft);
+    border: none;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .map-head .style-switch button + button { border-left: 1px solid var(--nhs-border); }
+  .map-head .style-switch button.active { background: var(--nhs-dk); color: #fff; }
+  .map-head .close-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--red-tint);
+    color: var(--red);
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .map-head .close-btn:hover { background: var(--red); color: #fff; }
+  .map-body { flex: 1; position: relative; min-height: 520px; background: var(--nhs-pale-2); }
+  #leaflet-map { width: 100%; height: 100%; min-height: 520px; }
+  .map-foot {
+    padding: 8px 16px;
+    background: var(--nhs-pale-2);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .leaflet-popup-content-wrapper { border-radius: 8px !important; }
+  .leaflet-popup-content { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink); margin: 10px 14px; }
+  .leaflet-popup-content .pop-uprn { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--nhs-dk); font-weight: 700; margin-bottom: 4px; }
+  .leaflet-popup-content .pop-addr { font-weight: 700; color: var(--ink); }
+
+  /* ── Free-perk callout under hero ─────────────────── */
+  .perk-strip {
+    max-width: 1180px;
+    margin: 22px auto 0;
+    padding: 0 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .perk {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow);
+  }
+  .perk .ico {
+    width: 36px; height: 36px;
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .perk .ico svg { width: 18px; height: 18px; }
+  .perk strong { display: block; font-size: 13px; color: var(--ink); font-weight: 700; }
+  .perk span { font-size: 11.5px; color: var(--ink-soft); }
+
+  /* ── Footer ─────────────────────────────────────────── */
+  footer.page-foot {
+    max-width: 1180px;
+    margin: 60px auto 28px;
+    padding: 22px 28px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  footer.page-foot a { color: var(--nhs-dk); text-decoration: none; font-weight: 600; }
+  footer.page-foot a:hover { text-decoration: underline; }
+  footer.page-foot .left { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  footer.page-foot .nhs-logo-sm {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--nhs-dk);
+    color: #fff;
+    font-weight: 800;
+    font-size: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  @media (max-width: 720px) {
+    .hero { padding: 36px 16px 24px; }
+    .hero h1 { font-size: 30px; }
+    .results-wrap, .perk-strip, footer.page-foot { padding-left: 16px; padding-right: 16px; }
+    .search-card { flex-direction: column; padding: 14px; }
+    .search-card button { padding: 12px; }
+    .map-modal { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── App bar — typographic NHS logo (Futura LT Light, per brand guidelines) ─── -->
+<header class="appbar">
+  <div class="brand">
+    <span class="nhs-wordmark" aria-label="New Home Solutions">
+      <span class="wm-row-1">NEW HOME</span>
+      <span class="wm-row-2">SOLUTIONS</span>
+    </span>
+    <div class="brand-divider"></div>
+    <div class="brand-text">
+      <div class="title">Address Finder</div>
+      <div class="brand-meta">Free for our partner network</div>
+    </div>
+  </div>
+  <div class="right-actions">
+    <a href="nhs-portals-hub.html">Partner portals →</a>
+  </div>
+</header>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div class="eyebrow">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    Free service · provided by NHS
+  </div>
+  <h1>Look up any UK address.<br/><span class="accent">Map it instantly.</span></h1>
+  <p class="sub">Type a postcode, pick the property, see it on an Ordnance Survey map. A free everyday tool for our estate agents, photographers and housebuilders.</p>
+
+  <div class="audience">
+    <span class="aud-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 22V12h6v10"/><path d="M3 9l9-7 9 7"/><path d="M3 22h18"/></svg>
+      Estate Agents
+    </span>
+    <span class="aud-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      Photographers
+    </span>
+    <span class="aud-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg>
+      Housebuilders
+    </span>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-card">
+      <div class="pc-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="pc-input" placeholder="Enter a postcode · e.g. LS15 0LX" autocomplete="off" />
+      </div>
+      <button id="search-btn" onclick="runSearch()">
+        <span id="btn-label">Find addresses</span>
+      </button>
+    </div>
+
+    <div class="presets">
+      <span class="lbl">Try one:</span>
+      <span class="preset" onclick="setAndSearch('UB2 4WQ')">UB2 4WQ</span>
+      <span class="preset" onclick="setAndSearch('LS12 5AT')">LS12 5AT</span>
+      <span class="preset" onclick="setAndSearch('LS15 0LX')">LS15 0LX</span>
+      <span class="preset" onclick="setAndSearch('B17 9DR')">B17 9DR</span>
+      <span class="preset" onclick="setAndSearch('M21 8GX')">M21 8GX</span>
+      <span class="preset" onclick="setAndSearch('S10 3GP')">S10 3GP</span>
+      <span class="preset" onclick="setAndSearch('NE3 4QT')">NE3 4QT</span>
+      <span class="preset" onclick="setAndSearch('BS9 1AS')">BS9 1AS</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Free perks strip ─── -->
+<div class="perk-strip">
+  <div class="perk">
+    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div><strong>Free for partners</strong><span>No sign-up, no rate limits, no catch</span></div>
+  </div>
+  <div class="perk">
+    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg></div>
+    <div><strong>Official OS data</strong><span>Ordnance Survey AddressBase + Maps API</span></div>
+  </div>
+  <div class="perk">
+    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+    <div><strong>Updated daily</strong><span>New-builds &amp; recent registrations included</span></div>
+  </div>
+  <div class="perk">
+    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+    <div><strong>Works on mobile</strong><span>Use on-site from a phone or tablet</span></div>
+  </div>
+</div>
+
+<!-- ─── Results ─── -->
+<section class="results-wrap results-section" id="results-section">
+  <div id="results-body">
+    <div class="state-msg">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div class="title">Enter a postcode to begin</div>
+      <div>The lookup is free and uses Ordnance Survey's authoritative AddressBase Premium dataset.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Detail view (acts like a separate page) ─── -->
+<section class="results-wrap detail-view" id="detail-view">
+  <div class="detail-actions">
+    <button class="detail-back" onclick="closeDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to results
+    </button>
+    <div class="spacer"></div>
+    <button id="generate-report-btn" class="generate-report-btn" onclick="generateReport()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+      Generate Report
+    </button>
+  </div>
+  <div id="detail-body"></div>
+</section>
+
+<!-- ─── Map modal ─── -->
+<div id="map-modal" class="map-modal" onclick="if(event.target===this) closeMap()">
+  <div class="map-shell">
+    <div class="map-head">
+      <span class="uprn-pill" id="m-uprn">UPRN</span>
+      <div>
+        <div class="map-addr" id="m-addr">Address</div>
+        <div class="map-coords" id="m-coords">lat, lng</div>
+      </div>
+      <div class="map-actions">
+        <div class="style-switch">
+          <button id="style-road" class="active" onclick="switchStyle('Road')">Road</button>
+          <button id="style-outdoor" onclick="switchStyle('Outdoor')">Outdoor</button>
+          <button id="style-light" onclick="switchStyle('Light')">Light</button>
+        </div>
+        <a id="m-gmaps" href="#" target="_blank" rel="noopener" title="Directions in Google Maps">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          Directions
+        </a>
+        <button class="close-btn" onclick="closeMap()" title="Close">×</button>
+      </div>
+    </div>
+    <div class="map-body"><div id="leaflet-map"></div></div>
+    <div class="map-foot">
+      <span><em>Contains OS data © Crown copyright and database right 2026</em></span>
+      <span>Press <code>Esc</code> to close</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── EPC certificate modal (the staircase ladder) ─── -->
+<div id="epc-modal" class="epc-modal" onclick="if(event.target===this) closeEpcModal()">
+  <div class="epc-shell">
+    <div class="epc-head">
+      <span class="rrn-pill" id="epc-rrn">RRN</span>
+      <div>
+        <div class="epc-addr" id="epc-addr">Address</div>
+      </div>
+      <div class="epc-actions">
+        <a id="epc-external" href="#" target="_blank" rel="noopener" title="Open the full certificate on gov.uk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"/></svg>
+          Open on gov.uk
+        </a>
+        <button class="close-btn" onclick="closeEpcModal()" title="Close">×</button>
+      </div>
+    </div>
+    <div class="epc-body" id="epc-body">
+      <div class="epc-loading">Loading certificate…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Street View modal ─── -->
+<div id="sv-modal" class="map-modal" onclick="if(event.target===this) closeStreetView()">
+  <div class="map-shell">
+    <div class="map-head">
+      <span class="uprn-pill" id="sv-uprn">UPRN</span>
+      <div>
+        <div class="map-addr" id="sv-addr">Address</div>
+        <div class="map-coords" id="sv-coords">lat, lng</div>
+      </div>
+      <div class="map-actions">
+        <a id="sv-external" href="#" target="_blank" rel="noopener" title="Open Street View pano in Google Maps">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"/></svg>
+          Open in Google
+        </a>
+        <button class="close-btn" onclick="closeStreetView()" title="Close">×</button>
+      </div>
+    </div>
+    <div class="map-body">
+      <iframe id="sv-iframe" style="width:100%;height:100%;border:0;min-height:520px;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <div class="map-foot">
+      <span><em>Imagery © Google · Street View</em></span>
+      <span>Press <code>Esc</code> to close</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Footer ─── -->
+<footer class="page-foot">
+  <div class="left">
+    <div class="nhs-logo-sm">NHS</div>
+    <span><strong>New Home Solutions Ltd</strong> · Partners address tools</span>
+    <span>· Free for estate agents, photographers &amp; housebuilders working with NHS</span>
+  </div>
+  <div>
+    <a href="mailto:partners@newhomesolutions.co.uk">partners@newhomesolutions.co.uk</a>
+    &nbsp; · &nbsp;
+    <a href="nhs-portals-hub.html">Partners portals</a>
+  </div>
+</footer>
+
+<script>
+  // ───────────────────────────────────────────────────
+  // OS API configuration (issued to NHS — proxied for partners)
+  //   In production this should call an NHS-hosted proxy to:
+  //   (a) keep the key off the client
+  //   (b) apply per-partner rate limits
+  //   (c) log usage by partner
+  //   For this preview, the key is embedded for demo purposes only.
+  // ───────────────────────────────────────────────────
+  const OS_BASE = 'https://api.os.uk/search/places/v1';
+  const OS_KEY  = '5gc6m89L6DtmTg0A4cTfZzMaK0zHnfCd';
+
+  // ───────────────────────────────────────────────────
+  // EPC integration — LIVE via Cloudflare Worker
+  // ---------------------------------------------------
+  // Worker code: docs/epc-certificate/cloudflare-worker.js
+  // Worker proxies the MHCLG API (Bearer auth held server-side)
+  // and returns slim JSON with: rrn, uprn, address lines, postcode,
+  // council, currentEnergyBand, registrationDate, certUrl.
+  // ───────────────────────────────────────────────────
+  const EPC_LOOKUP_URL = 'https://nhs-epc-lookup.systemtest-827.workers.dev';
+
+  async function fetchEPCsByPostcode(postcode) {
+    try {
+      const r = await fetch(`${EPC_LOOKUP_URL}/?postcode=${encodeURIComponent(postcode)}`);
+      if (!r.ok) return [];
+      const data = await r.json();
+      return data.certs || [];
+    } catch (e) {
+      console.warn('EPC lookup failed:', e);
+      return [];
+    }
+  }
+
+  // Match OS Places row → EPC record. UPRN first, address tokens fallback.
+  function matchEPC(osRow, epcCerts) {
+    if (!osRow || !epcCerts || epcCerts.length === 0) return null;
+    const osUprn = osRow.UPRN ? String(osRow.UPRN) : null;
+    if (osUprn) {
+      const byUprn = epcCerts.find(c => c.uprn && String(c.uprn) === osUprn);
+      if (byUprn) return byUprn;
+    }
+    const osTokens = (osRow.ADDRESS || '').toUpperCase()
+      .replace(/,/g, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+    if (!osTokens.length) return null;
+    for (const c of epcCerts) {
+      const govTokens = [c.addressLine1, c.addressLine2, c.addressLine3, c.addressLine4]
+        .filter(Boolean).join(' ').toUpperCase()
+        .replace(/,/g, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+      if (!govTokens.length || govTokens[0] !== osTokens[0]) continue;
+      const overlap = osTokens.slice(1).filter(t => govTokens.includes(t)).length;
+      if (overlap >= 1) return c;
+    }
+    return null;
+  }
+
+  // ── EPC certificate lightbox ─────────────────────────────────
+  async function openEpcModal(rrn, addressFallback) {
+    if (!rrn) return;
+    $('epc-rrn').textContent = rrn;
+    $('epc-addr').textContent = addressFallback || '—';
+    $('epc-external').href = 'https://find-energy-certificate.service.gov.uk/energy-certificate/' + encodeURIComponent(rrn);
+    $('epc-body').innerHTML = '<div class="epc-loading">Loading certificate…</div>';
+    $('epc-modal').classList.add('open');
+
+    try {
+      const r = await fetch(EPC_LOOKUP_URL + '/?cert=' + encodeURIComponent(rrn));
+      if (!r.ok) {
+        $('epc-body').innerHTML = '<div class="epc-loading">Could not load certificate (HTTP ' + r.status + ')</div>';
+        return;
+      }
+      const cert = await r.json();
+      const fullAddr = [cert.addressLine1, cert.addressLine2, cert.postcode, cert.postTown]
+        .filter(Boolean).join(', ');
+      if (fullAddr) $('epc-addr').textContent = fullAddr;
+      $('epc-external').href = cert.certUrl;
+      $('epc-body').innerHTML = renderEpcCertificate(cert);
+    } catch (err) {
+      $('epc-body').innerHTML = '<div class="epc-loading">Could not load certificate · ' + err.message + '</div>';
+    }
+  }
+  function closeEpcModal() { $('epc-modal').classList.remove('open'); }
+
+  function renderEpcCertificate(cert) {
+    const cur = cert.currentEnergyBand || null;
+    const curScore = cert.currentEnergyScore;
+    const pot = cert.potentialEnergyBand || null;
+    const potScore = cert.potentialEnergyScore;
+
+    const bands = [
+      { letter: 'A', range: '92+'   },
+      { letter: 'B', range: '81-91' },
+      { letter: 'C', range: '69-80' },
+      { letter: 'D', range: '55-68' },
+      { letter: 'E', range: '39-54' },
+      { letter: 'F', range: '21-38' },
+      { letter: 'G', range: '1-20'  }
+    ];
+
+    let rows = '';
+    for (const b of bands) {
+      const isCurrent   = cur === b.letter;
+      const isPotential = pot === b.letter;
+      const cls = 'band-' + b.letter.toLowerCase();
+      rows += '<div class="lad-row ' + cls + '">'
+            + '<div class="col-score">' + b.range + '</div>'
+            + '<div class="col-rating"><div class="step">' + b.letter + '</div></div>'
+            + '<div class="col-current">'
+              + (isCurrent
+                ? '<span class="epc-arrow left ' + cls + '">' + (curScore != null ? curScore : '') + ' ' + b.letter + '</span>'
+                : '')
+            + '</div>'
+            + '<div class="col-potential">'
+              + (isPotential
+                ? '<span class="epc-arrow right ' + cls + '">' + (potScore != null ? potScore : '') + ' ' + b.letter + '</span>'
+                : '')
+            + '</div>'
+          + '</div>';
+    }
+
+    return '<div class="epc-col">'
+        + '<div class="epc-title">Energy efficiency rating</div>'
+        + '<div class="epc-ladder">'
+          + '<div class="lad-head">'
+            + '<div>Score</div>'
+            + '<div>Energy rating</div>'
+            + '<div>Current</div>'
+            + '<div>Potential</div>'
+          + '</div>'
+          + rows
+        + '</div>'
+      + '</div>'
+      + '<div class="epc-col">'
+        + '<div class="epc-title">Certificate details</div>'
+        + '<div class="epc-summary">'
+          + '<table><tbody>'
+            + summaryRow('Certificate (RRN)', cert.rrn || '—')
+            + summaryRow('UPRN', cert.uprn || '—')
+            + summaryRow('Property', cert.dwellingType || '—')
+            + summaryRow('Total floor area', cert.totalFloorArea != null ? cert.totalFloorArea + ' m²' : '—')
+            + summaryRow('Current rating', (cur || '?') + (curScore != null ? ' · ' + curScore + ' / 100' : ''))
+            + summaryRow('Potential rating', (pot || '?') + (potScore != null ? ' · ' + potScore + ' / 100' : ''))
+            + summaryRow('CO₂ emissions', (cert.co2Current ?? '—') + ' t/year · potential ' + (cert.co2Potential ?? '—'))
+            + summaryRow('Energy consumption', (cert.energyConsumptionCurrent ?? '—') + ' kWh/m²/yr · potential ' + (cert.energyConsumptionPotential ?? '—'))
+            + summaryRow('Environmental impact', (cert.envImpactCurrent ?? '—') + '/100 · potential ' + (cert.envImpactPotential ?? '—'))
+            + summaryRow('Inspection date', cert.inspectionDate || '—')
+            + summaryRow('Registered', cert.registrationDate || '—')
+            + summaryRow('Assessment', cert.assessmentType || '—')
+          + '</tbody></table>'
+        + '</div>'
+      + '</div>';
+  }
+  function summaryRow(label, value) {
+    return '<tr><th>' + label + '</th><td>' + escapeHtml(String(value)) + '</td></tr>';
+  }
+
+  // ── Ofcom Broadband — gauge + tier bars ──────────────────────
+  // Tiers per Ofcom Connected Nations basic data:
+  //   Bb   = Standard Broadband (< 30 Mbps)
+  //   Sfbb = Superfast Broadband (≥ 30 Mbps)
+  //   Ufbb = Ultrafast Broadband (≥ 300 Mbps)
+  //   Max  = Best available at the premises (any tier)
+  // A value of -1 means "no data". 0 also treated as N/A.
+  function renderBroadbandDetail(bb) {
+    if (!bb) return '';
+    const best = bbVal(bb.MaxPredictedDown);
+    const bestUp = bbVal(bb.MaxPredictedUp);
+    const tiers = [
+      { name: 'Standard',  hint: '< 30 Mbps',  down: bbVal(bb.MaxBbPredictedDown),   up: bbVal(bb.MaxBbPredictedUp),   capRef: 30 },
+      { name: 'Superfast', hint: '≥ 30 Mbps',  down: bbVal(bb.MaxSfbbPredictedDown), up: bbVal(bb.MaxSfbbPredictedUp), capRef: 300 },
+      { name: 'Ultrafast', hint: '≥ 300 Mbps', down: bbVal(bb.MaxUfbbPredictedDown), up: bbVal(bb.MaxUfbbPredictedUp), capRef: 5500 }
+    ];
+
+    let chipCls = 'red', chipTxt = 'Limited service';
+    if (best != null && best >= 300) { chipCls = 'green'; chipTxt = 'Ultrafast available'; }
+    else if (best != null && best >= 30) { chipCls = 'green'; chipTxt = 'Superfast available'; }
+    else if (best != null && best > 0)   { chipCls = 'amber'; chipTxt = 'Standard only'; }
+    else if (best == null) { chipCls = 'red'; chipTxt = 'No data'; }
+
+    const bestFmt = best != null ? formatSpeed(best) : { num: '—', unit: '' };
+    const bestUpFmt = bestUp != null ? formatSpeed(bestUp) : null;
+
+    // Find which tier is the "best" (highlight its bar)
+    const bestIdx = best != null
+      ? (best >= 300 ? 2 : (best >= 30 ? 1 : 0))
+      : -1;
+
+    let bars = '<div class="bb-tiers">';
+    tiers.forEach((t, i) => {
+      const has = t.down != null;
+      const isBest = (i === bestIdx);
+      // bar fill width — log scale across 1..5500 so superfast still reads
+      const widthPct = has ? Math.max(6, Math.min(100, logScalePct(t.down))) : 0;
+      bars += '<div class="bb-tier-row ' + (has ? 'has-coverage' : '') + (isBest ? ' is-best' : '') + '">'
+            +   '<div class="t-name">' + t.name + '<span class="t-hint">' + t.hint + '</span></div>'
+            +   '<div class="t-bar' + (has ? '' : ' empty') + '">'
+            +     (has ? '<div class="fill" style="width:' + widthPct.toFixed(0) + '%;"></div>' : '')
+            +   '</div>'
+            +   (has
+                  ? '<div class="t-num">' + speedNum(t.down) + ' <span class="dir">↓</span><span class="sep">/</span>' + speedNum(t.up) + ' <span class="dir">↑</span></div>'
+                  : '<div class="t-num muted">not available</div>')
+            + '</div>';
+    });
+    bars += '</div>';
+
+    const gauge = renderGauge(best);
+    const tierChip = '<div class="tier-chip ' + chipCls + '">'
+                   + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+                   + chipTxt + '</div>';
+
+    return '<div class="bb-shell">'
+         +   '<div>' + gauge
+         +     '<div class="bb-gauge-readout-wrap"></div>'
+         +   '</div>'
+         +   '<div class="bb-side">' + tierChip + bars
+         +     '<div class="cov-legend" style="margin-top:10px;">'
+         +       '<span class="src">Source · Ofcom Connected Nations · predicted maximums per tier</span>'
+         +     '</div>'
+         +   '</div>'
+         + '</div>';
+  }
+
+  // Normalise an Ofcom Mbps value: -1 / 0 / null all mean "no data" → null
+  function bbVal(v) {
+    if (v == null) return null;
+    const n = Number(v);
+    if (isNaN(n) || n <= 0) return null;
+    return n;
+  }
+  // Format speed for the gauge headline: 'value' + 'unit' split
+  function formatSpeed(mbps) {
+    if (mbps >= 1000) {
+      const g = mbps / 1000;
+      return { num: g.toFixed(g % 1 === 0 ? 0 : 1), unit: 'Gbps' };
+    }
+    if (mbps >= 10) return { num: Math.round(mbps).toString(), unit: 'Mbps' };
+    return { num: mbps.toFixed(1).replace(/\.0$/, ''), unit: 'Mbps' };
+  }
+  // Speed for a tier-row cell — compact, with unit suffix
+  function speedNum(mbps) {
+    if (mbps == null) return '—';
+    const f = formatSpeed(mbps);
+    return '<strong>' + f.num + '</strong><span style="color:var(--ink-soft);font-weight:500;font-size:10px;margin-left:2px;">' + f.unit + '</span>';
+  }
+  // Log scale 1..5500 → 0..100
+  function logScalePct(mbps) {
+    if (mbps == null || mbps <= 0) return 0;
+    const lo = Math.log10(1);     // 0
+    const hi = Math.log10(5500);  // ~3.74
+    return ((Math.log10(mbps) - lo) / (hi - lo)) * 100;
+  }
+
+  // ── Speedometer SVG ──────────────────────────────────────────
+  // Half-circle gauge: 0° = left (0 Mbps), 180° = right (5500+ Mbps)
+  // Three bands: red 0-30, amber 30-300, green 300-5500 (each spans 60°)
+  function renderGauge(maxDownMbps) {
+    const theta = gaugeAngleForSpeed(maxDownMbps);
+    const head = formatSpeed(maxDownMbps != null && maxDownMbps > 0 ? maxDownMbps : 0);
+    const hasData = (maxDownMbps != null && maxDownMbps > 0);
+    const cx = 100, cy = 100, r = 80, rInner = 60;
+    // arc-band paths
+    const bandPath = (from, to) => {
+      const a = arcPoint(from, r);
+      const b = arcPoint(to, r);
+      return 'M ' + a.x.toFixed(2) + ' ' + a.y.toFixed(2)
+           + ' A ' + r + ' ' + r + ' 0 0 1 ' + b.x.toFixed(2) + ' ' + b.y.toFixed(2);
+    };
+    // Needle: from (cx, cy) outward to arcPoint(theta, r-6)
+    const tip = arcPoint(theta, r - 6);
+
+    // Build the SVG as a self-contained string. We then encode it as a
+    // data: URL and emit an <img> tag — html2canvas captures images far more
+    // reliably than inline <svg> (which it serialises via foreignObject and
+    // frequently mis-sizes or skips entirely).
+    const svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="110" viewBox="0 0 200 110">'
+         +   '<path d="' + bandPath(0,   60)  + '" stroke="#E9153B" stroke-width="14" fill="none" stroke-linecap="butt"/>'
+         +   '<path d="' + bandPath(60,  120) + '" stroke="#FFD500" stroke-width="14" fill="none" stroke-linecap="butt"/>'
+         +   '<path d="' + bandPath(120, 180) + '" stroke="#19B459" stroke-width="14" fill="none" stroke-linecap="butt"/>'
+         +   tickMark(60, r) + tickMark(120, r)
+         +   (hasData
+              ? '<line x1="' + cx + '" y1="' + cy + '" x2="' + tip.x.toFixed(2) + '" y2="' + tip.y.toFixed(2) + '" stroke="' + needleColor(maxDownMbps) + '" stroke-width="3" stroke-linecap="round"/>'
+                + '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="' + needleColor(maxDownMbps) + '"/>'
+                + '<circle cx="' + cx + '" cy="' + cy + '" r="2.5" fill="#fff"/>'
+              : '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="#9AA8A2"/>')
+         + '</svg>';
+    const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+
+    return '<div class="bb-gauge">'
+         + '<img src="' + svgDataUrl + '" width="200" height="110" alt="Broadband speed gauge" style="display:block;width:100%;height:auto;max-width:200px;"/>'
+         + '<div class="gauge-labels"><span>0</span><span>30</span><span>300</span><span>5.5G</span></div>'
+         + '<div class="gauge-readout">'
+         +   '<div class="num">' + escapeHtml(head.num) + '<span class="unit">' + escapeHtml(head.unit) + '</span></div>'
+         +   (hasData && bbVal(maxDownMbps) != null
+              ? '<div class="sub"><span class="arrow">↓</span>download</div>'
+              : '<div class="sub">No coverage data</div>')
+         + '</div>'
+         + '</div>';
+  }
+  function tickMark(theta, r) {
+    const outer = arcPoint(theta, r + 8);
+    const inner = arcPoint(theta, r - 8);
+    return '<line x1="' + inner.x.toFixed(2) + '" y1="' + inner.y.toFixed(2)
+         + '" x2="' + outer.x.toFixed(2) + '" y2="' + outer.y.toFixed(2)
+         + '" stroke="#1F3D34" stroke-width="1.2" opacity="0.55"/>';
+  }
+  function arcPoint(thetaDeg, r) {
+    const t = thetaDeg * Math.PI / 180;
+    return { x: 100 - r * Math.cos(t), y: 100 - r * Math.sin(t) };
+  }
+  // 0 Mbps → 0°, 5500+ Mbps → 180°. Three bands of 60° each, linear inside each band.
+  function gaugeAngleForSpeed(mbps) {
+    if (mbps == null || mbps <= 0) return 0;
+    if (mbps < 30)  return (mbps / 30) * 60;
+    if (mbps < 300) return 60 + ((mbps - 30)  / (300 - 30))  * 60;
+    if (mbps < 5500) return 120 + ((mbps - 300) / (5500 - 300)) * 60;
+    return 180;
+  }
+  function needleColor(mbps) {
+    if (mbps == null || mbps <= 0) return '#9AA8A2';
+    if (mbps < 30)  return '#B8341F';
+    if (mbps < 300) return '#8E743A';
+    return '#053f34';
+  }
+
+  // ── Ofcom Mobile — brand-coloured operator cards ─────────────
+  function renderMobileDetail(m) {
+    if (!m) return '';
+    const nets = [
+      { code: 'EE', name: 'EE',       cls: 'ee' },
+      { code: 'H3', name: 'Three',    cls: 'h3' },
+      { code: 'TF', name: 'O2',       cls: 'tf' },
+      { code: 'VO', name: 'Vodafone', cls: 'vo' }
+    ];
+
+    // Build a card per operator
+    let grid = '<div class="mob-grid">';
+    for (const n of nets) {
+      const voIn  = pickScore(m[n.code + 'VoiceIndoor']);
+      const voOut = pickScore(m[n.code + 'VoiceOutdoor']);
+      const daIn  = pickScore(m[n.code + 'DataIndoor']);
+      const daOut = pickScore(m[n.code + 'DataOutdoor']);
+      const best  = Math.max(voIn, voOut, daIn, daOut);
+      grid += '<div class="mob-card">'
+            +   '<div class="brand ' + n.cls + '">'
+            +     '<span class="name">' + n.name + '</span>'
+            +     '<span class="best">' + scoreLabel(best).toUpperCase() + '</span>'
+            +   '</div>'
+            +   '<div class="body">'
+            +     '<span></span>'
+            +     '<span class="col-head">Indoor</span>'
+            +     '<span class="col-head">Outdoor</span>'
+            +     '<span class="row-head">Voice</span>'
+            +     '<span class="sig-cell">' + sigBars(voIn)  + '</span>'
+            +     '<span class="sig-cell">' + sigBars(voOut) + '</span>'
+            +     '<span class="row-head">Data</span>'
+            +     '<span class="sig-cell">' + sigBars(daIn)  + '</span>'
+            +     '<span class="sig-cell">' + sigBars(daOut) + '</span>'
+            +   '</div>'
+            + '</div>';
+    }
+    grid += '</div>';
+
+    return grid
+         + '<div class="cov-legend">'
+         +   '<span class="item"><span class="swatch" style="background:#19B459;"></span>4 strong</span>'
+         +   '<span class="item"><span class="swatch" style="background:#8DCE46;"></span>3 good</span>'
+         +   '<span class="item"><span class="swatch" style="background:#FFD500;"></span>2 variable</span>'
+         +   '<span class="item"><span class="swatch" style="background:#EF8023;"></span>1 poor</span>'
+         +   '<span class="item"><span class="swatch" style="background:#E9153B;"></span>0 none</span>'
+         +   '<span class="src">Source · Ofcom Mobile Checker · indoor + outdoor 4G predicted</span>'
+         + '</div>';
+  }
+  function pickScore(v) {
+    if (v == null) return 0;
+    const n = Number(v);
+    return isNaN(n) ? 0 : Math.max(0, Math.min(4, n));
+  }
+  function sigBars(score) {
+    const s = pickScore(score);
+    let out = '<span class="sigbars" data-score="' + s + '" title="' + s + ' / 4 · ' + scoreLabel(s) + '">';
+    for (let i = 1; i <= 4; i++) {
+      out += '<span class="bar b' + i + (i <= s ? ' on' : '') + '"></span>';
+    }
+    out += '</span>';
+    return out;
+  }
+  function scoreLabel(n) {
+    return ({ 0: 'none', 1: 'poor', 2: 'variable', 3: 'good', 4: 'strong' })[n] || '—';
+  }
+
+  // Render the EPC band pill (A-G) with gov.uk-style colour coding.
+  function epcPillHtml(epc) {
+    if (!epc || !epc.currentEnergyBand) return '<span class="epc-pill epc-none">—</span>';
+    const band = epc.currentEnergyBand.toUpperCase();
+    const cls = 'epc-' + band.toLowerCase();
+    const rrn = epc.rrn || '';
+    return '<button class="epc-pill ' + cls + '"'
+      + ' onclick="event.stopPropagation();openEpcModal(\'' + rrn + '\', \'\')"'
+      + ' title="EPC ' + band + ' · click for full certificate">' + band + '</button>';
+  }
+
+  // ───────────────────────────────────────────────────
+  // Ofcom Connected Nations — LIVE via Cloudflare Worker
+  // ---------------------------------------------------
+  // Worker code: docs/ofcom-coverage/cloudflare-worker.js
+  // Worker proxies api-proxy.ofcom.org.uk for broadband + mobile
+  // coverage by postcode. Subscription keys held server-side.
+  // Single round-trip returns both products in one payload.
+  // ───────────────────────────────────────────────────
+  const OFCOM_COVERAGE_URL = 'https://nhs-ofcom-coverage.systemtest-827.workers.dev';
+
+  async function fetchOfcomCoverage(postcode) {
+    try {
+      const r = await fetch(`${OFCOM_COVERAGE_URL}/?postcode=${encodeURIComponent(postcode)}&product=both`);
+      if (!r.ok) return { broadband: null, mobile: null };
+      const data = await r.json();
+      return {
+        broadband: data.broadband && !data.broadband.error ? data.broadband : null,
+        mobile:    data.mobile    && !data.mobile.error    ? data.mobile    : null
+      };
+    } catch (e) {
+      console.warn('Ofcom coverage lookup failed:', e);
+      return { broadband: null, mobile: null };
+    }
+  }
+
+  // Build UPRN→row maps so each OS Places feature can attach its own
+  // broadband + mobile record in O(1).
+  function indexCoverageByUprn(coverage) {
+    const idx = { broadband: new Map(), mobile: new Map() };
+    if (coverage.broadband?.Availability) {
+      for (const row of coverage.broadband.Availability) {
+        if (row.UPRN != null) idx.broadband.set(String(row.UPRN), row);
+      }
+    }
+    if (coverage.mobile?.Availability) {
+      for (const row of coverage.mobile.Availability) {
+        if (row.UPRN != null) idx.mobile.set(String(row.UPRN), row);
+      }
+    }
+    return idx;
+  }
+
+  // ───────────────────────────────────────────────────
+  // EPC integration plan (old TODO — kept for reference)
+  // ---------------------------------------------------
+  // gov.uk EPC certificate URLs use a Reference Number (RRN), not the
+  // address or UPRN. So we can't direct-link from our results today —
+  // hence the "Find on gov.uk" button which deep-links to a postcode
+  // pre-filled search page on gov.uk; the partner picks the right row
+  // and lands on the RRN page.
+  //
+  // To show the EPC rating INLINE per result, integrate the free
+  // EPC Open Data API (registration + email/token Basic Auth required):
+  //
+  //   GET https://epc.opendatacommunities.org/api/v1/domestic/search
+  //         ?postcode=UB2+4WQ&size=100
+  //   Headers:
+  //     Accept: application/json
+  //     Authorization: Basic <base64(email:token)>
+  //
+  //   Returns one row per certificate including:
+  //     lmk-key                  ← THE RRN ("2150-3530-1169-1529-8222")
+  //     address1, address2, address3, postcode
+  //     uprn                     ← available for ~2018+ records
+  //     current-energy-rating    ← A-G
+  //     current-energy-efficiency
+  //     potential-energy-rating
+  //     inspection-date
+  //
+  //   Cert URL: https://find-energy-certificate.service.gov.uk/energy-certificate/{lmk-key}
+  //
+  // Implementation:
+  //   1. After OS Places returns N addresses for a postcode, fire ONE EPC
+  //      API call for the same postcode (returns all certs).
+  //   2. Match each OS row to an EPC row by UPRN if both have it, else by
+  //      normalised address line.
+  //   3. Render the EPC rating pill (A=green … G=red) inline on each row,
+  //      with a direct cert link via the RRN URL.
+  //   4. Cache the response per postcode for ~24h to stay within quota.
+  //
+  // Must run server-side (Apex callout) — the EPC API CORS doesn't allow
+  // file:// or arbitrary partner origins.
+  // ───────────────────────────────────────────────────
+
+  function $(id) { return document.getElementById(id); }
+
+  function setAndSearch(pc) { $('pc-input').value = pc; runSearch(); }
+
+  function classificationPill(code) {
+    if (!code) return '<span class="clf-pill other">No class.</span>';
+    const c = code.toUpperCase();
+    const family = c.charAt(0);
+    let cls = 'other', label = 'Other';
+    if (family === 'R')      { cls = 'r'; label = 'Residential'; }
+    else if (family === 'L') { cls = 'r'; label = 'Dwelling land'; }
+    else if (family === 'C') { cls = 'c'; label = 'Commercial'; }
+    else if (family === 'M') { cls = 'c'; label = 'Mixed use'; }
+    else if (family === 'X' || family === 'O') { cls = 'x'; label = 'Other'; }
+    return '<span class="clf-pill ' + cls + '" title="' + c + '">' + label + '</span>';
+  }
+
+  async function runSearch() {
+    const pc = $('pc-input').value.trim().toUpperCase();
+    if (!pc) return;
+    // If the detail page is open from a previous search, return to the list
+    // before the new results land — keeps the page state predictable.
+    closeDetail();
+    setLoading(true);
+
+    const url = OS_BASE + '/postcode?postcode=' + encodeURIComponent(pc)
+              + '&output_srs=EPSG:4326&maxresults=100&key=' + encodeURIComponent(OS_KEY);
+
+    const t0 = performance.now();
+    try {
+      // Fire OS Places + EPC Worker + Ofcom Coverage Worker in parallel
+      const [res, epcCerts, ofcom] = await Promise.all([
+        fetch(url, { headers: { Accept: 'application/json' } }),
+        fetchEPCsByPostcode(pc),
+        fetchOfcomCoverage(pc)
+      ]);
+      const elapsed = Math.round(performance.now() - t0);
+      const raw = await res.json();
+
+      if (!res.ok) {
+        renderEmpty('error', 'Lookup failed',
+          'OS returned HTTP ' + res.status + '. ' + (raw.error?.message || raw.message || res.statusText) + '.');
+        return;
+      }
+      const features = (raw.results || []).map(r => r.DPA || r.LPI).filter(Boolean);
+      if (features.length === 0) {
+        renderEmpty('empty', 'No addresses found',
+          'That postcode is recognised but returned no addresses — likely a new-build registered too recently for AddressBase, or a postcode boundary we don\'t cover yet.');
+        return;
+      }
+      // Attach the matched EPC + Ofcom coverage records (if any) to each row
+      const ofcomIdx = indexCoverageByUprn(ofcom);
+      features.forEach(f => {
+        f._epc = matchEPC(f, epcCerts);
+        const uprnKey = f.UPRN ? String(f.UPRN) : null;
+        f._broadband = uprnKey ? (ofcomIdx.broadband.get(uprnKey) || null) : null;
+        f._mobile    = uprnKey ? (ofcomIdx.mobile.get(uprnKey)    || null) : null;
+      });
+      window.__searchResults = features;
+      window.__epcCerts = epcCerts;
+      renderResults(features, pc, elapsed);
+    } catch (err) {
+      renderEmpty('error', 'Something went wrong',
+        'Could not reach the address lookup service. Check your connection and try again. (' + err.message + ')');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function setLoading(busy) {
+    const btn = $('search-btn');
+    btn.disabled = busy;
+    btn.innerHTML = busy
+      ? '<div class="spinner"></div><span>Searching…</span>'
+      : '<span>Find addresses</span>';
+  }
+
+  // ── View mode (list | card) — persisted in localStorage ──
+  let _viewMode = localStorage.getItem('nhs-af-view') || 'list';
+
+  function setViewMode(mode) {
+    _viewMode = mode;
+    localStorage.setItem('nhs-af-view', mode);
+    if (window.__searchResults && window.__lastSearchMeta) {
+      renderResults(window.__searchResults, window.__lastSearchMeta.pc, window.__lastSearchMeta.ms);
+    }
+  }
+
+  function viewSwitchHtml() {
+    const isCard = _viewMode === 'card';
+    return '<div class="view-switch">'
+         + '<button class="' + (!isCard ? 'active' : '') + '" onclick="setViewMode(\'list\')">'
+           + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>'
+           + 'List</button>'
+         + '<button class="' + (isCard ? 'active' : '') + '" onclick="setViewMode(\'card\')">'
+           + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>'
+           + 'Cards</button>'
+         + '</div>';
+  }
+
+  // Build the three property-portal URLs from a postcode.
+  // Rightmove's old ?searchLocation=… find.html route now 404s — switched
+  // to their /property-for-sale/POSTCODE.html pattern which still resolves
+  // (Rightmove's client-side JS reads the URL slug, calls their typeahead
+  // and renders the listings).
+  function portalUrls(pc) {
+    const enc        = encodeURIComponent(pc.trim());
+    const slugUpper  = pc.trim().toUpperCase().replace(/\s+/g, '-');
+    const slugLower  = pc.trim().toLowerCase().replace(/\s+/g, '-');
+    return {
+      rightmove:   'https://www.rightmove.co.uk/property-for-sale/' + slugUpper + '.html',
+      zoopla:      'https://www.zoopla.co.uk/for-sale/property/' + slugLower + '/?q=' + enc + '&search_source=for-sale',
+      onthemarket: 'https://www.onthemarket.com/for-sale/property/' + slugLower + '/?view=map-list'
+    };
+  }
+
+  function portalStripHtml(pc) {
+    const u = portalUrls(pc);
+    const ext = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"/></svg>';
+    return '<div class="portal-strip">'
+      + '<span class="ps-label">Also browse listings for<span class="pc-chip">' + escapeHtml(pc) + '</span></span>'
+      + '<div class="ps-btns">'
+        + '<a class="ps-btn rightmove" href="' + u.rightmove + '" target="_blank" rel="noopener"><span class="dot"></span>Rightmove' + ext + '</a>'
+        + '<a class="ps-btn zoopla" href="' + u.zoopla + '" target="_blank" rel="noopener"><span class="dot"></span>Zoopla' + ext + '</a>'
+        + '<a class="ps-btn onthemarket" href="' + u.onthemarket + '" target="_blank" rel="noopener"><span class="dot"></span>OnTheMarket' + ext + '</a>'
+      + '</div>'
+    + '</div>';
+  }
+
+  function renderResults(features, pc, elapsedMs) {
+    window.__lastSearchMeta = { pc, ms: elapsedMs };
+    const isCard = _viewMode === 'card';
+
+    if (isCard) {
+      // ─── CARD VIEW ────────────────────────────────────
+      let html = portalStripHtml(pc) + '<div class="results-cards-head">'
+               + '<div class="left">'
+                 + '<h2>Results <span class="count">' + features.length + '</span></h2>'
+                 + '<div class="meta">Postcode <strong>' + escapeHtml(pc) + '</strong> · returned in ' + elapsedMs + ' ms · click any card to view on map</div>'
+               + '</div>'
+               + viewSwitchHtml()
+             + '</div>'
+             + '<div class="cards-grid">';
+
+      features.forEach((f, i) => {
+        const hasCoords = (f.LAT != null && f.LNG != null && f.LAT !== 0 && f.LNG !== 0);
+        const coordsTxt = hasCoords ? (f.LAT.toFixed(6) + ', ' + f.LNG.toFixed(6)) : 'Coords unavailable';
+
+        html += '<div class="addr-card" onclick="openDetail(' + i + ')">'
+              + '<div class="top-row">'
+                + '<span class="uprn-pill"><span class="lbl">UPRN</span>' + (f.UPRN || '—') + '</span>'
+                + '<span style="display:inline-flex;gap:6px;align-items:center;">'
+                  + epcPillHtml(f._epc)
+                  + classificationPill(f.CLASSIFICATION_CODE)
+                + '</span>'
+              + '</div>'
+              + '<div class="addr-line">' + escapeHtml(f.ADDRESS || '—') + '</div>'
+              + '<div class="coords-line">' + coordsTxt + '</div>'
+              + '<div class="actions" onclick="event.stopPropagation()">'
+                + (hasCoords
+                  ? '<button class="btn-map" onclick="openMapByIndex(' + i + ')">'
+                    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 00-8 8c0 5.5 7.5 12 7.5 12s.5 0 1 0c0 0 7.5-6.5 7.5-12a8 8 0 00-8-8z"/><circle cx="12" cy="10" r="3"/></svg>'
+                    + 'View map</button>'
+                  : '<button class="btn-map" disabled style="opacity:0.5;cursor:not-allowed;">No coords</button>')
+                + '<button class="btn-copy" data-copy="' + escapeHtml(f.ADDRESS || '') + '" onclick="handleCopyClick(this, event)">'
+                  + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'
+                  + 'Copy</button>'
+              + '</div>'
+              + '</div>';
+      });
+      html += '</div>';
+      $('results-body').innerHTML = html;
+      return;
+    }
+
+    // ─── LIST VIEW (table) ───────────────────────────
+    let html = portalStripHtml(pc) + '<div class="results-table-wrap">'
+             + '<div class="results-table-head">'
+               + '<div>'
+                 + '<h2>'
+                   + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>'
+                   + 'Results'
+                 + '</h2>'
+                 + '<div class="count-meta"><strong>' + features.length + ' addresses</strong> for <strong>' + escapeHtml(pc) + '</strong> · ' + elapsedMs + ' ms · click any row for full details</div>'
+               + '</div>'
+               + viewSwitchHtml()
+             + '</div>'
+             + '<div class="results-table-scroll">'
+             + '<table class="results-table">'
+               + '<thead><tr>'
+                 + '<th class="col-num">#</th>'
+                 + '<th>UPRN</th>'
+                 + '<th>Address</th>'
+                 + '<th>Class.</th>'
+                 + '<th>EPC</th>'
+                 + '<th>Building</th>'
+                 + '<th>Thoroughfare</th>'
+                 + '<th>Post-town</th>'
+                 + '<th>Latitude</th>'
+                 + '<th>Longitude</th>'
+                 + '<th>Match</th>'
+                 + '<th class="col-chevron"></th>'
+               + '</tr></thead>'
+               + '<tbody>';
+
+    features.forEach((f, i) => {
+      const hasCoords = (f.LAT != null && f.LNG != null && f.LAT !== 0 && f.LNG !== 0);
+      html += '<tr onclick="openDetail(' + i + ')">'
+            + '<td class="col-num">' + (i + 1) + '</td>'
+            + '<td class="col-uprn">' + (f.UPRN || '—') + '</td>'
+            + '<td class="col-addr">' + escapeHtml(f.ADDRESS || '—') + '</td>'
+            + '<td class="col-class">' + classificationPill(f.CLASSIFICATION_CODE) + '</td>'
+            + '<td>' + epcPillHtml(f._epc) + '</td>'
+            + '<td>' + escapeHtml(f.BUILDING_NUMBER || f.BUILDING_NAME || '—') + '</td>'
+            + '<td>' + escapeHtml(f.THOROUGHFARE_NAME || '—') + '</td>'
+            + '<td>' + escapeHtml(f.POST_TOWN || '—') + '</td>'
+            + '<td class="col-coord">' + (hasCoords ? f.LAT.toFixed(6) : '—') + '</td>'
+            + '<td class="col-coord">' + (hasCoords ? f.LNG.toFixed(6) : '—') + '</td>'
+            + '<td class="col-match">' + (f.MATCH != null ? f.MATCH.toFixed(2) : '—') + '</td>'
+            + '<td class="col-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></td>'
+            + '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+    $('results-body').innerHTML = html;
+  }
+
+  // ── Detail "page" — opens when a row is clicked ──────
+  function openDetail(i) {
+    const f = (window.__searchResults || [])[i];
+    if (!f) return;
+    const hasCoords = (f.LAT != null && f.LNG != null && f.LAT !== 0 && f.LNG !== 0);
+    const lat = hasCoords ? f.LAT : null;
+    const lng = hasCoords ? f.LNG : null;
+    const coordsTxt = hasCoords ? (lat.toFixed(6) + ', ' + lng.toFixed(6)) : 'Unavailable';
+    const fullAddr = f.ADDRESS || '—';
+    const addrNoPC = (f.POSTCODE && fullAddr.endsWith(f.POSTCODE))
+      ? fullAddr.slice(0, -f.POSTCODE.length).replace(/,\s*$/, '').trim()
+      : fullAddr;
+
+    let html = '<div class="result-card expanded" data-index="' + i + '">'
+      // ── HEADER ──
+      + '<div class="result-head" style="cursor:default">'
+        + '<div class="ico-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg></div>'
+        + '<div class="head-text">'
+          + '<div class="head-line-1">' + escapeHtml(addrNoPC || fullAddr) + '</div>'
+          + '<div class="head-line-2">'
+            + '<span class="uprn-tag" data-copy="' + escapeHtml(f.UPRN || '') + '" onclick="handleCopyClick(this, event)" title="Click to copy UPRN">'
+              + '<span class="uprn-prefix">UPRN</span>' + (f.UPRN || '—')
+              + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'
+            + '</span>'
+          + '</div>'
+        + '</div>'
+        + (f.POSTCODE ? '<span class="postcode">' + escapeHtml(f.POSTCODE) + '</span>' : '')
+        + classificationPill(f.CLASSIFICATION_CODE)
+        + '<span></span>'
+      + '</div>'
+
+      // ── 6 sub-rows ──
+      + '<div class="result-rows">'
+
+        // UPRN
+        + '<div class="result-row">'
+          + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 12h10M7 17h6"/></svg></div>'
+          + '<div class="rl-label">UPRN</div>'
+          + '<div class="rl-value mono">' + (f.UPRN || '—') + '</div>'
+          + '<button class="rl-action secondary" data-copy="' + escapeHtml(f.UPRN || '') + '" onclick="handleCopyClick(this, event)">'
+            + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'
+            + 'Copy</button>'
+        + '</div>'
+
+        // Map view
+        + '<div class="result-row">'
+          + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>'
+          + '<div class="rl-label">Map view</div>'
+          + '<div class="rl-value">' + (hasCoords ? 'OS Maps · Road / Outdoor / Light' : 'Unavailable — no coords') + '</div>'
+          + (hasCoords
+            ? '<button class="rl-action" onclick="openMapByIndex(' + i + ')">'
+              + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 00-8 8c0 5.5 7.5 12 7.5 12s.5 0 1 0c0 0 7.5-6.5 7.5-12a8 8 0 00-8-8z"/><circle cx="12" cy="10" r="3"/></svg>'
+              + 'Open map</button>'
+            : '<span></span>')
+        + '</div>'
+
+        // Street view (opens lightbox modal)
+        + '<div class="result-row">'
+          + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M5.5 21a6.5 6.5 0 0113 0"/><path d="M3 12a9 9 0 0118 0"/><path d="M21 12a9 9 0 00-18 0"/></svg></div>'
+          + '<div class="rl-label">Street view</div>'
+          + '<div class="rl-value">' + (hasCoords ? 'Google Street View · 360° pano' : 'Unavailable — no coords') + '</div>'
+          + (hasCoords
+            ? '<button class="rl-action" onclick="openStreetView(' + i + ')">'
+              + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg>'
+              + 'Open Street View</button>'
+            : '<span></span>')
+        + '</div>'
+
+        // Coordinates
+        + '<div class="result-row">'
+          + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></div>'
+          + '<div class="rl-label">Coordinates</div>'
+          + '<div class="rl-value mono">' + coordsTxt + '</div>'
+          + (hasCoords
+            ? '<button class="rl-action secondary" data-copy="' + escapeHtml(coordsTxt) + '" onclick="handleCopyClick(this, event)">'
+              + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'
+              + 'Copy</button>'
+            : '<span></span>')
+        + '</div>'
+
+        // EPC — matched against the MHCLG API via our Cloudflare Worker
+        + (f._epc
+          ? '<div class="result-row">'
+              + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>'
+              + '<div class="rl-label">EPC rating</div>'
+              + '<div class="rl-value" style="display:flex;align-items:center;gap:10px;">'
+                + epcPillHtml(f._epc)
+                + '<span>Band <strong>' + (f._epc.currentEnergyBand || '?') + '</strong> · registered ' + (f._epc.registrationDate || '—') + '</span>'
+              + '</div>'
+              + '<button class="rl-action" onclick="openEpcModal(\'' + (f._epc.rrn || '') + '\', \'' + escapeHtml((f.ADDRESS || '').replace(/\'/g, '')) + '\')">'
+                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>'
+                + 'View certificate</button>'
+            + '</div>'
+          : '<div class="result-row pending">'
+              + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>'
+              + '<div class="rl-label">EPC rating</div>'
+              + '<div class="rl-value">No EPC found for this UPRN · property may be new-build or unrated</div>'
+              + (f.POSTCODE
+                ? '<a class="rl-action secondary" href="https://find-energy-certificate.service.gov.uk/find-a-certificate/search-by-postcode?postcode=' + encodeURIComponent(f.POSTCODE) + '" target="_blank" rel="noopener" style="text-decoration:none;">'
+                  + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"/></svg>'
+                  + 'Search gov.uk</a>'
+                : '<span></span>')
+            + '</div>')
+
+        // Council (from EPC record)
+        + '<div class="result-row">'
+          + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/><path d="M3 10l9-5 9 5"/></svg></div>'
+          + '<div class="rl-label">Council</div>'
+          + '<div class="rl-value">' + escapeHtml(f._epc?.council || '—') + '</div>'
+          + '<span></span>'
+        + '</div>'
+
+        // Constituency (from EPC record)
+        + '<div class="result-row">'
+          + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>'
+          + '<div class="rl-label">Constituency</div>'
+          + '<div class="rl-value">' + escapeHtml(f._epc?.constituency || '—') + '</div>'
+          + '<span></span>'
+        + '</div>'
+
+        // Broadband — LIVE via Ofcom Connected Nations Worker
+        + (f._broadband
+          ? '<div class="result-row coverage">'
+              + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div>'
+              + '<div class="rl-label">Broadband<br/>coverage</div>'
+              + '<div class="rl-value">' + renderBroadbandDetail(f._broadband) + '</div>'
+              + '<span></span>'
+            + '</div>'
+          : '<div class="result-row pending">'
+              + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div>'
+              + '<div class="rl-label">Broadband coverage</div>'
+              + '<div class="rl-value">No Ofcom record for this UPRN</div>'
+              + '<span></span>'
+            + '</div>')
+
+        // Mobile — LIVE via Ofcom Connected Nations Worker
+        + (f._mobile
+          ? '<div class="result-row coverage">'
+              + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>'
+              + '<div class="rl-label">Mobile<br/>coverage</div>'
+              + '<div class="rl-value">' + renderMobileDetail(f._mobile) + '</div>'
+              + '<span></span>'
+            + '</div>'
+          : '<div class="result-row pending">'
+              + '<div class="rl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>'
+              + '<div class="rl-label">Mobile coverage</div>'
+              + '<div class="rl-value">No Ofcom record for this UPRN</div>'
+              + '<span></span>'
+            + '</div>')
+
+      + '</div>'  // .result-rows
+    + '</div>';   // .result-card
+
+    // Append the property-portal quick-links strip below the detail card
+    const pcForPortals = f.POSTCODE || (window.__lastSearchMeta && window.__lastSearchMeta.pc) || '';
+    if (pcForPortals) html += '<div style="margin-top:16px;">' + portalStripHtml(pcForPortals) + '</div>';
+
+    $('detail-body').innerHTML = html;
+    $('results-section').classList.add('detail-mode');
+    $('detail-view').classList.add('active');
+    window.__detailIndex = i;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function closeDetail() {
+    window.__detailIndex = null;
+    $('detail-view').classList.remove('active');
+    $('results-section').classList.remove('detail-mode');
+    $('detail-body').innerHTML = '';
+  }
+
+  // ── Generate Report — downloads a real NHS-branded PDF file ────
+  // Renders the report off-screen in the current page, waits for OS map
+  // tiles to load, then uses html2pdf (html2canvas + jsPDF) to produce a
+  // proper downloadable PDF — not a print dialog.
+  async function generateReport() {
+    const i = window.__detailIndex;
+    const f = (window.__searchResults || [])[i];
+    if (!f) {
+      alert('Open a property first, then click Generate Report.');
+      return;
+    }
+    if (typeof html2canvas === 'undefined' || !window.jspdf || !window.jspdf.jsPDF) {
+      alert('PDF libraries failed to load — check your internet connection and try again.');
+      return;
+    }
+
+    const btn = document.getElementById('generate-report-btn');
+    const origHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="gr-spin"></span> Building PDF…';
+    }
+
+    let host = null;
+    let reportMap = null;
+
+    try {
+      // Fetch the full EPC certificate (for the band ladder) if available
+      let epcFull = null;
+      if (f._epc && f._epc.rrn) {
+        try {
+          const r = await fetch(EPC_LOOKUP_URL + '/?cert=' + encodeURIComponent(f._epc.rrn));
+          if (r.ok) epcFull = await r.json();
+        } catch (e) { /* keep going without full cert */ }
+      }
+
+      // Inject the report-only CSS once per session
+      if (!document.getElementById('report-css-inject')) {
+        const s = document.createElement('style');
+        s.id = 'report-css-inject';
+        s.textContent = REPORT_CSS;
+        document.head.appendChild(s);
+      }
+
+      // Render host sits in the visible viewport (top-left) so html2canvas
+      // gets accurate measurements, but is made invisible via opacity:0 +
+      // pointer-events:none. Width = full A4 (210 mm) because each captured
+      // .rpt-pdf-page is sized to A4 and placed 1:1 in the PDF.
+      host = document.createElement('div');
+      host.className = 'rpt-render-host';
+      host.style.cssText = 'position:fixed;top:0;left:0;width:210mm;background:#fff;'
+                         + 'opacity:0;pointer-events:none;z-index:-1;'
+                         + 'overflow:visible;';
+      host.innerHTML = buildReportInnerHTML(f, epcFull);
+      document.body.appendChild(host);
+
+      // Init Leaflet inside the host so the map renders for the canvas pass
+      const lat = f.LAT, lng = f.LNG;
+      const hasCoords = (lat != null && lng != null && lat !== 0 && lng !== 0);
+      if (hasCoords) {
+        const mapEl = host.querySelector('#rpt-map');
+        if (mapEl) {
+          reportMap = L.map(mapEl, {
+            zoomControl: false, attributionControl: true,
+            dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
+            touchZoom: false, keyboard: false
+          }).setView([lat, lng], 18);
+          const tileLayer = L.tileLayer(osTileUrl('Road'), {
+            maxZoom: 19,
+            crossOrigin: 'anonymous',
+            attribution: '© Crown copyright ' + (new Date().getFullYear()) + ' OS · OS Maps API'
+          }).addTo(reportMap);
+          L.marker([lat, lng]).addTo(reportMap);
+          // Wait for the tile layer to finish loading, with a 3.5s safety net
+          await new Promise(resolve => {
+            let done = false;
+            const finish = () => { if (!done) { done = true; setTimeout(resolve, 250); } };
+            tileLayer.on('load', finish);
+            setTimeout(finish, 3500);
+            setTimeout(() => reportMap.invalidateSize(), 60);
+          });
+        }
+      }
+
+      // Filename: NHS_Property_Report_<sanitised address>_<UPRN>.pdf
+      const safeAddr = (f.ADDRESS || 'property').replace(/[^\w-]+/g, '_').replace(/_+/g, '_').slice(0, 60);
+      const filename = 'NHS_Property_Report_' + safeAddr + (f.UPRN ? '_' + f.UPRN : '') + '.pdf';
+
+      // ── Manual per-page assembly ──
+      // html2pdf's pagebreak heuristics produced unreliable results (content
+      // pushed to bottom of page 1, tables splitting mid-row, sections lost).
+      // Instead, render each .rpt-pdf-page to its own canvas → its own PDF page,
+      // using html2canvas + jsPDF directly (loaded as separate CDN scripts).
+      const JsPDF = window.jspdf.jsPDF;
+      const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+
+      const pageNodes = host.querySelectorAll('.rpt-pdf-page');
+      for (let i = 0; i < pageNodes.length; i++) {
+        // scale: 3 → ~288 DPI (print-grade). JPEG was softening text edges;
+        // PNG is lossless so type, lines and brand colours render crisply.
+        const canvas = await html2canvas(pageNodes[i], {
+          scale: 3,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+        const imgData = canvas.toDataURL('image/png');
+
+        // A4 = 210 × 297 mm. Each .rpt-pdf-page is sized to A4, so we place
+        // the captured image at (0, 0) and let it occupy the full page.
+        const pdfW = 210;
+        const pdfH = 297;
+        const imgH = canvas.height * pdfW / canvas.width;
+
+        if (i > 0) pdf.addPage();
+        // The last arg ('FAST') is jsPDF\'s PNG compression mode — keeps file
+        // size sane on a 4-page report without re-encoding pixels.
+        if (imgH <= pdfH) {
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfW, imgH, undefined, 'FAST');
+        } else {
+          // overflow — scale image down so the whole page fits
+          const scaledW = pdfH * canvas.width / canvas.height;
+          const xOffset = (pdfW - scaledW) / 2;
+          pdf.addImage(imgData, 'PNG', xOffset, 0, scaledW, pdfH, undefined, 'FAST');
+        }
+      }
+      pdf.save(filename);
+    } catch (e) {
+      console.error('Report generation failed:', e);
+      alert('Could not generate the PDF — ' + (e && e.message ? e.message : 'unknown error'));
+    } finally {
+      if (reportMap) { try { reportMap.remove(); } catch (e) {} }
+      if (host && host.parentNode) host.parentNode.removeChild(host);
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
+    }
+  }
+
+  // Returns just the inner DOM of the report (a single <div class="rpt-page">…</div>).
+  // The host page injects REPORT_CSS once and embeds this in an off-screen container.
+  function buildReportInnerHTML(f, epcFull) {
+    const fullAddr = f.ADDRESS || '—';
+    const postcode = f.POSTCODE || '';
+    const addrNoPC = (postcode && fullAddr.endsWith(postcode))
+      ? fullAddr.slice(0, -postcode.length).replace(/,\s*$/, '').trim()
+      : fullAddr;
+    const lat = f.LAT, lng = f.LNG;
+    const hasCoords = (lat != null && lng != null && lat !== 0 && lng !== 0);
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', { year:'numeric', month:'long', day:'numeric' });
+    const timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    const classCode = (f.CLASSIFICATION_CODE || '').toUpperCase();
+    const classLabel = classCode ? classCode + ' · ' + classificationName(classCode) : '—';
+
+    // Pull the main page's full CSS for visual consistency; add print-specific overrides on top.
+    const baseCSS = Array.from(document.querySelectorAll('style')).map(s => s.textContent).join('\n');
+
+    const epcSection  = renderReportEpcSection(f._epc, epcFull);
+    const bbSection   = f._broadband
+      ? renderBroadbandDetail(f._broadband)
+      : '<p class="rpt-empty">No Ofcom broadband record on file for this UPRN.</p>';
+    const mobSection  = f._mobile
+      ? renderMobileDetail(f._mobile)
+      : '<p class="rpt-empty">No Ofcom mobile record on file for this UPRN.</p>';
+
+    const mapBlock = hasCoords
+      ? '<div id="rpt-map" style="width:100%;height:300px;border-radius:10px;overflow:hidden;border:1px solid var(--nhs-border);background:var(--nhs-pale-2);"></div>'
+        + '<div class="rpt-coords">'
+        +   '<span class="lbl">Coordinates</span>'
+        +   '<span class="val">' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</span>'
+        +   '<span class="src">EPSG:4326 · sourced from OS Places API</span>'
+        + '</div>'
+      : '<p class="rpt-empty">No coordinates available for this UPRN.</p>';
+
+    // baseCSS is referenced earlier — keep var alive (used previously to embed
+    // styles in a new tab; now we embed them via REPORT_CSS into the host page).
+    void baseCSS;
+
+    // Section label helper — sage tint pill (per brand spec §4 section label)
+    const sectionLabel = function(txt) {
+      return '<div class="rpt-section-label">' + escapeHtml(txt) + '</div>';
+    };
+
+    // Each page is rendered to its own canvas → its own PDF page. This is
+    // the only reliable way to control pagination — html2pdf's heuristics
+    // (avoid-all / css / legacy) fight CSS rules and split tables mid-row.
+    const NUM_PAGES = 4;
+
+    // Repeated chrome — sage header bar + accent stripe (per brand spec §3)
+    const pageHeader = ''
+      + '<div class="rpt-header-bar">'
+      +   '<div class="nhs-logo">NEW HOME SOLUTIONS</div>'
+      +   '<div class="rpt-doc-meta">'
+      +     '<div class="doc-type">Property Report</div>'
+      +     '<div class="doc-when">' + dateStr + ' · ' + timeStr + '</div>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="rpt-accent-stripe"></div>';
+
+    // Footer at bottom of every page — branded with page X of N
+    const pageFooter = function(pageNo) {
+      return ''
+        + '<div class="rpt-footer-bar">'
+        +   '<div class="ft-line"><span class="ft-tree">P: SAVE THE TREES</span> — Think before you print &nbsp;·&nbsp; '
+        +     '<span class="ft-page">Page ' + pageNo + ' of ' + NUM_PAGES + '</span></div>'
+        +   '<div class="ft-line">© New Home Solutions Ltd · Unit 3 Hepton Court, York Road, Leeds LS9 6PW · Company No. 7970313 &nbsp;·&nbsp; Sources: Ordnance Survey · MHCLG · Ofcom Connected Nations</div>'
+        + '</div>';
+    };
+
+    // Wrap body content in a single A4-sized page (chrome + body + footer).
+    const wrapPage = function(pageNo, bodyHtml) {
+      return ''
+        + '<div class="rpt-pdf-page" data-page="' + pageNo + '">'
+        +   pageHeader
+        +   '<div class="rpt-body-inner">' + bodyHtml + '</div>'
+        +   pageFooter(pageNo)
+        + '</div>';
+    };
+
+    // PAGE 1 — Address · Identity table · Section 01 Location
+    const page1Body = ''
+      + '<div class="rpt-addr-block">'
+      +   '<div class="rpt-addr">' + escapeHtml(addrNoPC || fullAddr) + '</div>'
+      +   (postcode ? '<div class="rpt-postcode">' + escapeHtml(postcode) + '</div>' : '')
+      + '</div>'
+      + '<table class="rpt-id-table" cellpadding="0" cellspacing="0">'
+      +   '<thead><tr><th colspan="2">Property Identity</th></tr></thead>'
+      +   '<tbody>'
+      +     idRow('UPRN', f.UPRN || '—', 'mono')
+      +     idRow('Postcode', postcode || '—', 'mono')
+      +     idRow('Classification', classLabel, '')
+      +     idRow('Geographic centroid (WGS84)', hasCoords ? (lat.toFixed(6) + ', ' + lng.toFixed(6)) : '—', 'mono')
+      +   '</tbody>'
+      + '</table>'
+      + '<section class="rpt-section">'
+      +   sectionLabel('Section 01 · Location')
+      +   '<h2 class="rpt-section-h">Location</h2>'
+      +   mapBlock
+      + '</section>';
+
+    // PAGE 2 — Section 02 Energy
+    const page2Body = ''
+      + '<section class="rpt-section">'
+      +   sectionLabel('Section 02 · Energy')
+      +   '<h2 class="rpt-section-h">Energy Performance Certificate</h2>'
+      +   epcSection
+      + '</section>';
+
+    // PAGE 3 — Section 03 Broadband
+    const page3Body = ''
+      + '<section class="rpt-section">'
+      +   sectionLabel('Section 03 · Connectivity')
+      +   '<h2 class="rpt-section-h">Broadband coverage</h2>'
+      +   bbSection
+      + '</section>';
+
+    // PAGE 4 — Section 04 Mobile
+    const page4Body = ''
+      + '<section class="rpt-section">'
+      +   sectionLabel('Section 04 · Connectivity')
+      +   '<h2 class="rpt-section-h">Mobile coverage</h2>'
+      +   mobSection
+      + '</section>';
+
+    return ''
+      + '<div class="rpt-page">'
+      +   wrapPage(1, page1Body)
+      +   wrapPage(2, page2Body)
+      +   wrapPage(3, page3Body)
+      +   wrapPage(4, page4Body)
+      + '</div>';
+  }
+
+  // Brand-spec identity-table row (label cell sage tint · value cell white)
+  function idRow(label, value, valueCls) {
+    return '<tr>'
+      +   '<td class="lbl">' + escapeHtml(label) + '</td>'
+      +   '<td class="val' + (valueCls ? ' ' + valueCls : '') + '">' + escapeHtml(String(value)) + '</td>'
+      + '</tr>';
+  }
+
+  // Helper for identity grid cells in the report header
+  function idCell(label, value, valueCls) {
+    return '<div class="rpt-id-cell">'
+      +   '<div class="lbl">' + escapeHtml(label) + '</div>'
+      +   '<div class="val' + (valueCls ? ' ' + valueCls : '') + '">' + escapeHtml(String(value)) + '</div>'
+      + '</div>';
+  }
+
+  // Map OS classification code → human label (rough — only the families we surface)
+  function classificationName(code) {
+    if (!code) return '';
+    const c = code.toUpperCase();
+    const family = c.charAt(0);
+    if (family === 'R' || family === 'L') return 'Residential';
+    if (family === 'C' || family === 'M') return 'Commercial / mixed-use';
+    if (family === 'X' || family === 'O') return 'Other / non-domestic';
+    if (family === 'P') return 'Parent (multi-occupancy)';
+    return c;
+  }
+
+  // Render the EPC section: full ladder when we have the cert, lightweight summary otherwise.
+  function renderReportEpcSection(epcRow, epcFull) {
+    if (!epcRow) {
+      return '<p class="rpt-empty">No Energy Performance Certificate is on file for this UPRN. The property may be new-build, unrated, or registered before the EPC scheme.</p>';
+    }
+    if (epcFull && !epcFull.error) {
+      // Use the PDF-optimised renderer (plain tables, no clip-paths or
+      // flex-aligned letters that html2canvas mishandles).
+      return renderEpcForReport(epcFull);
+    }
+    // Fallback — just the band + registration line
+    return '<div class="rpt-epc-light">'
+      +   epcPillHtml(epcRow)
+      +   '<div class="rpt-epc-meta">'
+      +     '<div><span class="lbl">Band</span><span class="val">' + escapeHtml(epcRow.currentEnergyBand || '—') + '</span></div>'
+      +     '<div><span class="lbl">Registered</span><span class="val">' + escapeHtml(epcRow.registrationDate || '—') + '</span></div>'
+      +     '<div><span class="lbl">RRN</span><span class="val mono">' + escapeHtml(epcRow.rrn || '—') + '</span></div>'
+      +     '<div><span class="lbl">Council</span><span class="val">' + escapeHtml(epcRow.council || '—') + '</span></div>'
+      +   '</div>'
+      + '</div>';
+  }
+
+  // ── PDF-optimised EPC ladder + details ────────────────────────
+  // Uses plain HTML tables and background-colour cells. No clip-path arrows,
+  // no flex-aligned letters — these are the bits html2canvas can\'t render.
+  function renderEpcForReport(cert) {
+    const cur = cert.currentEnergyBand || null;
+    const curScore = cert.currentEnergyScore;
+    const pot = cert.potentialEnergyBand || null;
+    const potScore = cert.potentialEnergyScore;
+    const bands = [
+      { l: 'A', range: '92+',   w: 18 },
+      { l: 'B', range: '81-91', w: 30 },
+      { l: 'C', range: '69-80', w: 44 },
+      { l: 'D', range: '55-68', w: 58 },
+      { l: 'E', range: '39-54', w: 70 },
+      { l: 'F', range: '21-38', w: 84 },
+      { l: 'G', range: '1-20',  w: 100 }
+    ];
+
+    // Ladder table
+    let ladder = '<table class="rpt-epc-ladder" cellpadding="0" cellspacing="0">'
+               + '<thead><tr>'
+               +   '<th style="width:18%;">Score</th>'
+               +   '<th>Energy rating</th>'
+               +   '<th style="width:22%;">Current</th>'
+               +   '<th style="width:22%;">Potential</th>'
+               + '</tr></thead><tbody>';
+    for (const b of bands) {
+      const isC = (cur === b.l);
+      const isP = (pot === b.l);
+      const bandCls = 'band-' + b.l.toLowerCase();
+      ladder += '<tr>'
+              + '<td class="score">' + b.range + '</td>'
+              + '<td class="rating">'
+              +   '<div class="bar ' + bandCls + '" style="width:' + b.w + '%;">' + b.l + '</div>'
+              + '</td>'
+              + '<td class="indicator">'
+              +   (isC ? '<span class="badge ' + bandCls + '">' + (curScore != null ? curScore + ' ' : '') + cur + '</span>' : '')
+              + '</td>'
+              + '<td class="indicator">'
+              +   (isP ? '<span class="badge ' + bandCls + '">' + (potScore != null ? potScore + ' ' : '') + pot + '</span>' : '')
+              + '</td>'
+              + '</tr>';
+    }
+    ladder += '</tbody></table>';
+
+    // Certificate details — brand-spec table (sage label / white value)
+    const fmt = (v) => (v == null || v === '') ? '—' : String(v);
+    const details = '<table class="rpt-epc-details" cellpadding="0" cellspacing="0">'
+      +   '<thead><tr><th colspan="2">Certificate Details</th></tr></thead>'
+      +   '<tbody>'
+      +     idRow('Certificate (RRN)', fmt(cert.rrn), 'mono')
+      +     idRow('UPRN', fmt(cert.uprn), 'mono')
+      +     idRow('Property', fmt(cert.dwellingType))
+      +     idRow('Total floor area', cert.totalFloorArea != null ? cert.totalFloorArea + ' m²' : '—')
+      +     idRow('Current rating', (cur || '?') + (curScore != null ? ' · ' + curScore + ' / 100' : ''))
+      +     idRow('Potential rating', (pot || '?') + (potScore != null ? ' · ' + potScore + ' / 100' : ''))
+      +     idRow('CO₂ emissions', (cert.co2Current != null ? cert.co2Current : '—') + ' t/year · potential ' + (cert.co2Potential != null ? cert.co2Potential : '—'))
+      +     idRow('Energy consumption', (cert.energyConsumptionCurrent != null ? cert.energyConsumptionCurrent : '—') + ' kWh/m²/yr · potential ' + (cert.energyConsumptionPotential != null ? cert.energyConsumptionPotential : '—'))
+      +     idRow('Environmental impact', (cert.envImpactCurrent != null ? cert.envImpactCurrent : '—') + '/100 · potential ' + (cert.envImpactPotential != null ? cert.envImpactPotential : '—'))
+      +     idRow('Inspection date', fmt(cert.inspectionDate))
+      +     idRow('Registered', fmt(cert.registrationDate))
+      +     idRow('Assessment', fmt(cert.assessmentType))
+      +   '</tbody>'
+      + '</table>';
+
+    return '<div class="rpt-epc-grid">'
+      +     '<div>'
+      +       '<div class="rpt-subsection-label">Energy Efficiency Rating</div>'
+      +       ladder
+      +     '</div>'
+      +     '<div>'
+      +       details
+      +     '</div>'
+      +   '</div>';
+  }
+
+  // ── Report-specific CSS — strictly per docs/branding/NHS_Email_Template_Guidelines.md ──
+  // Sage palette overrides the page's legacy teal vars so every reused component
+  // (.bb-shell, .mob-card, .epc-*, .tier-chip etc.) picks up brand colours automatically.
+  const REPORT_CSS = ''
+    /* ── Brand colour overrides (sage palette per spec §2) ── */
+    + '.rpt-render-host {'
+    +   '--nhs-dk: #4A6B5E;'             /* Sage Dark — section headings, accents */
+    +   '--nhs-dark: #36513F;'            /* darker shade for hover/needle */
+    +   '--nhs-mid: #6B9080;'             /* Sage — secondary text */
+    +   '--nhs-soft: #6B9080;'
+    +   '--nhs-sage: #C9D5CB;'            /* Sage Background — header bar */
+    +   '--nhs-pale: #EAF4EF;'            /* Sage Tint — label cells / footer */
+    +   '--nhs-pale-2: #F4F9F6;'
+    +   '--nhs-border: #C5DCCC;'          /* Border colour */
+    +   '--ink: #0D1E4A;'                 /* Navy — data values */
+    +   '--ink-soft: #6B7280;'            /* Muted text */
+    +   '--ink-mute: #9CA3AF;'
+    +   '--gold: #C9A84C; --gold-dark: #8E743A; --gold-tint: #FFF8E7;'
+    + '}'
+    + '.rpt-render-host { font-family: "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif; color: #374151; font-size: 13px; line-height: 1.55; background: #fff; }'
+    + '.rpt-render-host * { box-sizing: border-box; }'
+    + '.rpt-page { width: 100%; background: #fff; padding: 0; margin: 0; }'
+
+    /* ── A4 PAGE CONTAINER ── each becomes one PDF page ── */
+    + '.rpt-pdf-page {'
+    +   'width: 210mm; height: 297mm;'
+    +   'background: #fff;'
+    +   'display: flex; flex-direction: column;'
+    +   'overflow: hidden;'
+    + '}'
+    + '.rpt-pdf-page .rpt-body-inner { flex: 1; padding: 18px 22px; overflow: hidden; }'
+
+    /* ── HEADER BAR (per spec §3) — sage bg, Futura wordmark left, meta right ── */
+    + '.rpt-header-bar { background: #C9D5CB; padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-shrink: 0; }'
+    + '.rpt-header-bar .nhs-logo {'
+    +   'font-family: "Futura LT Light","Futura","Century Gothic",sans-serif;'
+    +   'font-weight: 300; font-size: 23px; color: #4A6B5E;'
+    +   'letter-spacing: 0.06em; word-spacing: 0.3em; text-transform: uppercase;'
+    + '}'
+    + '.rpt-header-bar .rpt-doc-meta { text-align: right; }'
+    + '.rpt-header-bar .rpt-doc-meta .doc-type { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #4A6B5E; margin-bottom: 3px; }'
+    + '.rpt-header-bar .rpt-doc-meta .doc-when { font-size: 11px; color: #6B7280; font-weight: 600; white-space: nowrap; }'
+    + '.rpt-accent-stripe { height: 3px; background: #4A6B5E; }'
+
+    /* ── BODY container (padding now lives on .rpt-pdf-page > .rpt-body-inner) ── */
+
+    /* ── Property identity table (brand-spec table style §4) ── */
+    + '.rpt-addr-block { margin-bottom: 14px; }'
+    + '.rpt-addr-block .rpt-addr { font-size: 22px; font-weight: 700; color: #0D1E4A; line-height: 1.2; margin: 0 0 4px; letter-spacing: -0.01em; }'
+    + '.rpt-addr-block .rpt-postcode { font-size: 13px; font-weight: 700; color: #6B9080; letter-spacing: 0.06em; }'
+    + 'table.rpt-id-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 10px; overflow: hidden; margin: 0 0 18px; }'
+    + 'table.rpt-id-table th { background: #4A6B5E; color: #fff; font-size: 11px; font-weight: 700; padding: 9px 14px; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; border: 1px solid #4A6B5E; }'
+    + 'table.rpt-id-table td.lbl { width: 28%; background: #EAF4EF; color: #4A6B5E; font-weight: 700; padding: 9px 14px; font-size: 12px; border: 1px solid #C5DCCC; }'
+    + 'table.rpt-id-table td.val { background: #fff; color: #0D1E4A; font-weight: 700; padding: 9px 14px; font-size: 13px; border: 1px solid #C5DCCC; }'
+    + 'table.rpt-id-table td.val.mono { font-family: "JetBrains Mono","Courier New",monospace; font-size: 12px; letter-spacing: 0.02em; }'
+
+    /* ── Section heading (brand-spec §3 sub-section label + §1 20px section heading) ── */
+    + '.rpt-section { margin-bottom: 22px; }'
+    + '.rpt-section-label {'
+    +   'display: inline-block; background: #EAF4EF; border: 1px solid #CCE3D8;'
+    +   'padding: 4px 12px; border-radius: 4px;'
+    +   'font-size: 10.5px; font-weight: 700; text-transform: uppercase;'
+    +   'color: #4A6B5E; letter-spacing: 0.08em; margin-bottom: 8px;'
+    + '}'
+    + '.rpt-section-h { font-size: 19px; font-weight: 700; color: #0D1E4A; margin: 0 0 12px; line-height: 1.3; letter-spacing: -0.01em; }'
+
+    /* ── LOCATION footnote strip ── */
+    + '.rpt-coords { display: flex; align-items: center; gap: 12px; padding: 8px 14px; margin-top: 8px; background: #EAF4EF; border: 1px solid #C5DCCC; border-radius: 6px; font-size: 11px; }'
+    + '.rpt-coords .lbl { font-weight: 700; color: #4A6B5E; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }'
+    + '.rpt-coords .val { font-family: "JetBrains Mono","Courier New",monospace; font-weight: 700; color: #0D1E4A; }'
+    + '.rpt-coords .src { margin-left: auto; color: #6B7280; font-style: italic; font-size: 10.5px; }'
+
+    /* ── EPC light fallback (when full cert isn\'t available) ── */
+    + '.rpt-epc-light { display: flex; align-items: center; gap: 18px; padding: 14px 16px; background: #EAF4EF; border: 1px solid #C5DCCC; border-radius: 10px; }'
+    + '.rpt-epc-light .epc-pill { width: 48px; height: 48px; font-size: 20px; }'
+    + '.rpt-epc-meta { display: grid; grid-template-columns: repeat(4, auto); gap: 18px; flex: 1; }'
+    + '.rpt-epc-meta .lbl { display: block; font-size: 9.5px; font-weight: 700; color: #4A6B5E; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }'
+    + '.rpt-epc-meta .val { font-size: 12.5px; font-weight: 700; color: #0D1E4A; }'
+    + '.rpt-epc-meta .val.mono { font-family: "JetBrains Mono","Courier New",monospace; font-size: 11.5px; }'
+
+    /* ── PDF-friendly EPC ladder + details (plain tables, stacked top→bottom) ── */
+    + '.rpt-epc-grid { display: block; }'
+    + '.rpt-epc-grid > div { margin-bottom: 16px; }'
+    + '.rpt-epc-grid > div:last-child { margin-bottom: 0; }'
+    + '.rpt-subsection-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #4A6B5E; margin-bottom: 8px; }'
+    /* Ladder */
+    + 'table.rpt-epc-ladder { width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #444; }'
+    + 'table.rpt-epc-ladder thead th { background: #fff; color: #000; padding: 6px 8px; border: 1px solid #444; font-size: 10.5px; font-weight: 700; text-align: left; }'
+    + 'table.rpt-epc-ladder tbody td { border: 1px solid #ddd; vertical-align: middle; height: 28px; padding: 0; }'
+    + 'table.rpt-epc-ladder tbody td.score { padding: 4px 8px; font-weight: 700; font-size: 11px; color: #000; border-right: 1px solid #444; }'
+    + 'table.rpt-epc-ladder tbody td.rating { padding: 0; border-right: 1px solid #444; }'
+    + 'table.rpt-epc-ladder tbody td.indicator { padding: 4px 8px; text-align: center; border-right: 1px solid #444; }'
+    + 'table.rpt-epc-ladder tbody td.indicator:last-child { border-right: 1px solid #444; }'
+    + 'table.rpt-epc-ladder .bar { padding: 6px 10px; font-weight: 900; font-size: 16px; color: #000; text-align: right; line-height: 1; }'
+    + 'table.rpt-epc-ladder .badge { display: inline-block; padding: 3px 8px; font-weight: 800; font-size: 11px; color: #000; border-radius: 2px; line-height: 1.2; }'
+    /* Band colours (gov.uk EPC standard) */
+    + 'table.rpt-epc-ladder .band-a { background: #008C44; color: #fff; }'
+    + 'table.rpt-epc-ladder .band-b { background: #19B459; color: #fff; }'
+    + 'table.rpt-epc-ladder .band-c { background: #8DCE46; color: #000; }'
+    + 'table.rpt-epc-ladder .band-d { background: #FFD500; color: #000; }'
+    + 'table.rpt-epc-ladder .band-e { background: #FCAA65; color: #000; }'
+    + 'table.rpt-epc-ladder .band-f { background: #EF8023; color: #fff; }'
+    + 'table.rpt-epc-ladder .band-g { background: #E9153B; color: #fff; }'
+    /* Details (same brand-spec styling as identity table) */
+    + 'table.rpt-epc-details { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 10px; overflow: hidden; }'
+    + 'table.rpt-epc-details th { background: #4A6B5E; color: #fff; font-size: 11px; font-weight: 700; padding: 8px 12px; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; border: 1px solid #4A6B5E; }'
+    + 'table.rpt-epc-details td.lbl { width: 44%; background: #EAF4EF; color: #4A6B5E; font-weight: 700; padding: 7px 12px; font-size: 11px; border: 1px solid #C5DCCC; }'
+    + 'table.rpt-epc-details td.val { background: #fff; color: #0D1E4A; font-weight: 700; padding: 7px 12px; font-size: 11.5px; border: 1px solid #C5DCCC; }'
+    + 'table.rpt-epc-details td.val.mono { font-family: "JetBrains Mono","Courier New",monospace; font-size: 10.5px; letter-spacing: 0.02em; }'
+
+    /* ── Force desktop layout (host width ≈ 720px breakpoint) ── */
+    + '.rpt-render-host .bb-shell { padding: 14px; gap: 16px; grid-template-columns: 200px 1fr !important; background: linear-gradient(180deg, #EAF4EF 0%, #fff 60%); border-color: #C5DCCC; }'
+    + '.rpt-render-host .bb-gauge { width: 200px; }'
+    + '.rpt-render-host .mob-grid { gap: 8px; grid-template-columns: repeat(4, 1fr) !important; }'
+    + '.rpt-render-host .mob-card { border-color: #C5DCCC; }'
+    + '.rpt-render-host .mob-card .brand { padding: 7px 10px; }'
+    + '.rpt-render-host .mob-card .brand .name { font-size: 13px; }'
+    + '.rpt-render-host .mob-card .body { padding: 8px 10px 10px; }'
+
+    /* ── FOOTER (per spec §6) ── repeated on every page, pinned at bottom ── */
+    + '.rpt-footer-bar { background: #EAF4EF; padding: 10px 24px; border-top: 1px solid #CCE3D8; text-align: center; flex-shrink: 0; }'
+    + '.rpt-footer-bar .ft-line { font-size: 9.5px; color: #6B7280; line-height: 1.5; }'
+    + '.rpt-footer-bar .ft-line + .ft-line { margin-top: 2px; }'
+    + '.rpt-footer-bar .ft-tree { color: #4A6B5E; font-weight: 700; }'
+    + '.rpt-footer-bar .ft-page { color: #4A6B5E; font-weight: 700; }'
+
+    /* ── Empty-state copy ── */
+    + '.rpt-empty { background: #EAF4EF; border: 1px dashed #C5DCCC; border-radius: 8px; padding: 14px 16px; color: #6B7280; font-size: 12px; font-style: italic; margin: 0; }'
+
+    /* Hide Leaflet chrome we don\'t want in the PDF */
+    + '.rpt-render-host .leaflet-control-zoom { display: none !important; }';
+
+  function renderEmpty(kind, title, msg) {
+    const cls = (kind === 'error') ? 'state-msg error' : 'state-msg';
+    const icon = (kind === 'error')
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+    $('results-body').innerHTML = '<div class="' + cls + '">' + icon + '<div class="title">' + title + '</div><div>' + msg + '</div></div>';
+  }
+
+  // ── Copy helpers ─────────────────────────────────
+  // Robust copy: tries the modern Clipboard API first (HTTPS / secure
+  // context), falls back to document.execCommand('copy') via a hidden
+  // textarea so it works from file:// URLs and older browsers.
+  async function doCopy(txt) {
+    if (!txt) return false;
+    if (navigator.clipboard && window.isSecureContext) {
+      try { await navigator.clipboard.writeText(txt); return true; }
+      catch (e) { /* fall through to legacy path */ }
+    }
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.top = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  // Called via inline onclick on buttons that carry data-copy="…"
+  function handleCopyClick(btn, e) {
+    if (e) e.stopPropagation();
+    const txt = btn && btn.dataset ? btn.dataset.copy : '';
+    if (!txt) return;
+    doCopy(txt).then(ok => flashCopy(btn, ok));
+  }
+
+  function flashCopy(btn, ok) {
+    if (!btn) return;
+    const orig = btn.innerHTML;
+    btn.dataset.flashing = '1';
+    btn.innerHTML = ok
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg> Failed';
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      delete btn.dataset.flashing;
+    }, 1200);
+  }
+
+  // Legacy alias — anything still calling copyText('literal') keeps working
+  function copyText(txt) { doCopy(txt); }
+
+  // Expand / collapse a single result card
+  function toggleExpand(i) {
+    const card = document.querySelector('.result-card[data-index="' + i + '"]');
+    if (!card) return;
+    card.classList.toggle('expanded');
+  }
+
+  function copyAddress(i) {
+    const f = (window.__searchResults || [])[i];
+    if (!f || !navigator.clipboard) return;
+    navigator.clipboard.writeText(f.ADDRESS || '');
+    // Mini visual feedback by flashing the card
+    const card = document.querySelectorAll('.result-card')[i];
+    if (!card) return;
+    const orig = card.style.borderColor;
+    card.style.borderColor = 'var(--green-ok)';
+    setTimeout(() => card.style.borderColor = orig, 700);
+  }
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  // ── Map modal (OS Maps API · raster zxy tiles) ──────
+  let _leafletMap = null, _tileLayer = null, _marker = null, _currentStyle = 'Road';
+
+  function osTileUrl(style) {
+    return 'https://api.os.uk/maps/raster/v1/zxy/' + style + '_3857/{z}/{x}/{y}.png?key=' + encodeURIComponent(OS_KEY);
+  }
+
+  function openMapByIndex(i) {
+    const f = (window.__searchResults || [])[i];
+    if (!f || f.LAT == null || f.LNG == null) return;
+    const lat = f.LAT, lng = f.LNG;
+
+    $('m-uprn').textContent = f.UPRN || '—';
+    $('m-addr').textContent = f.ADDRESS || '—';
+    $('m-coords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
+    $('m-gmaps').href = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(lat + ',' + lng);
+    $('map-modal').classList.add('open');
+
+    setTimeout(() => {
+      if (_leafletMap) { _leafletMap.remove(); _leafletMap = null; }
+      _leafletMap = L.map('leaflet-map', { center: [lat, lng], zoom: 18, minZoom: 7, maxZoom: 19 });
+      _tileLayer = L.tileLayer(osTileUrl(_currentStyle), {
+        maxZoom: 19,
+        attribution: '&copy; Crown copyright and database rights ' + (new Date().getFullYear()) + ' Ordnance Survey · OS Maps API'
+      }).addTo(_leafletMap);
+      _marker = L.marker([lat, lng]).addTo(_leafletMap);
+      _marker.bindPopup(
+        '<div class="pop-uprn">UPRN ' + (f.UPRN || '—') + '</div>'
+        + '<div class="pop-addr">' + escapeHtml(f.ADDRESS || '—') + '</div>'
+      ).openPopup();
+    }, 50);
+  }
+
+  function switchStyle(style) {
+    _currentStyle = style;
+    ['Road','Outdoor','Light'].forEach(s => {
+      const el = document.getElementById('style-' + s.toLowerCase());
+      if (el) el.classList.toggle('active', s === style);
+    });
+    if (!_leafletMap || !_tileLayer) return;
+    _leafletMap.removeLayer(_tileLayer);
+    _tileLayer = L.tileLayer(osTileUrl(style), {
+      maxZoom: 19,
+      attribution: '&copy; Crown copyright and database rights ' + (new Date().getFullYear()) + ' Ordnance Survey · OS Maps API'
+    }).addTo(_leafletMap);
+  }
+
+  function closeMap() {
+    $('map-modal').classList.remove('open');
+    if (_leafletMap) { _leafletMap.remove(); _leafletMap = null; _tileLayer = null; _marker = null; }
+  }
+
+  // ── Street View modal (Google iframe in a lightbox) ─────────
+  function openStreetView(i) {
+    const f = (window.__searchResults || [])[i];
+    if (!f) return;
+    const hasCoords = (f.LAT != null && f.LNG != null && f.LAT !== 0 && f.LNG !== 0);
+    if (!hasCoords) return;
+    const lat = f.LAT, lng = f.LNG;
+
+    $('sv-uprn').textContent = f.UPRN || '—';
+    $('sv-addr').textContent = f.ADDRESS || '—';
+    $('sv-coords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
+    $('sv-external').href = 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + lat + ',' + lng;
+    $('sv-iframe').src = 'https://maps.google.com/maps?q=&layer=c&cbll=' + lat + ',' + lng + '&cbp=11,0,0,0,0&output=svembed';
+    $('sv-modal').classList.add('open');
+  }
+
+  function closeStreetView() {
+    $('sv-modal').classList.remove('open');
+    // Clear the iframe src so Google stops streaming when modal is closed
+    $('sv-iframe').src = '';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMap();
+      closeStreetView();
+      closeEpcModal();
+    }
+  });
+  $('pc-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
+</script>
+
+</body>
+</html>

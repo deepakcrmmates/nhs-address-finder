@@ -1,0 +1,12 @@
+{
+  "name": "nhs-epc-lookup",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "secret": "wrangler secret put EPC_TOKEN"
+  },
+  "devDependencies": {
+    "wrangler": "^3.85.0"
+  }
+}

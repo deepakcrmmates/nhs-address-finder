@@ -1,0 +1,13 @@
+{
+  "name": "nhs-ofcom-coverage",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "secret-broadband": "wrangler secret put OFCOM_BROADBAND_KEY",
+    "secret-mobile": "wrangler secret put OFCOM_MOBILE_KEY"
+  },
+  "devDependencies": {
+    "wrangler": "^3.85.0"
+  }
+}

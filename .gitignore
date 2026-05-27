@@ -1,0 +1,16 @@
+# Node / wrangler
+node_modules/
+.wrangler/
+package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
