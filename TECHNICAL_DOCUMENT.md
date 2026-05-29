@@ -1,7 +1,8 @@
 # NHS Address Finder — Technical Document
 
-**Status:** Live in sandbox · Cloudflare Workers deployed · Ofcom + MHCLG + OS keys active
-**Last updated:** 2026-05-27
+**Status:** Live on Vercel · Cloudflare Workers deployed + CORS-locked · Ofcom + MHCLG + OS keys active
+**Production URL:** https://nhs-address-finder.vercel.app/
+**Last updated:** 2026-05-29
 **Owner:** Deepak K Rana (CRM Mates) · Built for New Home Solutions Ltd
 
 ---
@@ -209,8 +210,8 @@ Solution: bypass them. Render **each page as its own canvas, place 1:1 into the 
 | Deployed | 2026-05-26 |
 | Upstream | `https://api-proxy.ofcom.org.uk/{broadband\|mobile}/coverage/{POSTCODE}` |
 | Auth | `Ocp-Apim-Subscription-Key` header (server-side) |
-| CORS | `Access-Control-Allow-Origin: *` (lock to your origin in production) |
-| Cache | 24h edge cache keyed by `(product, postcode)` |
+| CORS | Allow-list — `https://nhs-address-finder.vercel.app` + `http(s)://localhost:*` + `http(s)://127.0.0.1:*`. All other origins blocked. `Vary: Origin` keeps cache honest. |
+| Cache | 24h edge cache keyed by `(product, postcode)`, origin-agnostic — CORS header rewritten per-request on cache hits |
 | Endpoints | `?postcode=…&product=broadband\|mobile\|both` |
 
 The `product=both` mode does a single round-trip and returns both feeds — the Address Finder uses this exclusively for efficiency.
@@ -223,8 +224,8 @@ The `product=both` mode does a single round-trip and returns both feeds — the 
 | Deployed | 2026-05-14 |
 | Upstream | `https://api.get-energy-performance-data.communities.gov.uk` |
 | Auth | `Authorization: Bearer <token>` (server-side) |
-| CORS | Same |
-| Cache | 24h edge cache per query / certificate |
+| CORS | Same allow-list as Ofcom Worker (Vercel domain + localhost). |
+| Cache | 24h edge cache per query / certificate, origin-agnostic |
 | Endpoints | `?postcode=…` (search) · `?cert=<RRN>` (full certificate detail) |
 
 Both workers use `wrangler@^3.85.0` for deploy. POC keys are inlined as constants with `env.*` fallback hooks ready for production secret rotation.
@@ -235,13 +236,27 @@ Both workers use `wrangler@^3.85.0` for deploy. POC keys are inlined as constant
 
 ### 8.1 Frontend (`index.html`)
 
-Static file. Open locally with `open index.html`, or serve from any static host:
+Deployed to **Vercel** as a static site. `vercel.json` at the repo root configures:
+
+- Cache control — `index.html` always re-validates, all other assets cached for 1h
+- Security headers — `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denying camera/mic/geo, `Strict-Transport-Security` with 2-year max-age
+
+Deploy options:
+
+```bash
+# Manual
+npx vercel --prod
+
+# Or wire the GitHub repo at vercel.com/new → auto-deploy on push to main
+```
+
+For local development, serve from `http://localhost:*` — the Workers' CORS allow-list permits any localhost port:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-For production, deploy to Cloudflare Pages, Netlify, GitHub Pages, or any static-file host.
+Opening `index.html` via `file://` is now **blocked** — the Workers' tightened CORS no longer permits `null` origins.
 
 ### 8.2 Workers
 
@@ -290,10 +305,12 @@ Same pattern for `workers/epc-lookup`.
 - [x] MHCLG EPC bearer token live
 
 ### Pending
-- [ ] Push to GitHub remote (repo not yet created)
-- [ ] Production host for `index.html` (currently runs from `file://`)
+- [x] ~~Push to GitHub remote~~ — live at `github.com/deepakcrmmates/nhs-address-finder`
+- [x] ~~Production host for `index.html`~~ — Vercel at `nhs-address-finder.vercel.app`
+- [x] ~~Lock CORS `Allow-Origin` to the production domain~~ — both Workers now CORS-locked to Vercel + localhost
 - [ ] Rotate Worker POC keys → `wrangler secret put` for production
-- [ ] Lock CORS `Allow-Origin` to the production domain (currently `*`)
+- [ ] Restrict OS Data Hub API key by HTTP-Referer to the Vercel domain (key currently embedded in `index.html` is publicly visible)
+- [ ] Add custom domain (e.g. `find.newhomesolutions.co.uk`) and add it to both Workers' CORS allow-lists
 - [ ] Add usage analytics / partner attribution
 - [ ] Add monthly rate-limit guard on the Ofcom Workers (the Basic tier has caps)
 

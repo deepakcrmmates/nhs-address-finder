@@ -35,15 +35,32 @@ const API_BASE = 'https://api-proxy.ofcom.org.uk';
 const POC_BROADBAND_KEY = 'c1c47248fdcb43cf842240c36f8c0170';
 const POC_MOBILE_KEY    = 'a989a136b8d44599acddd997d3e792ec';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Max-Age': '86400'
-};
+// Allow-list of origins permitted to call this Worker. Anything else gets
+// blocked by the browser (we omit Access-Control-Allow-Origin entirely).
+// Vary: Origin keeps Cloudflare's edge cache honest across origins.
+const ALLOWED_ORIGINS = new Set([
+  'https://nhs-address-finder.vercel.app',
+]);
+function isLocalhost(origin) {
+  return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin || '');
+}
+function corsHeaders(origin) {
+  const allow = (origin && (ALLOWED_ORIGINS.has(origin) || isLocalhost(origin)))
+    ? origin : '';
+  return {
+    'Access-Control-Allow-Origin': allow,
+    'Vary': 'Origin',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '86400'
+  };
+}
 
 export default {
   async fetch(request, env, ctx) {
+    const origin = request.headers.get('Origin') || '';
+    const CORS_HEADERS = corsHeaders(origin);
+
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
     }
@@ -53,10 +70,10 @@ export default {
     const product = (url.searchParams.get('product') || 'both').toLowerCase();
 
     if (!postcodeRaw) {
-      return json({ error: 'postcode query param is required' }, 400);
+      return json({ error: 'postcode query param is required' }, 400, CORS_HEADERS);
     }
     if (!['broadband', 'mobile', 'both'].includes(product)) {
-      return json({ error: 'product must be broadband, mobile, or both' }, 400);
+      return json({ error: 'product must be broadband, mobile, or both' }, 400, CORS_HEADERS);
     }
 
     // Ofcom path expects the postcode without spaces, upper-case
@@ -68,7 +85,13 @@ export default {
     const cache = caches.default;
     const cacheKey = new Request(`https://ofcom-cache/${product}/${postcode}`);
     const cached = await cache.match(cacheKey);
-    if (cached) return cached;
+    if (cached) {
+      // Re-emit with this request's CORS header (cache is origin-agnostic).
+      const headers = new Headers(cached.headers);
+      headers.set('Access-Control-Allow-Origin', CORS_HEADERS['Access-Control-Allow-Origin']);
+      headers.set('Vary', 'Origin');
+      return new Response(cached.body, { status: cached.status, headers });
+    }
 
     const wantBroadband = product === 'broadband' || product === 'both';
     const wantMobile    = product === 'mobile'    || product === 'both';
@@ -81,7 +104,7 @@ export default {
     try {
       results = await Promise.all(tasks);
     } catch (err) {
-      return json({ error: 'fetch failed', detail: err.message, postcode }, 500);
+      return json({ error: 'fetch failed', detail: err.message, postcode }, 500, CORS_HEADERS);
     }
 
     const out = { postcode };
@@ -89,7 +112,7 @@ export default {
     if (wantBroadband) { out.broadband = results[idx++]; }
     if (wantMobile)    { out.mobile    = results[idx++]; }
 
-    const body = json(out, 200);
+    const body = json(out, 200, CORS_HEADERS);
     body.headers.set('Cache-Control', 'public, max-age=86400');
     ctx.waitUntil(cache.put(cacheKey, body.clone()));
     return body;
@@ -112,12 +135,12 @@ async function fetchOfcom(kind, postcode, key) {
   return await res.json();
 }
 
-function json(payload, status) {
+function json(payload, status, cors) {
   return new Response(JSON.stringify(payload, null, 2), {
     status,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      ...CORS_HEADERS
+      ...cors
     }
   });
 }

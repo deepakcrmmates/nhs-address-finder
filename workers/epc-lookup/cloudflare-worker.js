@@ -29,16 +29,39 @@ const API_BASE = 'https://api.get-energy-performance-data.communities.gov.uk';
 // and delete this constant.
 const POC_TOKEN = '6hrbF3yHfqTt020tMuMju5DZ0XR0RYl9Hra658Y6I9sbnbVEW0zs2HVlNuMRNhbs';
 
-const CORS_HEADERS = {
-  // Production: lock to your Address Finder origin instead of *
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Max-Age': '86400'
-};
+// Allow-list of origins permitted to call this Worker. Anything else gets
+// blocked by the browser (we omit Access-Control-Allow-Origin entirely).
+// Vary: Origin keeps Cloudflare's edge cache honest across origins.
+const ALLOWED_ORIGINS = new Set([
+  'https://nhs-address-finder.vercel.app',
+]);
+function isLocalhost(origin) {
+  return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin || '');
+}
+function corsHeaders(origin) {
+  const allow = (origin && (ALLOWED_ORIGINS.has(origin) || isLocalhost(origin)))
+    ? origin : '';
+  return {
+    'Access-Control-Allow-Origin': allow,
+    'Vary': 'Origin',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '86400'
+  };
+}
+function reCorsCached(cached, cors) {
+  // Cached responses are origin-agnostic; re-emit with this request's CORS.
+  const headers = new Headers(cached.headers);
+  headers.set('Access-Control-Allow-Origin', cors['Access-Control-Allow-Origin']);
+  headers.set('Vary', 'Origin');
+  return new Response(cached.body, { status: cached.status, headers });
+}
 
 export default {
   async fetch(request, env, ctx) {
+    const origin = request.headers.get('Origin') || '';
+    const CORS_HEADERS = corsHeaders(origin);
+
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
     }
@@ -50,20 +73,20 @@ export default {
     const cert     = (url.searchParams.get('cert') || '').trim();
 
     if (!postcode && !uprn && !address && !cert) {
-      return json({ error: 'At least one of postcode / uprn / address / cert is required' }, 400);
+      return json({ error: 'At least one of postcode / uprn / address / cert is required' }, 400, CORS_HEADERS);
     }
 
     // Prefer the env secret (production); fall back to inline POC token.
     const token = (env && env.EPC_TOKEN) || POC_TOKEN;
     if (!token) {
-      return json({ error: 'EPC_TOKEN not configured' }, 500);
+      return json({ error: 'EPC_TOKEN not configured' }, 500, CORS_HEADERS);
     }
 
     // ── Single-certificate detail mode (for the EPC ladder lightbox) ──
     if (cert) {
       const certCacheKey = new Request(`https://epc-cache/cert/${encodeURIComponent(cert)}`);
       const certCached = await caches.default.match(certCacheKey);
-      if (certCached) return certCached;
+      if (certCached) return reCorsCached(certCached, CORS_HEADERS);
 
       const certUrl = `${API_BASE}/api/certificate?certificate_number=${encodeURIComponent(cert)}`;
       try {
@@ -72,7 +95,7 @@ export default {
         });
         if (!res.ok) {
           const text = await res.text().catch(() => '');
-          return json({ error: `EPC API returned HTTP ${res.status}`, detail: text.slice(0, 300), cert }, 502);
+          return json({ error: `EPC API returned HTTP ${res.status}`, detail: text.slice(0, 300), cert }, 502, CORS_HEADERS);
         }
         const raw = await res.json();
         const d = raw.data || {};
@@ -100,12 +123,12 @@ export default {
           dwellingType:         (d.dwelling_type && d.dwelling_type.value) || null,
           certUrl:              `https://find-energy-certificate.service.gov.uk/energy-certificate/${cert}`
         };
-        const body = json(out, 200);
+        const body = json(out, 200, CORS_HEADERS);
         body.headers.set('Cache-Control', 'public, max-age=86400');
         ctx.waitUntil(caches.default.put(certCacheKey, body.clone()));
         return body;
       } catch (err) {
-        return json({ error: 'fetch failed', detail: err.message, cert }, 500);
+        return json({ error: 'fetch failed', detail: err.message, cert }, 500, CORS_HEADERS);
       }
     }
 
@@ -113,7 +136,7 @@ export default {
     const cache = caches.default;
     const cacheKey = new Request(`https://epc-cache/${url.search}`);
     const cached = await cache.match(cacheKey);
-    if (cached) return cached;
+    if (cached) return reCorsCached(cached, CORS_HEADERS);
 
     const params = new URLSearchParams();
     if (postcode) params.append('postcode', postcode);
@@ -135,7 +158,7 @@ export default {
           error: `EPC API returned HTTP ${res.status}`,
           detail: text.slice(0, 300),
           query: { postcode, uprn, address }
-        }, 502);
+        }, 502, CORS_HEADERS);
       }
       const data = await res.json();
       const records = data.data || [];
@@ -164,23 +187,23 @@ export default {
         pagination: data.pagination || null,
         count: certs.length,
         certs
-      }, 200);
+      }, 200, CORS_HEADERS);
       // 24h edge cache
       body.headers.set('Cache-Control', 'public, max-age=86400');
       ctx.waitUntil(cache.put(cacheKey, body.clone()));
       return body;
     } catch (err) {
-      return json({ error: 'fetch failed', detail: err.message }, 500);
+      return json({ error: 'fetch failed', detail: err.message }, 500, CORS_HEADERS);
     }
   }
 };
 
-function json(payload, status) {
+function json(payload, status, cors) {
   return new Response(JSON.stringify(payload, null, 2), {
     status,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      ...CORS_HEADERS
+      ...cors
     }
   });
 }

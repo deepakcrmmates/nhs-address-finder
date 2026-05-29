@@ -1,5 +1,7 @@
 # NHS Address Finder
 
+> **Live:** https://nhs-address-finder.vercel.app/
+
 A free, partner-facing address lookup tool for New Home Solutions (NHS). Type a UK postcode, pick the property, and see it on an Ordnance Survey map alongside EPC, broadband and mobile coverage data — and download a branded PDF report.
 
 Built for NHS estate-agent, photographer and housebuilder partners.
@@ -10,10 +12,14 @@ Built for NHS estate-agent, photographer and housebuilder partners.
 
 ```
 NHS-Address-Finder/
-├── index.html              # The address finder app (open in any browser)
+├── index.html                  # The address finder app
+├── vercel.json                 # Vercel deploy config (caching + security headers)
 ├── workers/
-│   ├── ofcom-coverage/     # Cloudflare Worker — Ofcom broadband + mobile coverage
-│   └── epc-lookup/         # Cloudflare Worker — MHCLG EPC certificates
+│   ├── ofcom-coverage/         # Cloudflare Worker — Ofcom broadband + mobile coverage
+│   └── epc-lookup/             # Cloudflare Worker — MHCLG EPC certificates
+├── scripts/
+│   └── generate_technical_document_pdf.py   # reportlab + Chrome + pypdf
+├── TECHNICAL_DOCUMENT.md / .pdf
 └── README.md
 ```
 
@@ -36,18 +42,31 @@ The app is a single static HTML file. It calls two Cloudflare Workers for upstre
 
 ## Running the app
 
-The app is a static file — open it locally or serve it from any static host.
+### Live (production)
+
+https://nhs-address-finder.vercel.app/
+
+### Local development
 
 ```bash
-# Just open in the default browser
-open index.html
-
-# Or serve it (so file:// quirks don't bite — e.g. clipboard, popups)
+# Serve from localhost so the Workers' CORS allow-list permits the request
 python3 -m http.server 8080
 # then visit http://localhost:8080/
 ```
 
+> The Workers' CORS allow-list accepts `https://nhs-address-finder.vercel.app` and any `localhost` / `127.0.0.1` origin. Opening `index.html` directly via `file://` will be **blocked** by the browser — use the local server instead.
+
 No build step. No bundler. No npm install.
+
+### Deploying to Vercel
+
+Vercel auto-detects this as a static site. Either:
+
+```bash
+npx vercel --prod
+```
+
+…or wire up the GitHub repo at [vercel.com/new](https://vercel.com/new) so each push to `main` triggers a deploy. `vercel.json` is already set up with caching + security headers.
 
 ---
 
