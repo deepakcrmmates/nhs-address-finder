@@ -8,35 +8,72 @@ Built for NHS estate-agent, photographer and housebuilder partners.
 
 ---
 
-## What's in the box
+## Architecture
+
+A **Vercel-native** single-file app:
 
 ```
 NHS-Address-Finder/
-├── index.html                  # The address finder app
-├── vercel.json                 # Vercel deploy config (caching + security headers)
-├── workers/
-│   ├── ofcom-coverage/         # Cloudflare Worker — Ofcom broadband + mobile coverage
-│   └── epc-lookup/             # Cloudflare Worker — MHCLG EPC certificates
+├── index.html              # The address finder app (static)
+├── vercel.json             # Vercel deploy config (caching + security headers)
+├── api/                    # Vercel Edge Functions (server-side proxies, keys live here)
+│   ├── os/
+│   │   ├── places.js       # OS Places postcode search
+│   │   └── tile.js         # OS Maps raster tile proxy
+│   ├── ofcom/
+│   │   └── coverage.js     # Ofcom Connected Nations Broadband + Mobile
+│   └── epc/
+│       └── lookup.js       # MHCLG EPC Register (search + cert detail)
+├── workers/                # ⚠️ Legacy Cloudflare Workers (superseded by /api/)
 ├── scripts/
-│   └── generate_technical_document_pdf.py   # reportlab + Chrome + pypdf
+│   └── generate_technical_document_pdf.py
 ├── TECHNICAL_DOCUMENT.md / .pdf
 └── README.md
 ```
 
-The app is a single static HTML file. It calls two Cloudflare Workers for upstream data (so the API keys stay server-side and CORS is handled cleanly).
+The frontend only ever talks to **same-origin** `/api/*` paths. Every upstream API key (OS Data Hub, Ofcom, MHCLG) lives in **Vercel Environment Variables** and never reaches the browser.
 
 ---
 
 ## Data sources
 
-| Layer | Source | Auth | Where it's called from |
+| Layer | Upstream | Proxy endpoint | Env var |
 |---|---|---|---|
-| Address lookup | Ordnance Survey **OS Places API** | Inline key (`OS_KEY` in `index.html`) | Browser → OS directly |
-| Map tiles | Ordnance Survey **OS Maps API** | Same `OS_KEY` | Leaflet → OS directly |
-| EPC certificate | MHCLG **Energy Performance of Buildings** API | Bearer token, server-side | Browser → `workers/epc-lookup` → MHCLG |
-| Broadband coverage | Ofcom **Connected Nations Broadband** API | `Ocp-Apim-Subscription-Key`, server-side | Browser → `workers/ofcom-coverage` → Ofcom |
-| Mobile coverage | Ofcom **Connected Nations Mobile** API | `Ocp-Apim-Subscription-Key`, server-side | Browser → `workers/ofcom-coverage` → Ofcom |
-| Street view | Google **Maps Embed** (no key in v1) | None | Browser → Google directly |
+| Address lookup | Ordnance Survey **OS Places** | `GET /api/os/places?postcode=…` | `OS_KEY` |
+| Map tiles | Ordnance Survey **OS Maps** raster | `GET /api/os/tile?style=Road&z={z}&x={x}&y={y}` | `OS_KEY` (same) |
+| Street view | Google Maps embed | iframe, no proxy | — |
+| EPC certificate | MHCLG **EPC Register** | `GET /api/epc/lookup?postcode=…` or `?cert=RRN` | `EPC_TOKEN` |
+| Broadband coverage | Ofcom **Connected Nations Broadband** | `GET /api/ofcom/coverage?postcode=…&product=broadband` | `OFCOM_BROADBAND_KEY` |
+| Mobile coverage | Ofcom **Connected Nations Mobile** | `GET /api/ofcom/coverage?postcode=…&product=mobile` | `OFCOM_MOBILE_KEY` |
+
+---
+
+## Deployment
+
+The repo is wired to Vercel — every push to `main` auto-deploys.
+
+### Required environment variables
+
+Set these once in **Vercel dashboard → Project → Settings → Environment Variables** (Production + Preview + Development):
+
+| Name | Value source |
+|---|---|
+| `OS_KEY` | OS Data Hub → API Projects → NHS-SF → Project API Key |
+| `OFCOM_BROADBAND_KEY` | Ofcom Developer Portal → Subscriptions → Broadband Coverage |
+| `OFCOM_MOBILE_KEY` | Ofcom Developer Portal → Subscriptions → Mobile Coverage |
+| `EPC_TOKEN` | MHCLG EPC Register → API access token |
+
+> Each Edge Function falls back to the inlined POC key if the env var isn't set, so the app keeps working immediately after first deploy. Set the env vars to rotate to production keys without code changes.
+
+### Deploy commands
+
+```bash
+# Auto-deploy (already wired): just push to main
+git push
+
+# Or manual one-off:
+npx vercel --prod
+```
 
 ---
 
@@ -48,74 +85,22 @@ https://nhs-address-finder.vercel.app/
 
 ### Local development
 
+Use **Vercel CLI** so the `/api/*` Edge Functions actually run locally:
+
 ```bash
-# Serve from localhost so the Workers' CORS allow-list permits the request
-python3 -m http.server 8080
-# then visit http://localhost:8080/
+npx vercel dev
+# then visit http://localhost:3000/
 ```
 
-> The Workers' CORS allow-list accepts `https://nhs-address-finder.vercel.app` and any `localhost` / `127.0.0.1` origin. Opening `index.html` directly via `file://` will be **blocked** by the browser — use the local server instead.
+Plain `python3 -m http.server` won't work for local dev anymore — without the Vercel runtime, the `/api/*` endpoints return 404.
 
 No build step. No bundler. No npm install.
-
-### Deploying to Vercel
-
-Vercel auto-detects this as a static site. Either:
-
-```bash
-npx vercel --prod
-```
-
-…or wire up the GitHub repo at [vercel.com/new](https://vercel.com/new) so each push to `main` triggers a deploy. `vercel.json` is already set up with caching + security headers.
-
----
-
-## Deploying the Workers
-
-Both workers use **Cloudflare Workers** via [`wrangler`](https://developers.cloudflare.com/workers/wrangler/install-and-update/).
-
-### Ofcom Coverage Worker
-
-Endpoint after deploy: `https://nhs-ofcom-coverage.<your-subdomain>.workers.dev/?postcode=UB2+4WQ&product=both`
-
-```bash
-cd workers/ofcom-coverage
-npm install                              # one-off, pulls wrangler
-npx wrangler login                       # one-off, browser auth
-# Optional — rotate the POC keys out into env secrets:
-npx wrangler secret put OFCOM_BROADBAND_KEY
-npx wrangler secret put OFCOM_MOBILE_KEY
-npx wrangler deploy
-```
-
-The current source has POC keys inlined as `POC_BROADBAND_KEY` / `POC_MOBILE_KEY` constants — fine for sandbox, but for production set the `env.OFCOM_*` secrets above and delete the constants.
-
-### EPC Lookup Worker
-
-Endpoint after deploy: `https://nhs-epc-lookup.<your-subdomain>.workers.dev/?postcode=UB2+4WQ` (and `?cert=<RRN>` for full certificate detail).
-
-```bash
-cd workers/epc-lookup
-npm install
-npx wrangler login
-npx wrangler secret put EPC_TOKEN        # one-off — MHCLG bearer
-npx wrangler deploy
-```
-
-### After deploying
-
-If your Workers end up on a subdomain other than the one currently hardcoded in `index.html`, update these two constants near the top of the `<script>` block:
-
-```js
-const EPC_LOOKUP_URL     = 'https://nhs-epc-lookup.systemtest-827.workers.dev';
-const OFCOM_COVERAGE_URL = 'https://nhs-ofcom-coverage.systemtest-827.workers.dev';
-```
 
 ---
 
 ## Features
 
-- **Postcode lookup** — uses OS Places API, returns full AddressBase results with UPRN, lat/lng and classification
+- **Postcode lookup** — OS Places API via `/api/os/places`, returns full AddressBase results with UPRN, lat/lng, classification
 - **List + card views** — switchable, with copy-to-clipboard for UPRNs and coords
 - **Detail page** per property with:
   - OS Maps tile (Road / Outdoor / Light) in a Leaflet lightbox
@@ -163,10 +148,12 @@ Typography: **Aptos** (body) with Segoe UI / Helvetica Neue fallbacks; **Futura 
 
 ## Status
 
-- ✅ Live in sandbox testing
-- ✅ Both Cloudflare Workers deployed
+- ✅ Live on Vercel — https://nhs-address-finder.vercel.app/
+- ✅ All upstream APIs proxied through Vercel Edge Functions
+- ✅ Keys held in Vercel env vars (never reach the browser)
 - ✅ Ofcom subscriptions active (Connected Nations Broadband + Mobile, Basic tier)
 - ✅ MHCLG EPC API key live
+- ⚠️ Legacy Cloudflare Workers (`workers/`) still deployed but unused — safe to delete from Cloudflare dashboard when ready
 
 ---
 

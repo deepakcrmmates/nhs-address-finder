@@ -1,6 +1,6 @@
 # NHS Address Finder — Technical Document
 
-**Status:** Live on Vercel · Cloudflare Workers deployed + CORS-locked · Ofcom + MHCLG + OS keys active
+**Status:** Live on Vercel · Vercel-native architecture · all upstream API keys held in Vercel env vars
 **Production URL:** https://nhs-address-finder.vercel.app/
 **Last updated:** 2026-05-29
 **Owner:** Deepak K Rana (CRM Mates) · Built for New Home Solutions Ltd
@@ -9,62 +9,85 @@
 
 ## 1 · Overview
 
-A free, partner-facing address lookup tool for NHS estate-agent, photographer and housebuilder partners. The app is a **single static HTML file** backed by two **Cloudflare Workers** for API-key-protected upstream services.
+A free, partner-facing address lookup tool for NHS estate-agent, photographer and housebuilder partners. The app is a **single static HTML file** plus **four Vercel Edge Functions** that proxy every upstream API-key-protected service.
 
 > Type a UK postcode → pick a property → see UPRN, OS map, EPC, broadband, mobile coverage → download a branded NHS PDF report.
 
-The whole thing is intentionally serverless and dependency-light: no build step, no bundler, no database, no auth. Just a HTML file, two Workers, and four external APIs.
+The whole thing runs on **one platform (Vercel)**, with the frontend and the API-key-holding proxies served from the same origin. No build step, no bundler, no database, no auth. Every upstream API key (OS Data Hub, Ofcom × 2, MHCLG) lives in **Vercel Environment Variables** and never reaches the browser.
 
 ---
 
 ## 2 · Architecture
 
 ```
-                                        ┌─────────────────────────────┐
-   Browser  ───────────────────────────▶│ OS Places API               │
-   (index.html)                          │ OS Maps Raster Tile API     │
-                                        │ Google Street View embed    │
-                                        └─────────────────────────────┘
-
-                ┌──────────────────────────┐    ┌─────────────────────┐
-   Browser ──▶ │ workers/ofcom-coverage   │──▶ │ Ofcom Connected     │
-                │ Cloudflare Worker        │    │ Nations (Broadband  │
-                │ (Ocp-Apim-Subscription)  │    │ + Mobile APIs)      │
-                └──────────────────────────┘    └─────────────────────┘
-
-                ┌──────────────────────────┐    ┌─────────────────────┐
-   Browser ──▶ │ workers/epc-lookup       │──▶ │ MHCLG Energy        │
-                │ Cloudflare Worker        │    │ Performance         │
-                │ (Bearer auth)            │    │ Register API        │
-                └──────────────────────────┘    └─────────────────────┘
+                              ┌──── Vercel (nhs-address-finder.vercel.app) ────┐
+                              │                                                 │
+                              │   index.html (single-file SPA)                  │
+   Browser ───────────────────▶                                                  │
+                              │   /api/os/places       ─┐                       │
+                              │   /api/os/tile         ─┼─▶ all 4 are           │
+                              │   /api/ofcom/coverage  ─┤   Vercel Edge         │
+                              │   /api/epc/lookup      ─┘   Functions           │
+                              └──┬──────────────────────────────────────────────┘
+                                 │
+                                 │  reads OS_KEY / OFCOM_*_KEY / EPC_TOKEN from
+                                 │  Vercel Environment Variables (never sent
+                                 │  to the browser)
+                                 ▼
+            ┌─────────────────────────────────────────────────────────┐
+            │ OS Places API · OS Maps Raster Tile API                 │
+            │ Ofcom Connected Nations (Broadband + Mobile) API        │
+            │ MHCLG Energy Performance of Buildings API               │
+            └─────────────────────────────────────────────────────────┘
 ```
 
-### Why Workers (not direct browser calls)
+The frontend talks **same-origin** to `/api/*`. Edge Functions read API keys from `process.env.*` and forward to the upstream. Browser never sees a key, never crosses an origin boundary, no CORS allow-list to maintain.
+
+### Why Vercel Edge Functions (not direct browser calls)
 
 | API | CORS-friendly? | Key sensitivity | Verdict |
 |---|---|---|---|
-| OS Places | ✅ yes | Public partner key | Direct browser call |
-| OS Maps tiles | ✅ yes | Same key | Direct browser call |
+| OS Places | ✅ yes | OS Data Hub Project key — no Referer restriction available in our tier | **Edge Function proxy** |
+| OS Maps tiles | ✅ yes | Same OS key | **Edge Function proxy** |
 | Google Street View | ✅ yes (iframe embed) | None needed | Direct browser embed |
-| MHCLG EPC API | ❌ no | Bearer token | **Worker proxy** |
-| Ofcom Connected Nations | ❌ no | Subscription key | **Worker proxy** |
+| MHCLG EPC API | ❌ no | Bearer token | **Edge Function proxy** |
+| Ofcom Connected Nations | ❌ no | Subscription keys (separate for Broadband + Mobile) | **Edge Function proxy** |
 
-The Workers also give us free 24h **edge caching** per postcode — repeat lookups return in milliseconds at zero upstream cost.
+### Why Edge (and not Node) runtime
+
+- Cold-start ~5ms vs ~300ms for Node functions
+- Cheaper per invocation
+- All four functions only `fetch()` + transform JSON — no Node-specific APIs needed
+
+### Cache strategy
+
+| Endpoint | Cache-Control | Rationale |
+|---|---|---|
+| `/api/os/places` | `public, max-age=3600` | OS AddressBase updates monthly |
+| `/api/os/tile` | `public, max-age=604800, immutable` | OS Maps tiles change rarely |
+| `/api/ofcom/coverage` | `public, max-age=86400` | Ofcom data refreshes monthly |
+| `/api/epc/lookup` | `public, max-age=86400` | EPC certs are immutable once issued |
+| `index.html` | `must-revalidate` | App shell — always check for updates |
+| Other static assets | `public, max-age=3600` | Reasonable default |
+
+Vercel's CDN respects `Cache-Control` automatically — no extra config needed.
 
 ---
 
 ## 3 · Data sources
 
-| # | Layer | Vendor | Endpoint pattern | Tier |
+| # | Layer | Vendor | Browser endpoint (same-origin) | Upstream (server-side) |
 |---|---|---|---|---|
-| 1 | Address lookup | Ordnance Survey **OS Places** | `GET /search/places/v1/postcode?postcode=…` | Standard |
-| 2 | Map tiles | Ordnance Survey **OS Maps** | `GET /maps/raster/v1/zxy/Road_3857/{z}/{x}/{y}.png` | Standard |
-| 3 | Street view | Google Maps (no key) | `iframe src="https://maps.google.com/maps?layer=c&cbll=…"` | Free embed |
-| 4 | EPC | MHCLG **EPC Register** | `GET /api/domestic/search?postcode=…` + `GET /api/certificate?certificate_number=…` | Live |
-| 5 | Broadband | Ofcom **Connected Nations Broadband** | `GET /broadband/coverage/{POSTCODE}` | Basic |
-| 6 | Mobile | Ofcom **Connected Nations Mobile** | `GET /mobile/coverage/{POSTCODE}` | Basic |
+| 1 | Address lookup | Ordnance Survey **OS Places** | `GET /api/os/places?postcode=…` | `api.os.uk/search/places/v1/postcode` |
+| 2 | Map tiles | Ordnance Survey **OS Maps** | `GET /api/os/tile?style=…&z=…&x=…&y=…` | `api.os.uk/maps/raster/v1/zxy/{style}_3857/{z}/{x}/{y}.png` |
+| 3 | Street view | Google Maps (no key) | iframe → `maps.google.com` | direct |
+| 4 | EPC | MHCLG **EPC Register** | `GET /api/epc/lookup?postcode=…` or `?cert=RRN` | `api.get-energy-performance-data.communities.gov.uk` |
+| 5 | Broadband | Ofcom **Connected Nations Broadband** | `GET /api/ofcom/coverage?product=broadband&postcode=…` | `api-proxy.ofcom.org.uk/broadband/coverage/{POSTCODE}` |
+| 6 | Mobile | Ofcom **Connected Nations Mobile** | `GET /api/ofcom/coverage?product=mobile&postcode=…` | `api-proxy.ofcom.org.uk/mobile/coverage/{POSTCODE}` |
 
-**Latency budget per search:** OS Places ~400ms · Ofcom Workers ~700ms · EPC Worker ~600ms — all fired in parallel via `Promise.all`, total page time ~1s warm.
+The Ofcom proxy supports `product=both` so a single round-trip returns Broadband + Mobile. The Address Finder uses this exclusively for efficiency.
+
+**Latency budget per search:** OS Places ~400ms · Ofcom ~700ms · EPC ~600ms — all fired in parallel via `Promise.all`, total page time ~1s warm. Edge Function cold-start adds ~5ms.
 
 ---
 
@@ -200,77 +223,117 @@ Solution: bypass them. Render **each page as its own canvas, place 1:1 into the 
 
 ---
 
-## 7 · Cloudflare Worker details
+## 7 · Vercel Edge Function details
 
-### 7.1 Ofcom Coverage Worker (`workers/ofcom-coverage/`)
+All four functions use the **Edge runtime** (`export const config = { runtime: 'edge' }`), read keys from `process.env.*` with a POC-key fallback so the app keeps working before env vars are configured, and emit `Cache-Control` headers so Vercel's CDN caches automatically.
 
-| Item | Detail |
-|---|---|
-| Production URL | `https://nhs-ofcom-coverage.systemtest-827.workers.dev` |
-| Deployed | 2026-05-26 |
-| Upstream | `https://api-proxy.ofcom.org.uk/{broadband\|mobile}/coverage/{POSTCODE}` |
-| Auth | `Ocp-Apim-Subscription-Key` header (server-side) |
-| CORS | Allow-list — `https://nhs-address-finder.vercel.app` + `http(s)://localhost:*` + `http(s)://127.0.0.1:*`. All other origins blocked. `Vary: Origin` keeps cache honest. |
-| Cache | 24h edge cache keyed by `(product, postcode)`, origin-agnostic — CORS header rewritten per-request on cache hits |
-| Endpoints | `?postcode=…&product=broadband\|mobile\|both` |
-
-The `product=both` mode does a single round-trip and returns both feeds — the Address Finder uses this exclusively for efficiency.
-
-### 7.2 EPC Lookup Worker (`workers/epc-lookup/`)
+### 7.1 `api/os/places.js` — OS Places proxy
 
 | Item | Detail |
 |---|---|
-| Production URL | `https://nhs-epc-lookup.systemtest-827.workers.dev` |
-| Deployed | 2026-05-14 |
-| Upstream | `https://api.get-energy-performance-data.communities.gov.uk` |
-| Auth | `Authorization: Bearer <token>` (server-side) |
-| CORS | Same allow-list as Ofcom Worker (Vercel domain + localhost). |
-| Cache | 24h edge cache per query / certificate, origin-agnostic |
-| Endpoints | `?postcode=…` (search) · `?cert=<RRN>` (full certificate detail) |
+| Endpoint | `GET /api/os/places?postcode=…&maxresults=100` |
+| Upstream | `api.os.uk/search/places/v1/postcode` |
+| Auth | `key=…` query param |
+| Env var | `OS_KEY` (Vercel) |
+| Cache | `public, max-age=3600` (1h) |
 
-Both workers use `wrangler@^3.85.0` for deploy. POC keys are inlined as constants with `env.*` fallback hooks ready for production secret rotation.
+### 7.2 `api/os/tile.js` — OS Maps raster tile proxy
+
+| Item | Detail |
+|---|---|
+| Endpoint | `GET /api/os/tile?style=Road&z={z}&x={x}&y={y}` |
+| Upstream | `api.os.uk/maps/raster/v1/zxy/{style}_3857/{z}/{x}/{y}.png` |
+| Auth | `key=…` query param |
+| Env var | `OS_KEY` (shared with `/places`) |
+| Allowed styles | `Road`, `Outdoor`, `Light` |
+| Cache | `public, max-age=604800, immutable` (7 days) |
+
+Used directly as Leaflet's tile URL template — Leaflet substitutes `{z}/{x}/{y}` per tile.
+
+### 7.3 `api/ofcom/coverage.js` — Ofcom Connected Nations proxy
+
+| Item | Detail |
+|---|---|
+| Endpoint | `GET /api/ofcom/coverage?postcode=…&product=broadband\|mobile\|both` |
+| Upstream | `api-proxy.ofcom.org.uk/{broadband\|mobile}/coverage/{POSTCODE}` |
+| Auth | `Ocp-Apim-Subscription-Key` header |
+| Env vars | `OFCOM_BROADBAND_KEY`, `OFCOM_MOBILE_KEY` |
+| Cache | `public, max-age=86400` (24h) |
+
+`product=both` fires both fetches in parallel via `Promise.all` and returns `{ broadband, mobile }` in one response — the Address Finder uses this exclusively.
+
+### 7.4 `api/epc/lookup.js` — MHCLG EPC Register proxy
+
+| Item | Detail |
+|---|---|
+| Endpoints | `GET /api/epc/lookup?postcode=…` (search) · `?cert=<RRN>` (full certificate) |
+| Upstream | `api.get-energy-performance-data.communities.gov.uk` |
+| Auth | `Authorization: Bearer <token>` |
+| Env var | `EPC_TOKEN` |
+| Cache | `public, max-age=86400` (24h) |
+
+The cert-detail mode transforms the upstream's snake_case keys into the camelCase shape the EPC ladder renderer expects.
+
+### Why these replaced the Cloudflare Workers
+
+The original architecture used three Cloudflare Workers (`workers/ofcom-coverage/`, `workers/epc-lookup/`, `workers/os-proxy/`). All still deployed and working, but **superseded** by Edge Functions because:
+
+- **Same-origin** → no CORS allow-list to maintain (the Workers needed Vercel + localhost added explicitly, and cache hits had to rewrite `Allow-Origin`)
+- **Single platform** → keys + frontend deploy together, atomic rollback
+- **Env vars in one dashboard** → no `wrangler secret put` flow
+- **Cleaner DX** → `git push` deploys everything
+
+The legacy Worker source is retained in `workers/` for reference. Cloudflare deployments can be deleted from the Cloudflare dashboard whenever convenient.
 
 ---
 
 ## 8 · Deployment
 
-### 8.1 Frontend (`index.html`)
+### 8.1 Frontend + Edge Functions (`index.html` + `api/`)
 
-Deployed to **Vercel** as a static site. `vercel.json` at the repo root configures:
+Deployed to **Vercel** — the repo is wired up so every push to `main` auto-deploys both the static frontend and the four Edge Functions in one go.
 
-- Cache control — `index.html` always re-validates, all other assets cached for 1h
-- Security headers — `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denying camera/mic/geo, `Strict-Transport-Security` with 2-year max-age
+`vercel.json` configures:
+- Cache control — `index.html` always re-validates, other static assets cached 1h, `/api/*` excluded so functions set their own `Cache-Control`
+- Security headers (applied to all non-`/api/` routes) — `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denying camera/mic/geo, HSTS 2-year
 
-Deploy options:
+### 8.2 Environment variables (one-time setup)
+
+In **Vercel dashboard → Project → Settings → Environment Variables**, add the four keys for all three environments (Production / Preview / Development):
+
+| Name | Source |
+|---|---|
+| `OS_KEY` | OS Data Hub → API Projects → NHS-SF → Project API Key |
+| `OFCOM_BROADBAND_KEY` | Ofcom Developer Portal → Subscriptions → Broadband Coverage |
+| `OFCOM_MOBILE_KEY` | Ofcom Developer Portal → Subscriptions → Mobile Coverage |
+| `EPC_TOKEN` | MHCLG EPC Register → bearer token |
+
+> Each Edge Function falls back to an inlined POC key if its env var isn't set — the app keeps working immediately after first deploy. Set the env vars to rotate to production keys without a code change.
+
+### 8.3 Deploy commands
 
 ```bash
-# Manual
+# Auto-deploy on every push (already wired):
+git push
+
+# Or manual one-off:
 npx vercel --prod
-
-# Or wire the GitHub repo at vercel.com/new → auto-deploy on push to main
 ```
 
-For local development, serve from `http://localhost:*` — the Workers' CORS allow-list permits any localhost port:
+### 8.4 Local development
+
+Use **Vercel CLI** so the `/api/*` Edge Functions actually run locally:
 
 ```bash
-python3 -m http.server 8080
+npx vercel dev
+# then visit http://localhost:3000/
 ```
 
-Opening `index.html` via `file://` is now **blocked** — the Workers' tightened CORS no longer permits `null` origins.
+Plain `python3 -m http.server` won't work for local dev — without the Vercel runtime, the `/api/*` endpoints return 404 and every upstream call fails.
 
-### 8.2 Workers
+### 8.5 Legacy Cloudflare Workers (`workers/`)
 
-```bash
-cd workers/ofcom-coverage
-npm install
-npx wrangler login
-# optionally rotate POC keys to secrets:
-npx wrangler secret put OFCOM_BROADBAND_KEY
-npx wrangler secret put OFCOM_MOBILE_KEY
-npx wrangler deploy
-```
-
-Same pattern for `workers/epc-lookup`.
+The original architecture used three Cloudflare Workers. They're still deployed but **no longer called by the app** — superseded by the Edge Functions in `api/`. The source is retained in `workers/` for reference and can be deleted from the Cloudflare dashboard at any time.
 
 ---
 
@@ -307,12 +370,14 @@ Same pattern for `workers/epc-lookup`.
 ### Pending
 - [x] ~~Push to GitHub remote~~ — live at `github.com/deepakcrmmates/nhs-address-finder`
 - [x] ~~Production host for `index.html`~~ — Vercel at `nhs-address-finder.vercel.app`
-- [x] ~~Lock CORS `Allow-Origin` to the production domain~~ — both Workers now CORS-locked to Vercel + localhost
-- [ ] Rotate Worker POC keys → `wrangler secret put` for production
-- [ ] Restrict OS Data Hub API key by HTTP-Referer to the Vercel domain (key currently embedded in `index.html` is publicly visible)
-- [ ] Add custom domain (e.g. `find.newhomesolutions.co.uk`) and add it to both Workers' CORS allow-lists
+- [x] ~~Lock CORS `Allow-Origin`~~ — N/A now (same-origin Edge Functions)
+- [x] ~~Restrict OS Data Hub API key~~ — key is now server-side only, not exposed to the browser
+- [x] ~~Migrate proxies to Vercel Edge~~ — all 4 functions live in `api/`
+- [ ] Rotate POC keys → Vercel env vars (`OS_KEY`, `OFCOM_BROADBAND_KEY`, `OFCOM_MOBILE_KEY`, `EPC_TOKEN`)
+- [ ] Add custom domain (e.g. `find.newhomesolutions.co.uk`)
 - [ ] Add usage analytics / partner attribution
-- [ ] Add monthly rate-limit guard on the Ofcom Workers (the Basic tier has caps)
+- [ ] Add monthly rate-limit guard on the Ofcom functions (the Basic tier has caps)
+- [ ] Delete legacy Cloudflare Workers from the Cloudflare dashboard once Vercel cutover verified
 
 ### Considered, deferred
 - Selectable text in the PDF — would need to rebuild via `pdfmake` and lose the gauge / operator cards. Trade-off not worth it for v1.

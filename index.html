@@ -1982,29 +1982,18 @@
 
 <script>
   // ───────────────────────────────────────────────────
-  // OS API configuration (issued to NHS — proxied for partners)
-  //   In production this should call an NHS-hosted proxy to:
-  //   (a) keep the key off the client
-  //   (b) apply per-partner rate limits
-  //   (c) log usage by partner
-  //   For this preview, the key is embedded for demo purposes only.
   // ───────────────────────────────────────────────────
-  const OS_BASE = 'https://api.os.uk/search/places/v1';
-  const OS_KEY  = '5gc6m89L6DtmTg0A4cTfZzMaK0zHnfCd';
-
+  // Upstream APIs — all proxied through Vercel Edge Functions in /api/
+  // Keys live in Vercel env vars (Settings → Environment Variables) and
+  // never reach the browser. Source: api/os/, api/ofcom/, api/epc/.
+  // Same-origin → no CORS headache.
   // ───────────────────────────────────────────────────
-  // EPC integration — LIVE via Cloudflare Worker
-  // ---------------------------------------------------
-  // Worker code: docs/epc-certificate/cloudflare-worker.js
-  // Worker proxies the MHCLG API (Bearer auth held server-side)
-  // and returns slim JSON with: rrn, uprn, address lines, postcode,
-  // council, currentEnergyBand, registrationDate, certUrl.
-  // ───────────────────────────────────────────────────
-  const EPC_LOOKUP_URL = 'https://nhs-epc-lookup.systemtest-827.workers.dev';
+  const OS_PLACES_URL  = '/api/os/places';   // ?postcode=…
+  const EPC_LOOKUP_URL = '/api/epc/lookup';  // ?postcode=… | ?cert=RRN
 
   async function fetchEPCsByPostcode(postcode) {
     try {
-      const r = await fetch(`${EPC_LOOKUP_URL}/?postcode=${encodeURIComponent(postcode)}`);
+      const r = await fetch(`${EPC_LOOKUP_URL}?postcode=${encodeURIComponent(postcode)}`);
       if (!r.ok) return [];
       const data = await r.json();
       return data.certs || [];
@@ -2046,7 +2035,7 @@
     $('epc-modal').classList.add('open');
 
     try {
-      const r = await fetch(EPC_LOOKUP_URL + '/?cert=' + encodeURIComponent(rrn));
+      const r = await fetch(EPC_LOOKUP_URL + '?cert=' + encodeURIComponent(rrn));
       if (!r.ok) {
         $('epc-body').innerHTML = '<div class="epc-loading">Could not load certificate (HTTP ' + r.status + ')</div>';
         return;
@@ -2384,16 +2373,15 @@
   // ───────────────────────────────────────────────────
   // Ofcom Connected Nations — LIVE via Cloudflare Worker
   // ---------------------------------------------------
-  // Worker code: docs/ofcom-coverage/cloudflare-worker.js
-  // Worker proxies api-proxy.ofcom.org.uk for broadband + mobile
-  // coverage by postcode. Subscription keys held server-side.
-  // Single round-trip returns both products in one payload.
+  // Edge Function: api/ofcom/coverage.js — proxies api-proxy.ofcom.org.uk
+  // for broadband + mobile in one round-trip. Subscription keys held in
+  // Vercel env vars (OFCOM_BROADBAND_KEY / OFCOM_MOBILE_KEY).
   // ───────────────────────────────────────────────────
-  const OFCOM_COVERAGE_URL = 'https://nhs-ofcom-coverage.systemtest-827.workers.dev';
+  const OFCOM_COVERAGE_URL = '/api/ofcom/coverage';
 
   async function fetchOfcomCoverage(postcode) {
     try {
-      const r = await fetch(`${OFCOM_COVERAGE_URL}/?postcode=${encodeURIComponent(postcode)}&product=both`);
+      const r = await fetch(`${OFCOM_COVERAGE_URL}?postcode=${encodeURIComponent(postcode)}&product=both`);
       if (!r.ok) return { broadband: null, mobile: null };
       const data = await r.json();
       return {
@@ -2490,8 +2478,7 @@
     closeDetail();
     setLoading(true);
 
-    const url = OS_BASE + '/postcode?postcode=' + encodeURIComponent(pc)
-              + '&output_srs=EPSG:4326&maxresults=100&key=' + encodeURIComponent(OS_KEY);
+    const url = OS_PLACES_URL + '?postcode=' + encodeURIComponent(pc);
 
     const t0 = performance.now();
     try {
@@ -2893,7 +2880,7 @@
       let epcFull = null;
       if (f._epc && f._epc.rrn) {
         try {
-          const r = await fetch(EPC_LOOKUP_URL + '/?cert=' + encodeURIComponent(f._epc.rrn));
+          const r = await fetch(EPC_LOOKUP_URL + '?cert=' + encodeURIComponent(f._epc.rrn));
           if (r.ok) epcFull = await r.json();
         } catch (e) { /* keep going without full cert */ }
       }
@@ -3485,7 +3472,11 @@
   let _leafletMap = null, _tileLayer = null, _marker = null, _currentStyle = 'Road';
 
   function osTileUrl(style) {
-    return 'https://api.os.uk/maps/raster/v1/zxy/' + style + '_3857/{z}/{x}/{y}.png?key=' + encodeURIComponent(OS_KEY);
+    // OS Maps raster tiles via Vercel Edge Function (api/os/tile.js). Leaflet
+    // substitutes {z}/{x}/{y} per tile; we use query params (not path params)
+    // so Vercel routing is unambiguous and the function code can validate
+    // style/coords cleanly.
+    return '/api/os/tile?style=' + encodeURIComponent(style) + '&z={z}&x={x}&y={y}';
   }
 
   function openMapByIndex(i) {
