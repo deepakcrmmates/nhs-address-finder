@@ -3,1120 +3,941 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Ascot Homes · Housebuilder · NHS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<title>Housebuilder Portal — New Home Solutions</title>
 <style>
-/* ─────────────────────────────────────────────────────────────────────
-   NHS design tokens
-   ───────────────────────────────────────────────────────────────────── */
-:root {
-    /* Brand */
-    --nhs-dk:    #075F50;
-    --nhs-mid:   #4A6B5E;
-    --nhs-soft:  #6B9080;
-    --nhs-sage:  #C9D5CB;
-    --nhs-pale:  #EAF4EF;
-    --nhs-pale-2:#F4F9F6;
-    --nhs-border:#C5DCCC;
+  :root{
+    --nhs-dk: #075F50;
+    --nhs-mid: #4A6B5E;
+    --nhs-sage: #C9D5CB;
+    --nhs-pale: #EAF4EF;
+    --nhs-pale-2: #F4F9F6;
+    --nhs-border: #C5DCCC;
+    --amber: #C9A84C;
+    --amber-pale: #FFF8E7;
+    --amber-dk: #7A5A00;
+    --ink: #0F172A;
+    --ink-navy: #0D1E4A;
+    --muted: #64748B;
+    --muted-lt: #94A3B8;
+    --divider: #E2E8F0;
+    --success: #10B981;
+    --success-pale: #D1FAE5;
+    --warning: #F59E0B;
+    --warning-pale: #FEF3C7;
+    --danger: #EF4444;
+    --danger-pale: #FEE2E2;
+    --surface: #FFFFFF;
+    --surface-alt: #F8FAFC;
+    --font: 'Aptos', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    --font-mono: 'SF Mono', SFMono-Regular, Consolas, monospace;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.06);
+    --shadow-md: 0 4px 12px rgba(15,23,42,0.08);
+    --shadow-lg: 0 12px 32px rgba(15,23,42,0.10);
+  }
 
-    /* Ink */
-    --ink:       #0F172A;
-    --ink-soft:  #334155;
-    --ink-mute:  #475569;
-    --muted:     #64748B;
-    --muted-2:   #94A3B8;
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:var(--font);
+    background:var(--surface-alt);
+    color:var(--ink);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
 
-    /* Surfaces */
-    --bg:        #F1F5F4;
-    --surface:   #FFFFFF;
-    --border:    #E2E8F0;
-    --border-2:  #CBD5E1;
+  /* ═══ TOP NAV ═══ */
+  .topnav{
+    background:var(--nhs-dk);
+    color:#fff;
+    padding:12px 32px;
+    display:flex;align-items:center;gap:24px;
+    box-shadow:var(--shadow-md);
+    position:sticky;top:0;z-index:100;
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{
+    width:34px;height:34px;border-radius:6px;background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;color:var(--nhs-dk);font-size:14px;letter-spacing:-0.02em;
+  }
+  .brand-text{display:flex;flex-direction:column;line-height:1.2}
+  .brand-name{font-weight:700;font-size:14px;letter-spacing:0.02em}
+  .brand-sub{font-size:10.5px;opacity:0.75;text-transform:uppercase;letter-spacing:0.08em}
+  .nav-spacer{flex:1}
+  .nav-links{display:flex;gap:4px;margin-right:24px}
+  .nav-links a{
+    color:#fff;text-decoration:none;padding:7px 14px;border-radius:6px;
+    font-size:13px;opacity:0.88;transition:all 0.15s;
+  }
+  .nav-links a:hover,.nav-links a.active{background:rgba(255,255,255,0.14);opacity:1}
+  .user-chip{
+    display:flex;align-items:center;gap:10px;
+    padding:5px 6px 5px 12px;border-radius:100px;
+    background:rgba(255,255,255,0.1);font-size:13px;cursor:pointer;
+  }
+  .user-chip:hover{background:rgba(255,255,255,0.18)}
+  .user-avatar{
+    width:28px;height:28px;border-radius:50%;background:var(--amber);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:11px;
+  }
 
-    /* Accents */
-    --gold-tint: #FFF8E7;
-    --gold-mid:  #C9A84C;
-    --gold-dk:   #7A5A00;
-    --red:       #B91C1C;
-    --red-tint:  #FEF2F2;
-    --green-ok:  #008054;
-    --green-tint:#E8F5EE;
-    --blue:      #2563EB;
-    --blue-tint: #EFF6FF;
-    --purple:    #7C3AED;
-    --purple-tint:#F3E8FF;
+  /* ═══ HERO STRIP ═══ */
+  .hero{
+    background:linear-gradient(135deg,var(--nhs-sage) 0%,var(--nhs-pale) 100%);
+    padding:28px 32px 22px;
+    border-bottom:1px solid var(--nhs-border);
+  }
+  .hero-inner{max-width:1400px;margin:0 auto}
+  .hero-welcome{font-size:12px;color:var(--nhs-mid);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:4px}
+  .hero-title{font-size:26px;font-weight:700;color:var(--nhs-dk);margin-bottom:4px}
+  .hero-sub{font-size:14px;color:var(--muted);margin-bottom:18px}
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+  .kpi{
+    background:#fff;border:1px solid var(--nhs-border);border-radius:10px;padding:14px 18px;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .kpi-label{font-size:10.5px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);font-weight:700}
+  .kpi-value{font-size:24px;font-weight:700;color:var(--nhs-dk);font-variant-numeric:tabular-nums;line-height:1.1}
+  .kpi-delta{font-size:11.5px;color:var(--success);font-weight:600}
+  .kpi-delta.neutral{color:var(--muted)}
 
-    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
-    --shadow:    0 4px 14px rgba(15,23,42,0.06);
-    --shadow-lg: 0 16px 40px rgba(15,23,42,0.12);
+  /* ═══ TABS ═══ */
+  .tabs{
+    background:#fff;border-bottom:1px solid var(--divider);
+    padding:0 32px;display:flex;gap:4px;
+    box-shadow:var(--shadow-sm);
+    position:sticky;top:59px;z-index:90;
+  }
+  .tab{
+    background:transparent;border:none;padding:14px 18px 12px;
+    font-family:inherit;font-size:13.5px;font-weight:600;color:var(--muted);
+    cursor:pointer;border-bottom:3px solid transparent;
+    transition:all 0.15s;display:flex;align-items:center;gap:8px;
+  }
+  .tab:hover{color:var(--nhs-dk)}
+  .tab.active{color:var(--nhs-dk);border-bottom-color:var(--nhs-dk)}
+  .tab-count{
+    background:var(--nhs-pale);color:var(--nhs-dk);
+    font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;
+  }
+  .tab.active .tab-count{background:var(--nhs-dk);color:#fff}
 
-    --radius:    10px;
-    --radius-sm: 6px;
-    --radius-lg: 14px;
-}
+  /* ═══ CONTAINER ═══ */
+  .container{max-width:1400px;margin:0 auto;padding:22px 32px 48px}
 
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: var(--bg); }
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--ink);
-    -webkit-font-smoothing: antialiased;
-}
-button { font-family: inherit; cursor: pointer; }
-a { color: var(--nhs-dk); text-decoration: none; }
-a:hover { color: var(--nhs-mid); }
+  .view{display:none}
+  .view.active{display:block}
 
-/* ─────────────────────────────────────────────────────────────────────
-   Top bar — breadcrumb + global actions
-   ───────────────────────────────────────────────────────────────────── */
-.topbar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    height: 48px;
-    padding: 0 24px;
-    display: flex; align-items: center;
-    gap: 14px;
-    font-size: 13px;
-}
-.topbar-brand {
-    display: flex; align-items: center; gap: 8px;
-    font-weight: 800; color: var(--nhs-dk);
-    letter-spacing: 0.02em;
-}
-.topbar-brand-mark {
-    width: 22px; height: 22px; border-radius: 5px;
-    background: linear-gradient(135deg, var(--nhs-dk), var(--nhs-soft));
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: 800; font-size: 12px;
-}
-.crumb {
-    display: flex; align-items: center; gap: 6px;
-    color: var(--muted);
-}
-.crumb a { color: var(--muted); }
-.crumb a:hover { color: var(--ink); }
-.crumb-sep { color: var(--muted-2); }
-.crumb-here { color: var(--ink); font-weight: 600; }
-.topbar-right {
-    margin-left: auto;
-    display: flex; align-items: center; gap: 6px;
-}
-.topbar-iconbtn {
-    width: 32px; height: 32px; border-radius: var(--radius-sm);
-    background: transparent; border: 1px solid transparent;
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--muted);
-}
-.topbar-iconbtn:hover { background: var(--nhs-pale-2); color: var(--nhs-dk); }
+  /* ═══ SEARCH + FILTERS ═══ */
+  .toolbar{
+    background:#fff;border:1px solid var(--divider);border-radius:10px;
+    padding:10px 14px;display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  }
+  .search-box{
+    flex:1;display:flex;align-items:center;gap:8px;
+    background:var(--surface-alt);border:1px solid transparent;
+    padding:8px 12px;border-radius:6px;transition:border 0.15s;
+  }
+  .search-box:focus-within{border-color:var(--nhs-dk);background:#fff}
+  .search-box input{
+    border:none;outline:none;background:transparent;
+    font-family:inherit;font-size:13px;color:var(--ink);flex:1;
+  }
+  .search-box svg{flex-shrink:0;color:var(--muted-lt)}
+  .filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+  .pill{
+    background:#fff;border:1px solid var(--divider);
+    padding:6px 12px;border-radius:100px;font-size:12px;font-weight:600;
+    color:var(--muted);cursor:pointer;transition:all 0.15s;
+    display:flex;align-items:center;gap:6px;
+  }
+  .pill:hover{border-color:var(--nhs-mid);color:var(--nhs-dk)}
+  .pill.active{background:var(--nhs-dk);color:#fff;border-color:var(--nhs-dk)}
+  .pill-count{
+    background:rgba(255,255,255,0.2);padding:0 6px;border-radius:8px;font-size:10.5px;
+  }
+  .pill:not(.active) .pill-count{background:var(--nhs-pale);color:var(--nhs-dk)}
 
-/* ─────────────────────────────────────────────────────────────────────
-   Page container
-   ───────────────────────────────────────────────────────────────────── */
-.page {
-    max-width: 1320px;
-    margin: 0 auto;
-    padding: 22px 24px 48px;
-}
+  /* ═══ OVERVIEW TABLE ═══ */
+  .table-wrap{
+    background:#fff;border:1px solid var(--divider);border-radius:10px;
+    overflow:hidden;box-shadow:var(--shadow-sm);
+  }
+  .apps-table{width:100%;border-collapse:collapse;font-size:13px}
+  .apps-table thead th{
+    background:var(--nhs-pale);color:var(--nhs-dk);
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;
+    padding:13px 14px;text-align:left;border-bottom:1px solid var(--nhs-border);
+    white-space:nowrap;
+  }
+  .apps-table thead th.stage-col{text-align:center;min-width:110px;width:110px}
+  .apps-table tbody tr{
+    border-bottom:1px solid var(--divider);transition:background 0.12s;cursor:pointer;
+  }
+  .apps-table tbody tr:last-child{border-bottom:none}
+  .apps-table tbody tr:hover{background:var(--nhs-pale-2)}
+  .apps-table td{padding:13px 14px;vertical-align:middle}
+  .app-address{font-weight:600;color:var(--ink-navy);font-size:13px}
+  .app-meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .app-vendor{font-weight:500;color:var(--ink)}
+  .app-vendor-sub{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* ─────────────────────────────────────────────────────────────────────
-   Hero card — logo + name + meta + KPIs + actions
-   ───────────────────────────────────────────────────────────────────── */
-.hero {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 22px 24px;
-    box-shadow: var(--shadow-sm);
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 22px;
-    align-items: center;
-}
-.hero-logo {
-    width: 88px; height: 88px;
-    border-radius: var(--radius);
-    background: #0F172A;
-    color: white;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 26px;
-    letter-spacing: 0.02em;
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-}
-.hero-logo img { width: 100%; height: 100%; object-fit: cover; }
+  /* Stage dots */
+  .stage-cell{text-align:center}
+  .stage-mark{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:24px;height:24px;border-radius:50%;
+    font-size:12px;font-weight:700;
+  }
+  .stage-mark.done{background:var(--success);color:#fff}
+  .stage-mark.current{background:var(--amber);color:#fff;box-shadow:0 0 0 4px var(--amber-pale)}
+  .stage-mark.pending{background:var(--divider);color:var(--muted-lt)}
+  .stage-mark.blocked{background:var(--danger);color:#fff}
 
-.hero-info { min-width: 0; }
-.hero-kicker {
-    font-size: 10.5px; font-weight: 700;
-    color: var(--nhs-dk);
-    text-transform: uppercase; letter-spacing: 0.1em;
-    margin-bottom: 4px;
-}
-.hero-name {
-    font-size: 26px; font-weight: 800; color: var(--ink);
-    margin: 0;
-    line-height: 1.15;
-}
-.hero-meta {
-    display: flex; flex-wrap: wrap; gap: 16px;
-    margin-top: 8px;
-    font-size: 12.5px; color: var(--muted);
-    align-items: center;
-}
-.hero-meta-item { display: inline-flex; align-items: center; gap: 6px; }
-.hero-meta-item svg { width: 14px; height: 14px; color: var(--nhs-mid); }
-.hero-meta-item a { color: var(--ink-soft); font-weight: 500; }
-.hero-meta-item a:hover { color: var(--nhs-dk); }
-.hero-status {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 2px 8px; border-radius: 999px;
-    background: var(--green-tint); color: var(--green-ok);
-    font-weight: 700; font-size: 11px;
-    text-transform: uppercase; letter-spacing: 0.04em;
-}
-.hero-status .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: currentColor;
-    animation: pulse 2.4s ease-in-out infinite;
-}
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.4; }
-}
+  .stage-date{display:block;font-size:10.5px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+  .stage-date.urgent{color:var(--danger);font-weight:600}
 
-.hero-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--nhs-border);
-    background: white;
-    color: var(--ink-soft);
-    font-weight: 600;
-    font-size: 13px;
-    transition: all 0.12s;
-}
-.btn:hover { border-color: var(--nhs-mid); color: var(--nhs-dk); background: var(--nhs-pale-2); }
-.btn svg { width: 14px; height: 14px; }
-.btn-primary {
-    background: var(--nhs-dk); color: white; border-color: var(--nhs-dk);
-}
-.btn-primary:hover { background: var(--nhs-mid); color: white; }
-.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); padding: 8px; }
-.btn-ghost:hover { background: var(--nhs-pale-2); color: var(--nhs-dk); border-color: transparent; }
+  /* ═══ DETAIL VIEW ═══ */
+  .detail-back{
+    display:inline-flex;align-items:center;gap:6px;
+    color:var(--nhs-dk);font-size:12.5px;font-weight:600;
+    text-decoration:none;margin-bottom:14px;cursor:pointer;
+    padding:6px 10px;border-radius:6px;transition:background 0.12s;
+  }
+  .detail-back:hover{background:var(--nhs-pale)}
 
-/* ─────────────────────────────────────────────────────────────────────
-   KPI strip — mini stats under the hero
-   ───────────────────────────────────────────────────────────────────── */
-.kpis {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
-    margin: 18px 0 0;
-}
-.kpi {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    display: flex; flex-direction: column; gap: 2px;
-    transition: border-color 0.12s, transform 0.12s;
-}
-.kpi:hover { border-color: var(--nhs-border); }
-.kpi-label {
-    font-size: 10.5px; font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.06em;
-}
-.kpi-value {
-    font-size: 22px; font-weight: 800; color: var(--ink);
-    font-variant-numeric: tabular-nums;
-    line-height: 1.1;
-}
-.kpi-delta { font-size: 11.5px; color: var(--muted); font-weight: 600; }
-.kpi-delta.up   { color: var(--green-ok); }
-.kpi-delta.down { color: var(--red); }
+  .property-header{
+    background:linear-gradient(135deg,var(--nhs-dk) 0%,var(--nhs-mid) 100%);
+    color:#fff;border-radius:12px;padding:26px 28px;margin-bottom:22px;
+    display:flex;align-items:center;gap:20px;position:relative;overflow:hidden;
+  }
+  .property-header::after{
+    content:"";position:absolute;right:-40px;top:-40px;
+    width:220px;height:220px;border-radius:50%;
+    background:rgba(255,255,255,0.07);
+  }
+  .property-icon{
+    width:60px;height:60px;border-radius:12px;background:rgba(255,255,255,0.18);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;
+  }
+  .property-text{z-index:1;flex:1}
+  .property-address{font-size:22px;font-weight:700;letter-spacing:-0.01em;margin-bottom:4px}
+  .property-meta{font-size:13px;opacity:0.85;display:flex;gap:14px;flex-wrap:wrap}
+  .property-meta span::before{content:"•";margin-right:10px;opacity:0.5}
+  .property-meta span:first-child::before{display:none}
+  .property-pill{
+    background:var(--amber);color:#fff;
+    padding:5px 12px;border-radius:100px;font-size:11px;font-weight:700;
+    text-transform:uppercase;letter-spacing:0.06em;z-index:1;align-self:flex-start;
+    margin-top:6px;
+  }
 
-/* ─────────────────────────────────────────────────────────────────────
-   Tabs
-   ───────────────────────────────────────────────────────────────────── */
-.tabs {
-    margin: 22px 0 14px;
-    display: flex; align-items: center;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-.tabs::-webkit-scrollbar { display: none; }
-.tab {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 11px 16px;
-    background: transparent; border: none;
-    color: var(--muted);
-    font-size: 13.5px; font-weight: 600;
-    border-bottom: 2.5px solid transparent;
-    margin-bottom: -1px;
-    white-space: nowrap;
-    transition: all 0.12s;
-}
-.tab:hover { color: var(--ink); }
-.tab.active { color: var(--nhs-dk); border-bottom-color: var(--nhs-dk); }
-.tab-count {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 22px; height: 20px; padding: 0 7px;
-    border-radius: 999px;
+  .detail-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:22px}
+
+  /* Timeline */
+  .card{
+    background:#fff;border:1px solid var(--divider);border-radius:12px;
+    padding:22px 24px;box-shadow:var(--shadow-sm);
+  }
+  .card-title{
+    font-size:13px;font-weight:700;color:var(--nhs-dk);
+    text-transform:uppercase;letter-spacing:0.07em;
+    padding-bottom:12px;margin-bottom:16px;
+    border-bottom:1px solid var(--divider);
+    display:flex;align-items:center;gap:8px;
+  }
+  .timeline{position:relative}
+  .timeline::before{
+    content:"";position:absolute;left:15px;top:16px;bottom:16px;
+    width:2px;background:var(--divider);z-index:0;
+  }
+  .milestone{
+    position:relative;padding:6px 0 22px 42px;z-index:1;
+    min-height:104px;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .milestone:last-child{padding-bottom:6px}
+  .milestone-dot{
+    position:absolute;left:0;top:0;
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:700;
+    border:3px solid #fff;box-shadow:0 0 0 1px var(--divider);
+  }
+  .milestone.done .milestone-dot{
+    background:var(--success);color:#fff;
+    box-shadow:0 0 0 1px var(--success);
+  }
+  .milestone.current .milestone-dot{
+    background:var(--amber);color:#fff;
+    box-shadow:0 0 0 1px var(--amber), 0 0 0 6px var(--amber-pale);
+    animation:pulseAmber 2s ease-in-out infinite;
+  }
+  @keyframes pulseAmber{
+    0%,100%{box-shadow:0 0 0 1px var(--amber), 0 0 0 6px var(--amber-pale)}
+    50%{box-shadow:0 0 0 1px var(--amber), 0 0 0 10px rgba(201,168,76,0.15)}
+  }
+  .milestone.upcoming .milestone-dot{
+    background:#fff;color:var(--muted-lt);
+    border-color:#fff;box-shadow:0 0 0 2px var(--divider);
+  }
+  .milestone-heading{
+    font-size:14px;font-weight:700;color:var(--ink-navy);
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .milestone.upcoming .milestone-heading{color:var(--muted)}
+  .milestone-date{
+    font-size:11.5px;color:var(--muted);font-weight:500;
+    font-variant-numeric:tabular-nums;
+  }
+  .milestone-status{
+    font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;
+    padding:2px 8px;border-radius:10px;
+  }
+  .milestone-status.done{background:var(--success-pale);color:#065f46}
+  .milestone-status.current{background:var(--amber-pale);color:var(--amber-dk)}
+  .milestone-desc{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.55}
+  .milestone-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+  .mini-btn{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:11.5px;font-weight:600;color:var(--nhs-dk);
+    background:var(--nhs-pale);border:1px solid var(--nhs-border);
+    padding:4px 10px;border-radius:6px;text-decoration:none;
+    transition:background 0.12s;
+  }
+  .mini-btn:hover{background:var(--nhs-sage)}
+
+  /* ═══ PHOTOGRAPHS card ═══ */
+  .photos-card { margin-top: 22px; }
+  .photos-card .card-title { gap: 10px; }
+  .photos-card .card-title .count {
     background: var(--nhs-pale); color: var(--nhs-dk);
     font-size: 11px; font-weight: 700;
-    font-variant-numeric: tabular-nums;
-}
-.tab.active .tab-count { background: var(--nhs-dk); color: white; }
-.tab[disabled] { opacity: 0.45; cursor: not-allowed; }
-
-/* ─────────────────────────────────────────────────────────────────────
-   Filter / toolbar above tables
-   ───────────────────────────────────────────────────────────────────── */
-.toolbar {
-    display: flex; align-items: center; gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
-}
-.search {
-    position: relative; min-width: 280px; flex: 1;
-}
-.search input {
-    width: 100%;
-    height: 36px;
-    padding: 0 12px 0 36px;
-    border: 1px solid var(--border-2);
-    border-radius: var(--radius-sm);
-    background: white;
-    font: inherit; color: var(--ink);
-    outline: none;
-}
-.search input:focus { border-color: var(--nhs-dk); box-shadow: 0 0 0 3px rgba(7,95,80,0.12); }
-.search svg {
-    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-    width: 16px; height: 16px; color: var(--muted-2);
-}
-.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-.filter-pill {
-    padding: 7px 12px;
-    border-radius: 999px;
-    border: 1px solid var(--border-2);
-    background: white;
-    color: var(--ink-soft);
-    font-size: 12.5px; font-weight: 600;
-}
-.filter-pill:hover { border-color: var(--nhs-mid); color: var(--nhs-dk); }
-.filter-pill.active { background: var(--nhs-dk); border-color: var(--nhs-dk); color: white; }
-.filter-pill-count {
-    margin-left: 5px;
-    font-variant-numeric: tabular-nums;
-    opacity: 0.7;
-}
-.toolbar-right {
-    margin-left: auto;
-    display: flex; align-items: center; gap: 8px;
-    color: var(--muted); font-size: 12.5px;
-}
-
-/* ─────────────────────────────────────────────────────────────────────
-   Table — Sage-tint header pattern
-   ───────────────────────────────────────────────────────────────────── */
-.table-card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
-table.list {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-table.list thead th {
-    background: var(--nhs-pale-2);
-    color: var(--nhs-mid);
-    font-size: 10.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    text-align: left;
-    padding: 11px 16px;
-    border-bottom: 1px solid var(--nhs-border);
-    white-space: nowrap;
-}
-table.list tbody td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    color: var(--ink);
-    vertical-align: middle;
-}
-table.list tbody tr { transition: background 0.1s; }
-table.list tbody tr:hover { background: var(--nhs-pale-2); }
-table.list tbody tr:last-child td { border-bottom: none; }
-.cell-main { font-weight: 600; color: var(--ink); }
-.cell-sub  { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
-.cell-num  { font-variant-numeric: tabular-nums; }
-
-.app-ref {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 12px; color: var(--nhs-mid); font-weight: 600;
-    background: var(--nhs-pale);
-    padding: 1px 7px; border-radius: 4px;
-    display: inline-block;
-}
-
-/* Stage pills */
-.pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 10px; border-radius: 999px;
-    font-size: 10.5px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.05em;
-    white-space: nowrap;
-}
-.pill .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-.pill-application  { background: var(--blue-tint);   color: var(--blue); }
-.pill-figures      { background: var(--red-tint);    color: var(--red); }
-.pill-agents       { background: var(--gold-tint);   color: var(--gold-dk); }
-.pill-valuations   { background: var(--purple-tint); color: var(--purple); }
-.pill-sstc         { background: var(--green-tint);  color: var(--green-ok); }
-.pill-completed    { background: var(--nhs-pale);    color: var(--nhs-dk); }
-
-/* Hover-reveal row actions */
-.row-actions {
-    display: inline-flex; gap: 4px;
-    opacity: 0;
-    transition: opacity 0.12s;
-}
-table.list tr:hover .row-actions { opacity: 1; }
-.row-action-btn {
-    width: 28px; height: 28px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--nhs-border);
-    background: white;
-    color: var(--nhs-mid);
-    display: inline-flex; align-items: center; justify-content: center;
-}
-.row-action-btn:hover { background: var(--nhs-pale); color: var(--nhs-dk); }
-.row-action-btn svg { width: 13px; height: 13px; }
-
-/* Empty state */
-.empty {
-    padding: 56px 24px;
-    text-align: center;
-    color: var(--muted);
-}
-.empty-icon {
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    background: var(--nhs-pale);
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--nhs-mid);
-    margin-bottom: 12px;
-}
-.empty h3 { margin: 0 0 4px; font-size: 15px; color: var(--ink); }
-.empty p  { margin: 0 0 14px; font-size: 13px; }
-
-/* Tab content panels */
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* Comms timeline */
-.comms-list { display: flex; flex-direction: column; gap: 1px; }
-.comm-item {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    margin-bottom: 8px;
-    display: grid;
-    grid-template-columns: 28px 1fr auto;
-    gap: 12px;
-    align-items: start;
-}
-.comm-icon {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--nhs-pale); color: var(--nhs-dk);
-    display: inline-flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-}
-.comm-icon svg { width: 14px; height: 14px; }
-.comm-icon.email { background: var(--blue-tint);   color: var(--blue); }
-.comm-icon.call  { background: var(--gold-tint);   color: var(--gold-dk); }
-.comm-icon.sms   { background: var(--green-tint);  color: var(--green-ok); }
-.comm-icon.wa    { background: #DCFCE7;            color: #15803D; }
-.comm-icon.note  { background: var(--purple-tint); color: var(--purple); }
-.comm-body { min-width: 0; }
-.comm-title { font-weight: 600; color: var(--ink); font-size: 13.5px; }
-.comm-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-.comm-preview {
-    font-size: 12.5px; color: var(--ink-mute);
-    margin-top: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-.comm-time {
-    font-size: 11.5px; color: var(--muted);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
-/* ─────────────────────────────────────────────────────────────────────
-   Companies House panel
-   ───────────────────────────────────────────────────────────────────── */
-.tab-count-verified {
-    background: var(--green-tint);
-    color: var(--green-ok);
-    font-size: 11px;
-    padding: 0 6px;
-}
-.tab.active .tab-count-verified { background: white; color: var(--green-ok); }
-
-.ch-bar {
-    display: flex; align-items: center; gap: 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-}
-.ch-bar-left { display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap; }
-.ch-bar-right { display: flex; align-items: center; gap: 10px; }
-.ch-source-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 10px;
-    background: var(--nhs-pale); color: var(--nhs-dk);
-    border-radius: 999px;
-    font-size: 11.5px; font-weight: 700;
-    letter-spacing: 0.02em;
-}
-.ch-meta { font-size: 12.5px; color: var(--muted); }
-.ch-meta strong { color: var(--ink-soft); font-weight: 600; }
-.ch-link {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 12.5px; font-weight: 600; color: var(--nhs-mid);
-}
-.ch-link:hover { color: var(--nhs-dk); }
-
-.ch-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-.ch-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 18px;
-    box-shadow: var(--shadow-sm);
-}
-.ch-section-wide { grid-column: 1 / -1; }
-.ch-section-title {
-    font-size: 10.5px; font-weight: 800;
-    color: var(--nhs-mid);
-    text-transform: uppercase; letter-spacing: 0.08em;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--nhs-border);
-    display: flex; align-items: center; justify-content: space-between;
-}
-.ch-fields {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 16px;
-}
-.ch-field-wide { grid-column: 1 / -1; }
-.ch-field-label {
-    font-size: 10.5px; font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.04em;
-    margin-bottom: 2px;
-}
-.ch-field-value {
-    font-size: 13.5px; color: var(--ink); font-weight: 600;
-}
-.ch-field-value.mono,
-.mono {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-}
-.ch-address { font-size: 13.5px; color: var(--ink); line-height: 1.7; }
-.ch-address .mono { font-size: 12.5px; color: var(--nhs-dk); }
-.ch-country { color: var(--muted); font-size: 12.5px; margin-top: 4px; }
-
-/* KYC signals */
-.kyc-summary {
-    font-size: 10.5px; font-weight: 700;
-    padding: 2px 8px; border-radius: 999px;
-    text-transform: uppercase; letter-spacing: 0.04em;
-}
-.kyc-summary-clean { background: var(--gold-tint); color: var(--gold-dk); }
-.kyc-summary-bad   { background: var(--red-tint);  color: var(--red); }
-.kyc-summary-ok    { background: var(--green-tint); color: var(--green-ok); }
-.kyc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 8px;
-}
-.kyc-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 12px;
-    background: var(--nhs-pale-2);
-    border: 1px solid var(--nhs-border);
-    border-radius: var(--radius-sm);
-}
-.kyc-label { font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
-.kyc-flag {
-    font-size: 10.5px; font-weight: 800;
-    padding: 2px 8px; border-radius: 999px;
-    letter-spacing: 0.04em; text-transform: uppercase;
-}
-.kyc-flag-ok   { background: var(--green-tint); color: var(--green-ok); }
-.kyc-flag-warn { background: var(--gold-tint);  color: var(--gold-dk); }
-.kyc-flag-bad  { background: var(--red-tint);   color: var(--red); }
-
-/* Compliance dates */
-.ch-compliance {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-.ch-compliance-card {
-    padding: 14px 16px;
-    background: var(--nhs-pale-2);
-    border: 1px solid var(--nhs-border);
-    border-radius: var(--radius);
-    display: flex; flex-direction: column; gap: 4px;
-}
-.ch-compliance-label {
-    font-size: 10.5px; font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.04em;
-}
-.ch-compliance-date {
-    font-size: 18px; font-weight: 800; color: var(--ink);
-    font-variant-numeric: tabular-nums;
-}
-.ch-status-badge {
-    display: inline-block;
-    font-size: 10.5px; font-weight: 800;
     padding: 2px 9px; border-radius: 999px;
-    width: fit-content;
-    letter-spacing: 0.04em; text-transform: uppercase;
-    margin-top: 4px;
-}
-.ch-status-ok      { background: var(--green-tint); color: var(--green-ok); }
-.ch-status-overdue { background: var(--red-tint);   color: var(--red); }
+    letter-spacing: 0.04em; text-transform: none;
+  }
+  .photos-card .card-title .credit {
+    margin-left: auto;
+    font-size: 11.5px; font-weight: 500;
+    color: var(--muted); text-transform: none;
+    letter-spacing: 0;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .photos-card .card-title .credit svg { width: 12px; height: 12px; color: var(--nhs-mid); }
 
-/* ─────────────────────────────────────────────────────────────────────
-   Responsive
-   ───────────────────────────────────────────────────────────────────── */
-@media (max-width: 1024px) {
-    .kpis { grid-template-columns: repeat(2, 1fr); }
-    .hero { grid-template-columns: auto 1fr; }
-    .hero-actions { grid-column: 1 / -1; justify-content: flex-end; }
-    .ch-grid { grid-template-columns: 1fr; }
-    .ch-compliance { grid-template-columns: 1fr; }
-}
-@media (max-width: 640px) {
-    .page { padding: 12px; }
-    .hero { padding: 16px; gap: 14px; }
-    .hero-logo { width: 64px; height: 64px; font-size: 20px; }
-    .hero-name { font-size: 20px; }
-    .kpis { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .kpi-value { font-size: 18px; }
-    .tabs { font-size: 12px; }
-    .tab { padding: 10px 12px; }
-}
+  .photos-filter {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .photos-filter .cat-pill {
+    background: #fff; border: 1px solid var(--divider);
+    color: var(--muted); font-size: 12px; font-weight: 600;
+    padding: 5px 11px; border-radius: 999px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.12s;
+  }
+  .photos-filter .cat-pill:hover { border-color: var(--nhs-mid); color: var(--nhs-dk); }
+  .photos-filter .cat-pill.active { background: var(--nhs-dk); color: #fff; border-color: var(--nhs-dk); }
+  .photos-filter .cat-pill .cnt {
+    background: var(--nhs-pale); color: var(--nhs-dk);
+    font-size: 10px; font-weight: 800;
+    padding: 1px 6px; border-radius: 999px;
+  }
+  .photos-filter .cat-pill.active .cnt { background: rgba(255,255,255,0.22); color: #fff; }
+
+  .photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 10px;
+  }
+  .photo-tile {
+    aspect-ratio: 4 / 3;
+    border-radius: 8px;
+    border: 1px solid var(--divider);
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .photo-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15,23,42,0.12);
+  }
+  .photo-tile .label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(7,15,20,0.65) 100%);
+    color: #fff;
+    font-size: 11px; font-weight: 700;
+    padding: 16px 10px 8px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .photo-tile .primary-tag {
+    position: absolute; top: 7px; left: 7px;
+    background: var(--nhs-dk); color: #fff;
+    font-size: 9px; font-weight: 800;
+    padding: 3px 7px; border-radius: 4px;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+  /* Demo gradient backgrounds — stand in for real Cloudflare-served photos */
+  .photo-tile.bg-1 { background: linear-gradient(135deg, #6F5A8C, #4B3C66); }
+  .photo-tile.bg-2 { background: linear-gradient(135deg, #4682A9, #2C5475); }
+  .photo-tile.bg-3 { background: linear-gradient(135deg, #B07F4A, #7E5A30); }
+  .photo-tile.bg-4 { background: linear-gradient(135deg, #C9A84C, #8E743A); }
+  .photo-tile.bg-5 { background: linear-gradient(135deg, #5A6F7B, #3D4D55); }
+  .photo-tile.bg-6 { background: linear-gradient(135deg, #6B9080, #4A6B5E); }
+  .photo-tile.bg-7 { background: linear-gradient(135deg, #4A6B5E, #2a3d36); }
+  .photo-tile.bg-8 { background: linear-gradient(135deg, #8B5A3C, #5C3D27); }
+
+  .photos-more {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 12.5px; color: var(--muted);
+  }
+  .photos-more a { color: var(--nhs-dk); font-weight: 600; text-decoration: none; }
+  .photos-more a:hover { text-decoration: underline; }
+  .mini-btn svg{flex-shrink:0}
+
+  /* Side cards */
+  .side{display:flex;flex-direction:column;gap:16px}
+  .info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--divider);font-size:13px}
+  .info-row:last-child{border-bottom:none}
+  .info-label{color:var(--muted);font-weight:500}
+  .info-value{color:var(--ink);font-weight:600;text-align:right}
+
+  .agent-row{
+    display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--divider);
+  }
+  .agent-row:last-child{border-bottom:none}
+  .agent-avatar{
+    width:32px;height:32px;border-radius:50%;background:var(--nhs-pale);
+    color:var(--nhs-dk);display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:11px;flex-shrink:0;
+  }
+  .agent-info{flex:1;min-width:0}
+  .agent-name{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.3}
+  .agent-meta{font-size:11px;color:var(--muted);margin-top:1px}
+  .agent-badge{
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;
+    padding:2px 7px;border-radius:10px;
+  }
+  .agent-badge.visited{background:var(--success-pale);color:#065f46}
+  .agent-badge.booked{background:var(--warning-pale);color:#92400E}
+  .agent-badge.pending{background:var(--divider);color:var(--muted)}
+
+  .val-table{width:100%;border-collapse:collapse;font-size:12px}
+  .val-table th{
+    background:var(--nhs-pale);color:var(--nhs-dk);
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;
+    padding:7px 8px;text-align:center;border-bottom:1px solid var(--nhs-border);
+  }
+  .val-table th:first-child{text-align:left}
+  .val-table td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--divider)}
+  .val-table td:first-child{text-align:left;font-weight:600;color:var(--muted)}
+  .val-table tr:last-child td{border-bottom:none}
+  .val-avg{font-weight:700;color:var(--nhs-dk);background:var(--nhs-pale-2)}
+
+  /* Footer */
+  footer{
+    text-align:center;padding:32px 0 48px;
+    font-size:11px;color:var(--muted-lt);
+  }
+  footer a{color:var(--nhs-mid);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+
+  /* ═══ RESPONSIVE ═══ */
+  @media(max-width:900px){
+    .topnav{padding:10px 16px}
+    .hero{padding:20px 16px}
+    .container{padding:16px}
+    .kpi-row{grid-template-columns:repeat(2,1fr)}
+    .detail-grid{grid-template-columns:1fr}
+    .nav-links{display:none}
+    .apps-table thead th.stage-col{min-width:80px;width:80px}
+  }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-    <div class="topbar-brand">
-        <div class="topbar-brand-mark">N</div>
-        <span>NHS</span>
+<!-- ═══ TOP NAV ═══ -->
+<nav class="topnav">
+  <div class="brand">
+    <div class="brand-mark">NHS</div>
+    <div class="brand-text">
+      <span class="brand-name">New Home Solutions</span>
+      <span class="brand-sub">Housebuilder Portal</span>
     </div>
-    <div class="crumb">
-        <a href="#">Housebuilders</a>
-        <span class="crumb-sep">›</span>
-        <span class="crumb-here">Ascot Homes</span>
+  </div>
+  <div class="nav-spacer"></div>
+  <div class="nav-links">
+    <a href="#" class="active">Applications</a>
+    <a href="#">Reports</a>
+    <a href="#">Resources</a>
+    <a href="#">Support</a>
+  </div>
+  <div class="user-chip">
+    <span>Wain Homes — North West</span>
+    <div class="user-avatar">WH</div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-welcome">Welcome back</div>
+    <h1 class="hero-title">Wain Homes — Your Applications</h1>
+    <p class="hero-sub">Track every vendor property through the NHS valuation &amp; sale journey — from application received to sales progression.</p>
+    <div class="kpi-row">
+      <div class="kpi">
+        <span class="kpi-label">Total Active</span>
+        <span class="kpi-value">12</span>
+        <span class="kpi-delta">+3 this week</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Awaiting Figures</span>
+        <span class="kpi-value">4</span>
+        <span class="kpi-delta neutral">2 chasing</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">On Market</span>
+        <span class="kpi-value">5</span>
+        <span class="kpi-delta">+1 this week</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Offers Received</span>
+        <span class="kpi-value">3</span>
+        <span class="kpi-delta">2 proceeding</span>
+      </div>
     </div>
-    <div class="topbar-right">
-        <button class="topbar-iconbtn" title="Notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        </button>
-        <button class="topbar-iconbtn" title="Settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        </button>
-    </div>
+  </div>
+</section>
+
+<!-- ═══ TABS ═══ -->
+<div class="tabs">
+  <button class="tab active" data-view="overview">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    Overview
+    <span class="tab-count">12</span>
+  </button>
+  <button class="tab" data-view="detail">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Application Detail
+  </button>
 </div>
 
-<div class="page">
+<div class="container">
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-logo">BC</div>
+  <!-- ═══ OVERVIEW VIEW ═══ -->
+  <section class="view active" id="view-overview">
 
-        <div class="hero-info">
-            <div class="hero-kicker">Housebuilder</div>
-            <h1 class="hero-name">Ascot Homes <span class="hero-status"><span class="dot"></span>Active</span></h1>
-            <div class="hero-meta">
-                <span class="hero-meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg>
-                    <a href="tel:01234567890">01234 567 890</a>
-                </span>
-                <span class="hero-meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    <a href="mailto:akash@crmmates.com">akash@crmmates.com</a>
-                </span>
-                <span class="hero-meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Ascot, Berkshire SL5
-                </span>
-                <span class="hero-meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    NHS partner since Apr 2024
-                </span>
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search by address, plot, vendor name…"/>
+      </div>
+      <div class="filter-pills">
+        <button class="pill active">All<span class="pill-count">12</span></button>
+        <button class="pill">Awaiting Valuation<span class="pill-count">4</span></button>
+        <button class="pill">On Market<span class="pill-count">5</span></button>
+        <button class="pill">Offers<span class="pill-count">3</span></button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="apps-table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Vendor</th>
+            <th class="stage-col">App Received</th>
+            <th class="stage-col">Vendor Contacted</th>
+            <th class="stage-col">Agents Booked</th>
+            <th class="stage-col">Figures Returned</th>
+            <th class="stage-col">On Market</th>
+            <th class="stage-col">Offers</th>
+            <th class="stage-col">Sales Progression</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="switchView('detail')">
+            <td>
+              <div class="app-address">555 Tong Rd, LS12 5AT</div>
+              <div class="app-meta">The View · Plot 5</div>
+            </td>
+            <td>
+              <div class="app-vendor">Jordan Edmondson</div>
+              <div class="app-vendor-sub">App-2026-042</div>
+            </td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">8 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">9 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">12 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">Due 19 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+          </tr>
+          <tr onclick="switchView('detail')">
+            <td>
+              <div class="app-address">12 New Leeds, LS13 1EB</div>
+              <div class="app-meta">Brookes View 1 · Plot 1</div>
+            </td>
+            <td>
+              <div class="app-vendor">Deepak Kumar</div>
+              <div class="app-vendor-sub">App-2026-038</div>
+            </td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">2 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">3 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">6 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">13 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">18 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+          </tr>
+          <tr onclick="switchView('detail')">
+            <td>
+              <div class="app-address">Edge 45, Newborough Scarborough</div>
+              <div class="app-meta">Birmingham · Plot PT/89TY/987</div>
+            </td>
+            <td>
+              <div class="app-vendor">Ben Stokes</div>
+              <div class="app-vendor-sub">App-2026-031</div>
+            </td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">28 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">29 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">2 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">9 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">14 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">2 offers</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+          </tr>
+          <tr onclick="switchView('detail')">
+            <td>
+              <div class="app-address">Project 78 Gallery Ltd, Norman Road</div>
+              <div class="app-meta">Test123 · Plot T123</div>
+            </td>
+            <td>
+              <div class="app-vendor">Kelvin Will</div>
+              <div class="app-vendor-sub">App-2026-029</div>
+            </td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">25 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">26 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">30 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">6 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">11 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">18 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">In progress</span></td>
+          </tr>
+          <tr onclick="switchView('detail')">
+            <td>
+              <div class="app-address">Sarnie 67, Sheep Street Bicester</div>
+              <div class="app-meta">Test123 · Plot T123</div>
+            </td>
+            <td>
+              <div class="app-vendor">Deepak Rana</div>
+              <div class="app-vendor-sub">App-2026-026</div>
+            </td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">20 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">22 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date urgent">Overdue 2d</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
+          </tr>
+          <tr onclick="switchView('detail')">
+            <td>
+              <div class="app-address">123 Cleaners, Shirland Road</div>
+              <div class="app-meta">ABC Development · Plot LEEDS/2024/10/001</div>
+            </td>
+            <td>
+              <div class="app-vendor">Adam Smith</div>
+              <div class="app-vendor-sub">App-2026-024</div>
+            </td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">15 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">17 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">20 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">27 Mar</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">2 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">11 Apr</span></td>
+            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">Exchange due</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:14px;font-size:11.5px;color:var(--muted-lt);display:flex;align-items:center;gap:16px">
+      <span style="display:inline-flex;align-items:center;gap:6px"><span class="stage-mark done" style="width:14px;height:14px;font-size:9px">✓</span> Complete</span>
+      <span style="display:inline-flex;align-items:center;gap:6px"><span class="stage-mark current" style="width:14px;height:14px;font-size:9px;box-shadow:none">●</span> In progress</span>
+      <span style="display:inline-flex;align-items:center;gap:6px"><span class="stage-mark pending" style="width:14px;height:14px;font-size:9px">○</span> Not yet started</span>
+      <span style="margin-left:auto">Click any row to view the full application journey →</span>
+    </div>
+
+  </section>
+
+  <!-- ═══ DETAIL VIEW ═══ -->
+  <section class="view" id="view-detail">
+
+    <a class="detail-back" onclick="switchView('overview')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Overview
+    </a>
+
+    <div class="property-header">
+      <div class="property-icon">
+        <svg width="30" height="30" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="property-text">
+        <div class="property-address">555 Tong Road, Leeds LS12 5AT</div>
+        <div class="property-meta">
+          <span>Plot 5</span>
+          <span>The View development</span>
+          <span>Application #2026-042</span>
+          <span>Vendor: Jordan Edmondson</span>
+        </div>
+      </div>
+      <span class="property-pill">In Valuation</span>
+    </div>
+
+    <div class="detail-grid">
+
+      <!-- LEFT: Timeline -->
+      <div class="card">
+        <div class="card-title">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Application Journey
+        </div>
+        <div class="timeline">
+
+          <div class="milestone done">
+            <div class="milestone-dot">✓</div>
+            <div class="milestone-heading">
+              Application Received
+              <span class="milestone-status done">Complete</span>
+              <span class="milestone-date">· 8 April 2026</span>
             </div>
+            <p class="milestone-desc">Valuation request submitted by Jordan Edmondson. Property details, photographs and access arrangements captured.</p>
+          </div>
+
+          <div class="milestone done">
+            <div class="milestone-dot">✓</div>
+            <div class="milestone-heading">
+              Vendor Contacted
+              <span class="milestone-status done">Complete</span>
+              <span class="milestone-date">· 9 April 2026</span>
+            </div>
+            <p class="milestone-desc">Vendor contacted to agree availability windows. Three visit slots confirmed across the coming week.</p>
+          </div>
+
+          <div class="milestone done">
+            <div class="milestone-dot">✓</div>
+            <div class="milestone-heading">
+              Agents Booked
+              <span class="milestone-status done">Complete</span>
+              <span class="milestone-date">· 12 April 2026</span>
+            </div>
+            <p class="milestone-desc">Three local estate agents booked to attend and value the property at the vendor's chosen appointment times.</p>
+            <div class="milestone-actions">
+              <span class="mini-btn" style="pointer-events:none">Manning Stainton — 14 Apr, 10:00</span>
+              <span class="mini-btn" style="pointer-events:none">Diamond Properties — 15 Apr, 14:00</span>
+              <span class="mini-btn" style="pointer-events:none">Martin &amp; Co — 16 Apr, 11:30</span>
+            </div>
+          </div>
+
+          <div class="milestone current">
+            <div class="milestone-dot">●</div>
+            <div class="milestone-heading">
+              Valuation Figures Returned
+              <span class="milestone-status current">In progress</span>
+              <span class="milestone-date">· Expected 19 April 2026</span>
+            </div>
+            <p class="milestone-desc">2 of 3 agents have returned their valuation figures. Awaiting Martin &amp; Co. Reports and photographs will be shared here as they arrive.</p>
+            <div class="milestone-actions">
+              <a href="#" class="mini-btn">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                View Valuation Report PDF
+              </a>
+              <a href="#" class="mini-btn">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Property Photos (24)
+              </a>
+            </div>
+          </div>
+
+          <div class="milestone upcoming">
+            <div class="milestone-dot">○</div>
+            <div class="milestone-heading">On Market</div>
+            <p class="milestone-desc">Once NHS Recommendation is agreed, the property goes live with the chosen agent. Listing date will appear here.</p>
+          </div>
+
+          <div class="milestone upcoming">
+            <div class="milestone-dot">○</div>
+            <div class="milestone-heading">Offers</div>
+            <p class="milestone-desc">All offers received by the agent will be logged and tracked here, with the NHS team's recommendation on each.</p>
+          </div>
+
+          <div class="milestone upcoming">
+            <div class="milestone-dot">○</div>
+            <div class="milestone-heading">Sales Progression</div>
+            <p class="milestone-desc">From accepted offer through to exchange of contracts and completion — full timeline tracked here.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT: Side info -->
+      <div class="side">
+
+        <div class="card">
+          <div class="card-title">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Property details
+          </div>
+          <div class="info-row"><span class="info-label">Development</span><span class="info-value">The View</span></div>
+          <div class="info-row"><span class="info-label">Plot</span><span class="info-value">5</span></div>
+          <div class="info-row"><span class="info-label">Vendor</span><span class="info-value">Jordan Edmondson</span></div>
+          <div class="info-row"><span class="info-label">ALCD</span><span class="info-value">28 May 2026</span></div>
+          <div class="info-row"><span class="info-label">Client expectations</span><span class="info-value">£405,000</span></div>
+          <div class="info-row"><span class="info-label">Scheme</span><span class="info-value">Part Exchange</span></div>
         </div>
 
-        <div class="hero-actions">
-            <button class="btn btn-ghost" title="More">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-            </button>
-            <button class="btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Edit
-            </button>
-            <button class="btn btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                New Application
-            </button>
-        </div>
-    </section>
-
-    <!-- KPIs -->
-    <section class="kpis">
-        <div class="kpi">
-            <div class="kpi-label">Active Applications</div>
-            <div class="kpi-value">3</div>
-            <div class="kpi-delta up">↑ 1 this month</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-label">Pipeline value</div>
-            <div class="kpi-value">£1.42M</div>
-            <div class="kpi-delta up">↑ £180k vs Mar</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-label">Avg days to SSTC</div>
-            <div class="kpi-value">63</div>
-            <div class="kpi-delta down">↑ 8d vs NHS avg</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-label">Completion rate</div>
-            <div class="kpi-value">82%</div>
-            <div class="kpi-delta up">12 of 14 in 12mo</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-label">Last activity</div>
-            <div class="kpi-value">2h ago</div>
-            <div class="kpi-delta">Email · Rebecca J.</div>
-        </div>
-    </section>
-
-    <!-- TABS -->
-    <nav class="tabs">
-        <button class="tab" data-tab="contacts">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-            Contacts <span class="tab-count">0</span>
-        </button>
-        <button class="tab active" data-tab="applications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            Applications <span class="tab-count">3</span>
-        </button>
-        <button class="tab" data-tab="comms">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            Comms History <span class="tab-count">15</span>
-        </button>
-        <button class="tab" data-tab="agents">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            Preferred Agents <span class="tab-count">0</span>
-        </button>
-        <button class="tab" data-tab="companies">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
-            Companies House <span class="tab-count tab-count-verified">✓</span>
-        </button>
-    </nav>
-
-    <!-- APPLICATIONS PANEL (active) -->
-    <section class="tab-panel active" id="panel-applications">
-        <div class="toolbar">
-            <div class="search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search by application, plot, vendor…">
+        <div class="card">
+          <div class="card-title">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Estate Agents
+          </div>
+          <div class="agent-row">
+            <div class="agent-avatar">MS</div>
+            <div class="agent-info">
+              <div class="agent-name">Manning Stainton — Horsforth</div>
+              <div class="agent-meta">Visited 14 Apr, 10:00 · Figures returned</div>
             </div>
-            <div class="filter-pills">
-                <button class="filter-pill active">All<span class="filter-pill-count">3</span></button>
-                <button class="filter-pill">Application<span class="filter-pill-count">1</span></button>
-                <button class="filter-pill">Agents Booked<span class="filter-pill-count">1</span></button>
-                <button class="filter-pill">Figures to Chase<span class="filter-pill-count">1</span></button>
-                <button class="filter-pill">SSTC<span class="filter-pill-count">0</span></button>
-                <button class="filter-pill">Completed<span class="filter-pill-count">0</span></button>
+            <span class="agent-badge visited">Done</span>
+          </div>
+          <div class="agent-row">
+            <div class="agent-avatar">DP</div>
+            <div class="agent-info">
+              <div class="agent-name">Diamond Properties</div>
+              <div class="agent-meta">Visited 15 Apr, 14:00 · Figures returned</div>
             </div>
-            <div class="toolbar-right">
-                <span>Sort: Most recent</span>
+            <span class="agent-badge visited">Done</span>
+          </div>
+          <div class="agent-row">
+            <div class="agent-avatar">MC</div>
+            <div class="agent-info">
+              <div class="agent-name">Martin &amp; Co — Leeds</div>
+              <div class="agent-meta">Booked 16 Apr, 11:30</div>
             </div>
+            <span class="agent-badge booked">Booked</span>
+          </div>
         </div>
 
-        <div class="table-card">
-            <table class="list">
-                <thead>
-                    <tr>
-                        <th>Application</th>
-                        <th>Development · Plot</th>
-                        <th>Vendor</th>
-                        <th>Received</th>
-                        <th>Stage</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="cell-main">99 Dry Cleaners, 99 Westbourne Grove</div>
-                            <div class="cell-sub">London W2 4UW</div>
-                        </td>
-                        <td>
-                            <span class="app-ref">PT/89TY/987</span>
-                            <div class="cell-sub">Plot PLOT-007</div>
-                        </td>
-                        <td>
-                            <div class="cell-main">TEST Smith</div>
-                            <div class="cell-sub">+44 7700 900123</div>
-                        </td>
-                        <td class="cell-sub cell-num">6 Apr 2025</td>
-                        <td><span class="pill pill-figures"><span class="dot"></span>Figures to Chase</span></td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Open">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                                </button>
-                                <button class="row-action-btn" title="Email">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                                </button>
-                                <button class="row-action-btn" title="Call">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="cell-main">Martindale, Greystoke</div>
-                            <div class="cell-sub">Penrith CA11 0TG</div>
-                        </td>
-                        <td>
-                            <span class="app-ref">PT/89TY/980</span>
-                            <div class="cell-sub">Plot PT/89TY/987</div>
-                        </td>
-                        <td>
-                            <div class="cell-main">Clein John</div>
-                            <div class="cell-sub">+44 7700 900456</div>
-                        </td>
-                        <td class="cell-sub cell-num">1 Apr 2025</td>
-                        <td><span class="pill pill-agents"><span class="dot"></span>Agents Booked</span></td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Open">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                                </button>
-                                <button class="row-action-btn" title="Email">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                                </button>
-                                <button class="row-action-btn" title="Call">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="cell-main">123 Holloway</div>
-                            <div class="cell-sub">Birmingham B31 1TR</div>
-                        </td>
-                        <td>
-                            <span class="app-ref">PT/89TY/9870</span>
-                            <div class="cell-sub">Plot Birmingham 001</div>
-                        </td>
-                        <td>
-                            <div class="cell-main">Rebecca Jones</div>
-                            <div class="cell-sub">+44 7700 900789</div>
-                        </td>
-                        <td class="cell-sub cell-num">31 Mar 2025</td>
-                        <td><span class="pill pill-application"><span class="dot"></span>Application</span></td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Open">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                                </button>
-                                <button class="row-action-btn" title="Email">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                                </button>
-                                <button class="row-action-btn" title="Call">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <!-- CONTACTS PANEL -->
-    <section class="tab-panel" id="panel-contacts">
-        <div class="empty">
-            <div class="empty-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-            </div>
-            <h3>No contacts yet</h3>
-            <p>Add Ascot Homes' sales lead, plot coordinator, and finance contacts so the team know who to reach.</p>
-            <button class="btn btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add first contact
-            </button>
-        </div>
-    </section>
-
-    <!-- COMMS PANEL -->
-    <section class="tab-panel" id="panel-comms">
-        <div class="toolbar">
-            <div class="search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search messages, calls, notes…">
-            </div>
-            <div class="filter-pills">
-                <button class="filter-pill active">All<span class="filter-pill-count">15</span></button>
-                <button class="filter-pill">Email<span class="filter-pill-count">8</span></button>
-                <button class="filter-pill">Call<span class="filter-pill-count">3</span></button>
-                <button class="filter-pill">SMS<span class="filter-pill-count">2</span></button>
-                <button class="filter-pill">WhatsApp<span class="filter-pill-count">1</span></button>
-                <button class="filter-pill">Note<span class="filter-pill-count">1</span></button>
-            </div>
-        </div>
-        <div class="comms-list">
-            <div class="comm-item">
-                <div class="comm-icon email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">RE: Holloway plot 123 — figures by Friday?</div>
-                    <div class="comm-meta">Email · Rebecca Jones · akash@crmmates.com</div>
-                    <div class="comm-preview">Thanks Akash, I've spoken to our QS team and we should have indicative figures by close of play Friday. Will copy you in when they land.</div>
-                </div>
-                <div class="comm-time">2h ago</div>
-            </div>
-            <div class="comm-item">
-                <div class="comm-icon call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">Outbound call · Clein John · 14m</div>
-                    <div class="comm-meta">Call · Martindale application · Akash dialled +44 7700 900456</div>
-                    <div class="comm-preview">Discussed agent booking for Penrith property — Clein confirmed all three valuations have been booked for next Wed.</div>
-                </div>
-                <div class="comm-time">1d ago</div>
-            </div>
-            <div class="comm-item">
-                <div class="comm-icon sms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">SMS to TEST Smith — figures reminder</div>
-                    <div class="comm-meta">SMS · 99 Westbourne Grove · Delivered</div>
-                    <div class="comm-preview">Hi, just a reminder to send through the figures for Plot 007 when you've a moment. Thanks — Akash, NHS.</div>
-                </div>
-                <div class="comm-time">2d ago</div>
-            </div>
-            <div class="comm-item">
-                <div class="comm-icon wa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">WhatsApp · Rebecca Jones</div>
-                    <div class="comm-meta">WhatsApp · Holloway application · 2 replies</div>
-                    <div class="comm-preview">Hi Akash, we received the EPC certificate today, will forward over shortly. Looking forward to the valuations coming back next week.</div>
-                </div>
-                <div class="comm-time">3d ago</div>
-            </div>
-            <div class="comm-item">
-                <div class="comm-icon note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">Internal note · Akash</div>
-                    <div class="comm-meta">Note · Account-level · Visible to NHS team only</div>
-                    <div class="comm-preview">Ascot Homes are tight on margin this quarter — keep applications focused on Part-Exchange route, avoid Assisted Sale offer where possible.</div>
-                </div>
-                <div class="comm-time">5d ago</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- COMPANIES HOUSE PANEL -->
-    <section class="tab-panel" id="panel-companies">
-        <div class="ch-bar">
-            <div class="ch-bar-left">
-                <span class="ch-source-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
-                    Companies House (UK)
-                </span>
-                <span class="ch-meta">Last synced <strong>18 May 2025, 14:22</strong></span>
-            </div>
-            <div class="ch-bar-right">
-                <a class="ch-link" href="https://find-and-update.company-information.service.gov.uk/company/01234567" target="_blank">
-                    View on gov.uk
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-                <button class="btn btn-primary">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-                    Sync now
-                </button>
-            </div>
+        <div class="card">
+          <div class="card-title">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 7c0-5.333-8-5.333-8 0"/><path d="M10 7v12"/><path d="M6 13h8"/><path d="M6 19h12"/></svg>
+            Valuation summary
+          </div>
+          <table class="val-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>MS</th>
+                <th>DP</th>
+                <th>MC</th>
+                <th class="val-avg">Avg</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Initial Asking</td><td>£395,000</td><td>£390,000</td><td>—</td><td class="val-avg">£392,500</td></tr>
+              <tr><td>Target Sale</td><td>£380,000</td><td>£378,000</td><td>—</td><td class="val-avg">£379,000</td></tr>
+              <tr><td>Bottom Price</td><td>£365,000</td><td>£360,000</td><td>—</td><td class="val-avg">£362,500</td></tr>
+            </tbody>
+          </table>
+          <p class="milestone-desc" style="margin-top:10px">NHS Recommendation will be added once all three agents have returned their figures.</p>
         </div>
 
-        <div class="ch-grid">
-            <!-- IDENTITY -->
-            <div class="ch-section">
-                <div class="ch-section-title">Identity</div>
-                <div class="ch-fields">
-                    <div class="ch-field">
-                        <div class="ch-field-label">Company Number</div>
-                        <div class="ch-field-value mono">01234567</div>
-                    </div>
-                    <div class="ch-field">
-                        <div class="ch-field-label">Status</div>
-                        <div class="ch-field-value"><span class="pill pill-sstc"><span class="dot"></span>Active</span></div>
-                    </div>
-                    <div class="ch-field">
-                        <div class="ch-field-label">Type</div>
-                        <div class="ch-field-value">Private Limited Company</div>
-                    </div>
-                    <div class="ch-field">
-                        <div class="ch-field-label">Incorporated</div>
-                        <div class="ch-field-value">04 March 1987</div>
-                    </div>
-                    <div class="ch-field ch-field-wide">
-                        <div class="ch-field-label">SIC Codes</div>
-                        <div class="ch-field-value mono">41100 · 41202 · 71111</div>
-                    </div>
-                </div>
-            </div>
+      </div>
+    </div>
 
-            <!-- REGISTERED OFFICE -->
-            <div class="ch-section">
-                <div class="ch-section-title">Registered Office</div>
-                <div class="ch-address">
-                    <div>Ascot Homes Limited</div>
-                    <div>14 New Leeds, Suite 3</div>
-                    <div>Ascot</div>
-                    <div>Berkshire</div>
-                    <div class="mono">SL5 7DH</div>
-                    <div class="ch-country">United Kingdom</div>
-                </div>
-            </div>
+    <!-- ═══ PHOTOGRAPHS card ═══ -->
+    <div class="card photos-card">
+      <div class="card-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        Property photographs
+        <span class="count">24 photos · 8 categories</span>
+        <span class="credit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Uploaded by Mike Patel · 16 May 2026
+        </span>
+      </div>
 
-            <!-- KYC SIGNALS -->
-            <div class="ch-section ch-section-wide">
-                <div class="ch-section-title">
-                    KYC Signals
-                    <span class="kyc-summary kyc-summary-clean">2 of 5 amber</span>
-                </div>
-                <div class="kyc-grid">
-                    <div class="kyc-row">
-                        <span class="kyc-label">Liquidated</span>
-                        <span class="kyc-flag kyc-flag-ok">No</span>
-                    </div>
-                    <div class="kyc-row">
-                        <span class="kyc-label">Has Charges</span>
-                        <span class="kyc-flag kyc-flag-warn">Yes</span>
-                    </div>
-                    <div class="kyc-row">
-                        <span class="kyc-label">Insolvency History</span>
-                        <span class="kyc-flag kyc-flag-ok">No</span>
-                    </div>
-                    <div class="kyc-row">
-                        <span class="kyc-label">Office In Dispute</span>
-                        <span class="kyc-flag kyc-flag-ok">No</span>
-                    </div>
-                    <div class="kyc-row">
-                        <span class="kyc-label">Address Undeliverable</span>
-                        <span class="kyc-flag kyc-flag-ok">No</span>
-                    </div>
-                </div>
-            </div>
+      <div class="photos-filter">
+        <span class="cat-pill active">All <span class="cnt">24</span></span>
+        <span class="cat-pill">Living Room <span class="cnt">4</span></span>
+        <span class="cat-pill">Kitchen <span class="cnt">3</span></span>
+        <span class="cat-pill">Bedroom <span class="cnt">7</span></span>
+        <span class="cat-pill">Bathroom <span class="cnt">2</span></span>
+        <span class="cat-pill">Toilet <span class="cnt">1</span></span>
+        <span class="cat-pill">Parking <span class="cnt">2</span></span>
+        <span class="cat-pill">Balcony <span class="cnt">0</span></span>
+        <span class="cat-pill">Other <span class="cnt">5</span></span>
+      </div>
 
-            <!-- COMPLIANCE DATES -->
-            <div class="ch-section ch-section-wide">
-                <div class="ch-section-title">Compliance Dates</div>
-                <div class="ch-compliance">
-                    <div class="ch-compliance-card">
-                        <div class="ch-compliance-label">Annual Accounts</div>
-                        <div class="ch-compliance-date">30 Sep 2025</div>
-                        <span class="ch-status-badge ch-status-ok">On time</span>
-                    </div>
-                    <div class="ch-compliance-card">
-                        <div class="ch-compliance-label">Confirmation Statement</div>
-                        <div class="ch-compliance-date">04 Mar 2025</div>
-                        <span class="ch-status-badge ch-status-overdue">Overdue · 75 days</span>
-                    </div>
-                </div>
-            </div>
+      <div class="photos-grid">
+        <div class="photo-tile bg-3">
+          <span class="primary-tag">Primary</span>
+          <div class="label">Living Room</div>
         </div>
-    </section>
+        <div class="photo-tile bg-4"><div class="label">Living Room</div></div>
+        <div class="photo-tile bg-1"><div class="label">Living Room</div></div>
+        <div class="photo-tile bg-6"><div class="label">Living Room</div></div>
+        <div class="photo-tile bg-4"><div class="label">Kitchen</div></div>
+        <div class="photo-tile bg-3"><div class="label">Kitchen</div></div>
+        <div class="photo-tile bg-8"><div class="label">Kitchen</div></div>
+        <div class="photo-tile bg-1"><div class="label">Bedroom 1 · Master</div></div>
+        <div class="photo-tile bg-2"><div class="label">Bedroom 1 · Master</div></div>
+        <div class="photo-tile bg-6"><div class="label">Bedroom 1 · Master</div></div>
+        <div class="photo-tile bg-5"><div class="label">Bedroom 2</div></div>
+        <div class="photo-tile bg-2"><div class="label">Bathroom</div></div>
+        <div class="photo-tile bg-2"><div class="label">Toilet</div></div>
+        <div class="photo-tile bg-5"><div class="label">Parking</div></div>
+        <div class="photo-tile bg-3"><div class="label">Parking</div></div>
+        <div class="photo-tile bg-7"><div class="label">Other · Front exterior</div></div>
+        <div class="photo-tile bg-6"><div class="label">Other · Rear garden</div></div>
+        <div class="photo-tile bg-3"><div class="label">Other · Hallway</div></div>
+      </div>
 
-    <!-- AGENTS PANEL -->
-    <section class="tab-panel" id="panel-agents">
-        <div class="empty">
-            <div class="empty-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
-            <h3>No preferred agents set</h3>
-            <p>Lock in 2–3 estate agents Ascot Homes prefers, so new applications auto-book them ahead of the open pool.</p>
-            <button class="btn btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Pick from coverage area
-            </button>
-        </div>
-    </section>
+      <div class="photos-more">
+        Showing 18 of 24 photos · <a href="#">View all in gallery →</a> · <a href="#">Download zip (84 MB)</a>
+      </div>
+    </div>
+
+  </section>
 
 </div>
+
+<footer>
+  <p>© 2026 New Home Solutions Ltd · Housebuilder Portal · <a href="#">Support</a> · <a href="#">Terms</a> · <a href="#">Privacy</a></p>
+</footer>
 
 <script>
-// Tab switcher
-document.querySelectorAll('.tab').forEach(t => {
-    t.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        const key = t.dataset.tab;
-        const panel = document.getElementById('panel-' + key);
-        if (panel) panel.classList.add('active');
+  function switchView(view){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelector('.tab[data-view="' + view + '"]').classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>switchView(tab.dataset.view));
+  });
+  // Filter pills
+  document.querySelectorAll('.filter-pills .pill').forEach(pill=>{
+    pill.addEventListener('click', ()=>{
+      document.querySelectorAll('.filter-pills .pill').forEach(p=>p.classList.remove('active'));
+      pill.classList.add('active');
     });
-});
-
-// Filter pill toggle (within the active panel)
-document.querySelectorAll('.filter-pills').forEach(group => {
-    group.addEventListener('click', e => {
-        const pill = e.target.closest('.filter-pill');
-        if (!pill) return;
-        group.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('active'));
-        pill.classList.add('active');
-    });
-});
+  });
 </script>
-
 </body>
 </html>

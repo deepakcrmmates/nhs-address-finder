@@ -1,851 +1,849 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Bryant &amp; Carter Estates · Estate Agent · NHS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NHS Estate Agent Portal · Mockup v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
-/* ─────────────────────────────────────────────────────────────────────
-   NHS design tokens
-   ───────────────────────────────────────────────────────────────────── */
-:root {
-    --nhs-dk:    #075F50;
-    --nhs-mid:   #4A6B5E;
-    --nhs-soft:  #6B9080;
-    --nhs-sage:  #C9D5CB;
-    --nhs-pale:  #EAF4EF;
-    --nhs-pale-2:#F4F9F6;
-    --nhs-border:#C5DCCC;
-    --ink:       #0F172A;
-    --ink-soft:  #334155;
-    --ink-mute:  #475569;
-    --muted:     #64748B;
-    --muted-2:   #94A3B8;
-    --bg:        #F1F5F4;
-    --surface:   #FFFFFF;
-    --border:    #E2E8F0;
-    --border-2:  #CBD5E1;
+  :root {
+    --nhs-dk: #075F50;
+    --nhs-mid: #4A6B5E;
+    --nhs-soft: #6B9080;
+    --nhs-sage: #C9D5CB;
+    --nhs-pale: #EAF4EF;
+    --nhs-pale-2: #F4F9F6;
+    --nhs-border: #C5DCCC;
+    --gold: #C9A84C;
     --gold-tint: #FFF8E7;
-    --gold-mid:  #C9A84C;
-    --gold-dk:   #7A5A00;
-    --red:       #B91C1C;
-    --red-tint:  #FEF2F2;
-    --green-ok:  #008054;
-    --green-tint:#E8F5EE;
-    --blue:      #2563EB;
-    --blue-tint: #EFF6FF;
-    --purple:    #7C3AED;
-    --purple-tint:#F3E8FF;
-    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
-    --shadow:    0 4px 14px rgba(15,23,42,0.06);
-    --shadow-lg: 0 16px 40px rgba(15,23,42,0.12);
-    --radius:    10px;
-    --radius-sm: 6px;
-    --radius-lg: 14px;
-}
+    --gold-dark: #8E743A;
+    --blue: #4682A9;
+    --blue-tint: #DCEAF1;
+    --blue-dark: #2C5475;
+    --red: #B8341F;
+    --red-tint: #FCEAE6;
+    --ink: #1F3D34;
+    --ink-soft: #5A6B7C;
+    --ink-mute: #9AA8A2;
+    --bg: #F7FAF8;
+    --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 4px 14px rgba(15,23,42,0.05);
+    --shadow-hover: 0 4px 14px rgba(15,23,42,0.10), 0 12px 32px rgba(15,23,42,0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.45; }
 
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: var(--bg); }
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--ink);
-    -webkit-font-smoothing: antialiased;
-}
-button { font-family: inherit; cursor: pointer; }
-a { color: var(--nhs-dk); text-decoration: none; }
-a:hover { color: var(--nhs-mid); }
+  /* ── App bar ─────────────────────────────────────────── */
+  header.appbar { background: var(--nhs-dk); color: #fff; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  header.appbar .brand { display: flex; align-items: center; gap: 14px; font-weight: 800; font-size: 16px; }
+  header.appbar .logo { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
+  header.appbar .brand-meta { font-size: 11px; opacity: 0.75; font-weight: 500; margin-top: 2px; letter-spacing: 0.06em; text-transform: uppercase; }
+  header.appbar .user { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  header.appbar .avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
+  header.appbar .name { font-weight: 600; }
+  header.appbar .role { font-size: 11px; opacity: 0.7; }
+  header.appbar .signout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.24); color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; margin-left: 10px; }
+  header.appbar .signout:hover { background: rgba(255,255,255,0.20); }
 
-/* Top bar */
-.topbar { background: var(--surface); border-bottom: 1px solid var(--border); height: 48px; padding: 0 24px; display: flex; align-items: center; gap: 14px; font-size: 13px; }
-.topbar-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--nhs-dk); letter-spacing: 0.02em; }
-.topbar-brand-mark { width: 22px; height: 22px; border-radius: 5px; background: linear-gradient(135deg, var(--nhs-dk), var(--nhs-soft)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 12px; }
-.crumb { display: flex; align-items: center; gap: 6px; color: var(--muted); }
-.crumb a { color: var(--muted); }
-.crumb a:hover { color: var(--ink); }
-.crumb-sep { color: var(--muted-2); }
-.crumb-here { color: var(--ink); font-weight: 600; }
-.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-.topbar-iconbtn { width: 32px; height: 32px; border-radius: var(--radius-sm); background: transparent; border: 1px solid transparent; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
-.topbar-iconbtn:hover { background: var(--nhs-pale-2); color: var(--nhs-dk); }
+  /* ── Tabs ────────────────────────────────────────────── */
+  .tabs { background: #fff; border-bottom: 1px solid var(--nhs-border); padding: 0 28px; display: flex; gap: 4px; overflow-x: auto; }
+  .tab { padding: 14px 20px; color: var(--ink-soft); font-weight: 600; font-size: 13px; border-bottom: 3px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; user-select: none; }
+  .tab:hover { color: var(--nhs-dk); background: var(--nhs-pale-2); }
+  .tab.active { color: var(--nhs-dk); border-bottom-color: var(--nhs-dk); }
+  .tab svg { width: 15px; height: 15px; }
+  .tab .badge { background: var(--gold); color: #5A4A1E; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 999px; margin-left: 2px; }
+  .tab.active .badge { background: var(--nhs-dk); color: #fff; }
 
-/* Page */
-.page { max-width: 1320px; margin: 0 auto; padding: 22px 24px 48px; }
+  .page { max-width: 1180px; margin: 24px auto 60px; padding: 0 28px; }
+  .view { display: none; }
+  .view.active { display: block; }
 
-/* Hero */
-.hero { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; box-shadow: var(--shadow-sm); display: grid; grid-template-columns: auto 1fr auto; gap: 22px; align-items: center; }
-.hero-logo { width: 88px; height: 88px; border-radius: var(--radius); background: #0F172A; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 26px; letter-spacing: 0.02em; box-shadow: var(--shadow-sm); overflow: hidden; }
-.hero-logo img { width: 100%; height: 100%; object-fit: cover; }
-.hero-info { min-width: 0; }
-.hero-kicker { font-size: 10.5px; font-weight: 700; color: var(--nhs-dk); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
-.hero-name { font-size: 26px; font-weight: 800; color: var(--ink); margin: 0; line-height: 1.15; }
-.hero-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; font-size: 12.5px; color: var(--muted); align-items: center; }
-.hero-meta-item { display: inline-flex; align-items: center; gap: 6px; }
-.hero-meta-item svg { width: 14px; height: 14px; color: var(--nhs-mid); }
-.hero-meta-item a { color: var(--ink-soft); font-weight: 500; }
-.hero-meta-item a:hover { color: var(--nhs-dk); }
-.hero-status { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 999px; background: var(--green-tint); color: var(--green-ok); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
-.hero-status .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-.hero-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--nhs-border); background: white; color: var(--ink-soft); font-weight: 600; font-size: 13px; transition: all 0.12s; }
-.btn:hover { border-color: var(--nhs-mid); color: var(--nhs-dk); background: var(--nhs-pale-2); }
-.btn svg { width: 14px; height: 14px; }
-.btn-primary { background: var(--nhs-dk); color: white; border-color: var(--nhs-dk); }
-.btn-primary:hover { background: var(--nhs-mid); color: white; }
-.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); padding: 8px; }
-.btn-ghost:hover { background: var(--nhs-pale-2); color: var(--nhs-dk); border-color: transparent; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .page-head h1 { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
+  .page-head .sub { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+  .page-head .filters { display: flex; gap: 8px; align-items: center; }
+  .filter-chip { background: #fff; border: 1px solid var(--nhs-border); color: var(--ink-soft); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .filter-chip:hover { background: var(--nhs-pale); color: var(--nhs-dk); }
+  .filter-chip.active { background: var(--nhs-dk); color: #fff; border-color: var(--nhs-dk); }
 
-/* KPIs */
-.kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 18px 0 0; }
-.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; transition: border-color 0.12s, transform 0.12s; }
-.kpi:hover { border-color: var(--nhs-border); }
-.kpi-label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-.kpi-value { font-size: 22px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.1; }
-.kpi-delta { font-size: 11.5px; color: var(--muted); font-weight: 600; }
-.kpi-delta.up   { color: var(--green-ok); }
-.kpi-delta.down { color: var(--red); }
+  /* ── List row (validated pattern from photographer portal) ─── */
+  .prop-list { display: flex; flex-direction: column; gap: 10px; }
+  .prop-row { background: #fff; border: 1px solid var(--nhs-border); border-radius: 10px; padding: 0; box-shadow: var(--shadow); display: grid; grid-template-columns: 92px 1fr auto; align-items: stretch; cursor: pointer; transition: box-shadow 0.15s; overflow: hidden; }
+  .prop-row:hover { box-shadow: var(--shadow-hover); }
+  .prop-row.urgent { border-left: 4px solid var(--red); }
+  .prop-row.soon { border-left: 4px solid var(--gold); }
+  .prop-row.scheduled { border-left: 4px solid var(--nhs-soft); }
+  .prop-row.done { border-left: 4px solid var(--nhs-sage); opacity: 0.85; }
 
-/* Tabs */
-.tabs { margin: 22px 0 14px; display: flex; align-items: center; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
-.tabs::-webkit-scrollbar { display: none; }
-.tab { display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; background: transparent; border: none; color: var(--muted); font-size: 13.5px; font-weight: 600; border-bottom: 2.5px solid transparent; margin-bottom: -1px; white-space: nowrap; transition: all 0.12s; }
-.tab:hover { color: var(--ink); }
-.tab.active { color: var(--nhs-dk); border-bottom-color: var(--nhs-dk); }
-.tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--nhs-pale); color: var(--nhs-dk); font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.tab.active .tab-count { background: var(--nhs-dk); color: white; }
-.tab[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .date-block { background: linear-gradient(180deg, var(--nhs-pale) 0%, var(--nhs-pale-2) 100%); border-right: 1px solid var(--nhs-border); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 10px; min-height: 88px; position: relative; }
+  .date-block .month { font-size: 10px; font-weight: 800; color: #fff; background: var(--nhs-dk); padding: 2px 9px; border-radius: 4px 4px 0 0; width: calc(100% - 8px); text-align: center; letter-spacing: 0.12em; text-transform: uppercase; }
+  .date-block .day { font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1; margin-top: 6px; }
+  .date-block .weekday { font-size: 10px; color: var(--ink-soft); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+  .date-block .time { font-size: 10px; color: var(--nhs-dk); font-weight: 700; margin-top: 5px; background: #fff; padding: 2px 7px; border: 1.5px solid var(--nhs-soft); border-radius: 4px; letter-spacing: 0.02em; }
+  .prop-row.urgent .date-block { background: linear-gradient(180deg, #FCEAE6 0%, #FFF4F2 100%); }
+  .prop-row.urgent .date-block .month { background: var(--red); }
+  .prop-row.urgent .date-block .day { color: var(--red); }
+  .prop-row.soon .date-block { background: linear-gradient(180deg, #FFF8E7 0%, #FFFDF5 100%); }
+  .prop-row.soon .date-block .month { background: var(--gold-dark); }
+  .prop-row.done .date-block { background: linear-gradient(180deg, #F0F4F2 0%, #F8FAF9 100%); }
+  .prop-row.done .date-block .month { background: var(--nhs-soft); }
+  .prop-row.done .date-block .day { color: var(--ink-soft); }
 
-/* Toolbar */
-.toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-.search { position: relative; min-width: 280px; flex: 1; }
-.search input { width: 100%; height: 36px; padding: 0 12px 0 36px; border: 1px solid var(--border-2); border-radius: var(--radius-sm); background: white; font: inherit; color: var(--ink); outline: none; }
-.search input:focus { border-color: var(--nhs-dk); box-shadow: 0 0 0 3px rgba(7,95,80,0.12); }
-.search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted-2); }
-.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-.filter-pill { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--border-2); background: white; color: var(--ink-soft); font-size: 12.5px; font-weight: 600; }
-.filter-pill:hover { border-color: var(--nhs-mid); color: var(--nhs-dk); }
-.filter-pill.active { background: var(--nhs-dk); border-color: var(--nhs-dk); color: white; }
-.filter-pill-count { margin-left: 5px; font-variant-numeric: tabular-nums; opacity: 0.7; }
-.toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+  .prop-body { padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; gap: 4px; min-width: 0; }
+  .prop-body .addr-1 { font-size: 15px; font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .prop-body .addr-2 { color: var(--ink-soft); font-size: 12.5px; }
+  .prop-body .meta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; font-size: 11.5px; color: var(--ink-soft); }
+  .prop-body .meta strong { color: var(--ink); font-weight: 600; }
+  .prop-body .meta .sep { color: var(--ink-mute); }
+  .prop-body .pills { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .pill.green { background: var(--nhs-pale); color: var(--nhs-dk); }
+  .pill.gold { background: var(--gold-tint); color: var(--gold-dark); }
+  .pill.red { background: var(--red-tint); color: var(--red); }
+  .pill.blue { background: var(--blue-tint); color: var(--blue-dark); }
+  .pill.gray { background: #ECEFEC; color: var(--ink-soft); }
 
-/* Table */
-.table-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
-table.list { width: 100%; border-collapse: collapse; font-size: 13px; }
-table.list thead th { background: var(--nhs-pale-2); color: var(--nhs-mid); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--nhs-border); white-space: nowrap; }
-table.list tbody td { padding: 14px 16px; border-bottom: 1px solid var(--border); color: var(--ink); vertical-align: middle; }
-table.list tbody tr { transition: background 0.1s; }
-table.list tbody tr:hover { background: var(--nhs-pale-2); }
-table.list tbody tr:last-child td { border-bottom: none; }
-.cell-main { font-weight: 600; color: var(--ink); }
-.cell-sub  { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
-.cell-num  { font-variant-numeric: tabular-nums; }
-.app-ref { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; color: var(--nhs-mid); font-weight: 600; background: var(--nhs-pale); padding: 1px 7px; border-radius: 4px; display: inline-block; }
+  .prop-right { padding: 14px 18px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 8px; min-width: 170px; border-left: 1px solid var(--nhs-border); }
+  .prop-right .photos-num { font-size: 22px; font-weight: 800; color: var(--ink); line-height: 1; }
+  .prop-right .photos-lbl { font-size: 10.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; line-height: 14px; white-space: nowrap; }
+  .prop-right .right-progress { width: 100%; height: 6px; background: var(--nhs-pale); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+  .prop-right .right-progress > div { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--nhs-dk), var(--nhs-soft)); }
+  .prop-right .open-btn { margin-top: 4px; background: var(--nhs-dk); color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+  .prop-right .open-btn:hover { background: var(--nhs-mid); }
 
-/* Variance — estate-agent specific (NHS valuation vs achieved price) */
-.variance { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 6px; display: inline-block; }
-.variance-pos { background: var(--green-tint); color: var(--green-ok); }
-.variance-neg { background: var(--red-tint); color: var(--red); }
-.variance-neutral { background: var(--nhs-pale); color: var(--nhs-mid); }
+  /* ── Detail page · property card header (list-row anatomy) ─── */
+  .property-card { background: #fff; border: 1px solid var(--nhs-border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); display: grid; grid-template-columns: auto 1fr auto; column-gap: 20px; align-items: stretch; margin-bottom: 20px; }
+  .property-card > div:nth-child(2) { display: flex; flex-direction: column; }
+  .property-card .briefing { background: var(--nhs-pale); border-left: 3px solid var(--nhs-dk); padding: 12px 14px; border-radius: 0 8px 8px 0; font-size: 13px; margin-top: auto; margin-bottom: 0; }
+  .property-card .briefing .lbl { font-size: 10.5px; font-weight: 700; color: var(--nhs-dk); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .property-card .eyebrow { color: var(--nhs-dk); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 4px; }
+  .property-card .addr-line-1 { font-size: 20px; font-weight: 800; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.01em; }
+  .property-card .addr-line-2 { color: var(--ink-soft); font-size: 14px; }
+  .property-card .addr-meta { margin-top: 6px; display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--ink-soft); }
+  .property-card .addr-meta strong { color: var(--ink); font-weight: 600; }
 
-/* Pills */
-.pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-.pill .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-.pill-booked       { background: var(--blue-tint);   color: var(--blue); }
-.pill-figures      { background: var(--red-tint);    color: var(--red); }
-.pill-submitted    { background: var(--gold-tint);   color: var(--gold-dk); }
-.pill-valuations   { background: var(--purple-tint); color: var(--purple); }
-.pill-sstc         { background: var(--green-tint);  color: var(--green-ok); }
-.pill-completed    { background: var(--nhs-pale);    color: var(--nhs-dk); }
-.pill-onhold       { background: #FCEFE1;            color: #C2410C; }
+  .detail-date-block { width: 100px; border-radius: 10px; border: 1px solid var(--nhs-border); overflow: hidden; display: flex; flex-direction: column; align-items: stretch; background: linear-gradient(180deg, var(--nhs-pale) 0%, var(--nhs-pale-2) 100%); flex-shrink: 0; align-self: flex-start; box-shadow: 0 1px 3px rgba(15,23,42,0.05); }
+  .detail-date-block .month { background: var(--nhs-dk); color: #fff; text-align: center; font-size: 11px; font-weight: 800; padding: 6px 0; letter-spacing: 0.14em; text-transform: uppercase; }
+  .detail-date-block .day { font-size: 34px; font-weight: 800; color: var(--nhs-dk); line-height: 1; text-align: center; margin-top: 12px; }
+  .detail-date-block .weekday { font-size: 10.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.10em; font-weight: 700; margin-top: 5px; text-align: center; }
+  .detail-date-block .time { font-size: 11.5px; color: var(--nhs-dk); font-weight: 800; background: #fff; border: 1.5px solid var(--nhs-soft); border-radius: 4px; text-align: center; padding: 4px 0; margin: 10px 10px 0; letter-spacing: 0.02em; }
+  .detail-date-block .remaining { margin-top: 12px; padding: 6px 0; background: var(--nhs-pale); border-top: 1px solid var(--nhs-border); text-align: center; font-size: 10px; font-weight: 800; color: var(--nhs-dk); text-transform: uppercase; letter-spacing: 0.08em; }
+  .detail-date-block.urgent { background: linear-gradient(180deg, #FCEAE6 0%, #FFF4F2 100%); border-color: var(--red); }
+  .detail-date-block.urgent .month { background: var(--red); }
+  .detail-date-block.urgent .day { color: var(--red); }
+  .detail-date-block.urgent .remaining { background: var(--red-tint); color: var(--red); }
+  .detail-date-block.soon { background: linear-gradient(180deg, #FFF8E7 0%, #FFFDF5 100%); border-color: var(--gold); }
+  .detail-date-block.soon .month { background: var(--gold-dark); }
+  .detail-date-block.soon .day { color: var(--gold-dark); }
+  .detail-date-block.soon .remaining { background: var(--gold-tint); color: var(--gold-dark); }
 
-/* Row actions */
-.row-actions { display: inline-flex; gap: 4px; opacity: 0; transition: opacity 0.12s; }
-table.list tr:hover .row-actions { opacity: 1; }
-.row-action-btn { width: 28px; height: 28px; border-radius: var(--radius-sm); border: 1px solid var(--nhs-border); background: white; color: var(--nhs-mid); display: inline-flex; align-items: center; justify-content: center; }
-.row-action-btn:hover { background: var(--nhs-pale); color: var(--nhs-dk); }
-.row-action-btn svg { width: 13px; height: 13px; }
+  /* Right map column */
+  .mini-map { width: 260px; height: 170px; border-radius: 8px; border: 1px solid var(--nhs-border); overflow: hidden; position: relative; cursor: pointer; background: var(--nhs-pale-2); display: block; }
+  .mini-map iframe { width: 100%; height: 100%; border: 0; pointer-events: none; }
+  .mini-map .pin-badge { position: absolute; bottom: 8px; left: 8px; background: #fff; border: 1px solid var(--nhs-border); border-radius: 999px; padding: 4px 10px 4px 7px; font-size: 11px; font-weight: 700; color: var(--nhs-dk); display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 1px 3px rgba(15,23,42,0.10); }
+  .mini-map .pin-badge svg { width: 12px; height: 12px; color: var(--red); }
+  .directions-btn { width: 260px; background: var(--nhs-dk); color: #fff; border: 1px solid var(--nhs-dk); padding: 9px 14px; border-radius: 7px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .directions-btn:hover { background: var(--nhs-mid); }
+  .directions-btn svg { width: 13px; height: 13px; }
+  .directions-meta { font-size: 11px; color: var(--ink-soft); text-align: center; width: 260px; }
+  .directions-meta strong { color: var(--ink); font-weight: 700; }
 
-/* Empty */
-.empty { padding: 56px 24px; text-align: center; color: var(--muted); }
-.empty-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--nhs-pale); display: inline-flex; align-items: center; justify-content: center; color: var(--nhs-mid); margin-bottom: 12px; }
-.empty h3 { margin: 0 0 4px; font-size: 15px; color: var(--ink); }
-.empty p  { margin: 0 0 14px; font-size: 13px; }
+  /* ── Form sections ─────────────────────────────────── */
+  .form-section { background: #fff; border: 1px solid var(--nhs-border); border-radius: 10px; padding: 18px 22px; box-shadow: var(--shadow); margin-bottom: 16px; }
+  .form-section h3 { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--nhs-border); display: flex; align-items: center; gap: 8px; }
+  .form-section h3 .icon { width: 18px; height: 18px; color: var(--nhs-dk); }
+  .form-section h3 .req-pill { background: var(--red-tint); color: var(--red); font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.06em; margin-left: auto; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+  .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .form-grid .field label { display: block; font-size: 11px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .form-grid .field input,
+  .form-grid .field select,
+  .form-grid .field textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--nhs-border); border-radius: 6px; font-size: 13px; font-family: inherit; color: var(--ink); background: #fff; }
+  .form-grid .field input:focus,
+  .form-grid .field select:focus,
+  .form-grid .field textarea:focus { outline: none; border-color: var(--nhs-dk); box-shadow: 0 0 0 3px rgba(7,95,80,0.08); }
+  .form-grid .field input[readonly],
+  .form-grid .field input:disabled { background: var(--nhs-pale-2); color: var(--ink-soft); cursor: not-allowed; }
+  .form-grid .field textarea { resize: vertical; min-height: 70px; line-height: 1.4; }
+  .form-grid .field-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
+  .form-grid .field-row label { margin: 0; flex: 1; font-size: 13px; text-transform: none; color: var(--ink); font-weight: 500; letter-spacing: 0; }
 
-/* Tab panel */
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+  /* Valuation figures — primary inputs */
+  .val-figures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .val-figures .v-card { background: var(--nhs-pale-2); border: 2px solid var(--nhs-border); border-radius: 10px; padding: 14px 16px; transition: border-color 0.15s, background 0.15s; }
+  .val-figures .v-card:focus-within { border-color: var(--nhs-dk); background: #fff; }
+  .val-figures .v-card.market { border-color: var(--gold); background: var(--gold-tint); }
+  .val-figures .v-card .v-lbl { font-size: 10.5px; font-weight: 800; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .val-figures .v-card.market .v-lbl { color: var(--gold-dark); }
+  .val-figures .v-card .v-help { font-size: 11px; color: var(--ink-soft); margin-bottom: 8px; }
+  .val-figures .v-card .v-input { display: flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--nhs-border); border-radius: 6px; padding: 6px 10px; }
+  .val-figures .v-card .v-input span { font-size: 18px; color: var(--ink-mute); font-weight: 700; }
+  .val-figures .v-card .v-input input { flex: 1; border: none; outline: none; font-size: 18px; font-weight: 800; color: var(--ink); background: transparent; padding: 0; }
 
-/* Comms */
-.comms-list { display: flex; flex-direction: column; gap: 1px; }
-.comm-item { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 8px; display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: start; }
-.comm-icon { width: 28px; height: 28px; border-radius: 50%; background: var(--nhs-pale); color: var(--nhs-dk); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.comm-icon svg { width: 14px; height: 14px; }
-.comm-icon.email { background: var(--blue-tint);   color: var(--blue); }
-.comm-icon.call  { background: var(--gold-tint);   color: var(--gold-dk); }
-.comm-icon.sms   { background: var(--green-tint);  color: var(--green-ok); }
-.comm-icon.wa    { background: #DCFCE7;            color: #15803D; }
-.comm-icon.note  { background: var(--purple-tint); color: var(--purple); }
-.comm-body { min-width: 0; }
-.comm-title { font-weight: 600; color: var(--ink); font-size: 13.5px; }
-.comm-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-.comm-preview { font-size: 12.5px; color: var(--ink-mute); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.comm-time { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* Comparable properties table */
+  .comp-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .comp-table thead th { background: var(--nhs-pale-2); padding: 8px 10px; text-align: left; font-size: 10.5px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--nhs-border); }
+  .comp-table tbody th { padding: 10px; font-size: 11.5px; color: var(--ink-soft); font-weight: 600; background: var(--nhs-pale-2); border-bottom: 1px solid var(--nhs-border); width: 130px; text-align: left; }
+  .comp-table tbody td { padding: 8px 10px; border-bottom: 1px solid var(--nhs-border); }
+  .comp-table tbody tr:last-child th,
+  .comp-table tbody tr:last-child td { border-bottom: none; }
+  .comp-table input,
+  .comp-table textarea { width: 100%; padding: 6px 8px; border: 1px solid var(--nhs-border); border-radius: 5px; font-size: 12.5px; font-family: inherit; background: #fff; }
+  .comp-table input:focus,
+  .comp-table textarea:focus { outline: none; border-color: var(--nhs-dk); }
+  .comp-table textarea { resize: vertical; min-height: 50px; line-height: 1.35; }
 
-/* Coverage area */
-.coverage-wrap { display: grid; grid-template-columns: 1fr 2fr; gap: 14px; }
-.coverage-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-sm); }
-.coverage-title { font-size: 10.5px; font-weight: 800; color: var(--nhs-mid); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--nhs-border); display: flex; justify-content: space-between; align-items: center; }
-.coverage-stat { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; color: var(--ink-soft); border-bottom: 1px dashed var(--border); }
-.coverage-stat:last-child { border-bottom: none; }
-.coverage-stat strong { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
-.postcode-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
-.postcode-chip { background: var(--nhs-pale-2); border: 1px solid var(--nhs-border); border-radius: var(--radius-sm); padding: 7px 10px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; font-size: 12px; color: var(--nhs-dk); text-align: center; }
-.postcode-chip.primary { background: var(--nhs-dk); color: white; border-color: var(--nhs-dk); }
-.postcode-chip .vol { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 10px; color: var(--muted); display: block; margin-top: 2px; letter-spacing: 0.02em; }
-.postcode-chip.primary .vol { color: rgba(255,255,255,0.75); }
+  /* Photo uploads grid */
+  .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  .photo-up { background: var(--nhs-pale-2); border: 2px dashed var(--nhs-sage); border-radius: 8px; padding: 18px 12px; text-align: center; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+  .photo-up:hover { background: var(--nhs-pale); border-color: var(--nhs-dk); border-style: solid; }
+  .photo-up.has-file { background: var(--gold-tint); border-color: var(--gold); border-style: solid; }
+  .photo-up svg { width: 24px; height: 24px; color: var(--nhs-soft); margin-bottom: 6px; }
+  .photo-up.has-file svg { color: var(--gold-dark); }
+  .photo-up .lbl { font-size: 12px; font-weight: 700; color: var(--ink); }
+  .photo-up .sub { font-size: 11px; color: var(--ink-soft); margin-top: 3px; }
 
-/* Companies House */
-.tab-count-verified { background: var(--green-tint); color: var(--green-ok); font-size: 11px; padding: 0 6px; }
-.tab.active .tab-count-verified { background: white; color: var(--green-ok); }
-.ch-bar { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 14px; flex-wrap: wrap; }
-.ch-bar-left { display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap; }
-.ch-bar-right { display: flex; align-items: center; gap: 10px; }
-.ch-source-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--nhs-pale); color: var(--nhs-dk); border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.02em; }
-.ch-meta { font-size: 12.5px; color: var(--muted); }
-.ch-meta strong { color: var(--ink-soft); font-weight: 600; }
-.ch-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--nhs-mid); }
-.ch-link:hover { color: var(--nhs-dk); }
-.ch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.ch-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow-sm); }
-.ch-section-wide { grid-column: 1 / -1; }
-.ch-section-title { font-size: 10.5px; font-weight: 800; color: var(--nhs-mid); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--nhs-border); display: flex; align-items: center; justify-content: space-between; }
-.ch-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
-.ch-field-wide { grid-column: 1 / -1; }
-.ch-field-label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
-.ch-field-value { font-size: 13.5px; color: var(--ink); font-weight: 600; }
-.ch-field-value.mono, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 600; letter-spacing: 0.01em; }
-.ch-address { font-size: 13.5px; color: var(--ink); line-height: 1.7; }
-.ch-address .mono { font-size: 12.5px; color: var(--nhs-dk); }
-.ch-country { color: var(--muted); font-size: 12.5px; margin-top: 4px; }
-.kyc-summary { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
-.kyc-summary-clean { background: var(--gold-tint); color: var(--gold-dk); }
-.kyc-summary-bad   { background: var(--red-tint);  color: var(--red); }
-.kyc-summary-ok    { background: var(--green-tint); color: var(--green-ok); }
-.kyc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
-.kyc-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; background: var(--nhs-pale-2); border: 1px solid var(--nhs-border); border-radius: var(--radius-sm); }
-.kyc-label { font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
-.kyc-flag { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.04em; text-transform: uppercase; }
-.kyc-flag-ok   { background: var(--green-tint); color: var(--green-ok); }
-.kyc-flag-warn { background: var(--gold-tint);  color: var(--gold-dk); }
-.kyc-flag-bad  { background: var(--red-tint);   color: var(--red); }
-.ch-compliance { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.ch-compliance-card { padding: 14px 16px; background: var(--nhs-pale-2); border: 1px solid var(--nhs-border); border-radius: var(--radius); display: flex; flex-direction: column; gap: 4px; }
-.ch-compliance-label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-.ch-compliance-date { font-size: 18px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
-.ch-status-badge { display: inline-block; font-size: 10.5px; font-weight: 800; padding: 2px 9px; border-radius: 999px; width: fit-content; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 4px; }
-.ch-status-ok      { background: var(--green-tint); color: var(--green-ok); }
-.ch-status-overdue { background: var(--red-tint);   color: var(--red); }
+  /* Section actions footer */
+  .form-footer { position: sticky; bottom: 0; background: #fff; border-top: 1px solid var(--nhs-border); padding: 14px 20px; margin: 24px -28px -60px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 12px rgba(15,23,42,0.04); }
+  .form-footer .left { font-size: 12px; color: var(--ink-soft); }
+  .form-footer .left strong { color: var(--ink); font-weight: 700; }
+  .form-footer .right { display: flex; gap: 10px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 7px; font-weight: 600; font-size: 13px; cursor: pointer; border: 1px solid var(--nhs-border); background: #fff; color: var(--nhs-dk); }
+  .btn:hover { background: var(--nhs-pale); }
+  .btn.btn-primary { background: var(--nhs-dk); color: #fff; border-color: var(--nhs-dk); }
+  .btn.btn-primary:hover { background: var(--nhs-mid); }
+  .btn svg { width: 13px; height: 13px; }
 
-/* Responsive */
-@media (max-width: 1024px) {
-    .kpis { grid-template-columns: repeat(2, 1fr); }
-    .hero { grid-template-columns: auto 1fr; }
-    .hero-actions { grid-column: 1 / -1; justify-content: flex-end; }
-    .ch-grid { grid-template-columns: 1fr; }
-    .ch-compliance { grid-template-columns: 1fr; }
-    .coverage-wrap { grid-template-columns: 1fr; }
-}
-@media (max-width: 640px) {
-    .page { padding: 12px; }
-    .hero { padding: 16px; gap: 14px; }
-    .hero-logo { width: 64px; height: 64px; font-size: 20px; }
-    .hero-name { font-size: 20px; }
-    .kpis { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .kpi-value { font-size: 18px; }
-    .tabs { font-size: 12px; }
-    .tab { padding: 10px 12px; }
-}
+  .breadcrumb { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft); margin-bottom: 12px; cursor: pointer; }
+  .breadcrumb:hover { color: var(--nhs-dk); }
+  .breadcrumb svg { width: 12px; height: 12px; }
+
+  /* Help banner */
+  .help-banner { background: var(--gold-tint); border-left: 3px solid var(--gold); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 12px; color: var(--ink-soft); margin-top: 14px; }
+  .help-banner strong { color: var(--gold-dark); }
+
+  /* Mobile */
+  @media (max-width: 720px) {
+    header.appbar { padding: 10px 16px; }
+    header.appbar .user .name, header.appbar .user .role { display: none; }
+    .tabs { padding: 0 16px; }
+    .tab { padding: 12px 12px; font-size: 12px; }
+    .page { padding: 0 16px; }
+    .prop-row { grid-template-columns: 78px 1fr; }
+    .prop-right { grid-column: 1 / -1; border-left: none; border-top: 1px solid var(--nhs-border); align-items: stretch; flex-direction: row; justify-content: space-between; min-width: 0; }
+    .property-card { grid-template-columns: 1fr; }
+    .form-grid, .form-grid.cols-3 { grid-template-columns: 1fr; }
+    .val-figures { grid-template-columns: 1fr; }
+    .form-footer { flex-direction: column; gap: 10px; padding: 12px 16px; margin: 24px -16px -60px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-    <div class="topbar-brand">
-        <div class="topbar-brand-mark">N</div>
-        <span>NHS</span>
+<!-- ─── App bar ─── -->
+<header class="appbar">
+  <div class="brand">
+    <div class="logo">RR</div>
+    <div>
+      <div>Estate Agent Portal</div>
+      <div class="brand-meta">Reeds Rains · NHS partner</div>
     </div>
-    <div class="crumb">
-        <a href="#">Estate Agents</a>
-        <span class="crumb-sep">›</span>
-        <span class="crumb-here">Bryant &amp; Carter Estates</span>
+  </div>
+  <div class="user">
+    <div class="avatar">TC</div>
+    <div>
+      <div class="name">Tom Carter</div>
+      <div class="role">Reeds Rains · Manchester branch</div>
     </div>
-    <div class="topbar-right">
-        <button class="topbar-iconbtn" title="Notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        </button>
-        <button class="topbar-iconbtn" title="Settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        </button>
-    </div>
-</div>
+    <button class="signout">Sign out</button>
+  </div>
+</header>
+
+<!-- ─── Tabs ─── -->
+<nav class="tabs">
+  <div class="tab active" data-view="list">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    My Valuations <span class="badge">14</span>
+  </div>
+  <div class="tab" data-view="calendar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Calendar
+  </div>
+  <div class="tab" data-view="submitted">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Submitted
+  </div>
+  <div class="tab" data-view="form">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+    Valuation Form
+  </div>
+</nav>
 
 <div class="page">
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-logo">BC</div>
-        <div class="hero-info">
-            <div class="hero-kicker">Estate Agent</div>
-            <h1 class="hero-name">Bryant &amp; Carter Estates <span class="hero-status"><span class="dot"></span>Active</span></h1>
-            <div class="hero-meta">
-                <span class="hero-meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg>
-                    <a href="tel:01189712340">0118 971 2340</a>
-                </span>
-                <span class="hero-meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    <a href="mailto:lettings@bryantcarter.co.uk">lettings@bryantcarter.co.uk</a>
-                </span>
-                <span class="hero-meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Reading, Berkshire RG1
-                </span>
-                <span class="hero-meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17H7A5 5 0 117 7h2"/><path d="M15 7h2a5 5 0 010 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                    3 branches · 14 valuers
-                </span>
-                <span class="hero-meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    NHS partner since Aug 2023
-                </span>
-            </div>
-        </div>
-        <div class="hero-actions">
-            <button class="btn btn-ghost" title="More">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-            </button>
-            <button class="btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Edit
-            </button>
-            <button class="btn btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Book Valuation
-            </button>
-        </div>
-    </section>
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ─── VIEW 1 — LIST ──────────────────────────────────────────────── -->
+<section class="view active" data-view="list">
 
-    <!-- KPIs -->
-    <section class="kpis">
-        <div class="kpi">
-            <div class="kpi-label">Active valuations</div>
-            <div class="kpi-value">4</div>
-            <div class="kpi-delta up">↑ 2 this month</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-label">Conversion rate</div>
-            <div class="kpi-value">71%</div>
-            <div class="kpi-delta up">↑ 6pp vs NHS avg</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-label">Avg price accuracy</div>
-            <div class="kpi-value">±2.1%</div>
-            <div class="kpi-delta up">Best in panel</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-label">Avg days to figures</div>
-            <div class="kpi-value">4d</div>
-            <div class="kpi-delta up">↑ 1d vs Mar</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-label">Last activity</div>
-            <div class="kpi-value">45m ago</div>
-            <div class="kpi-delta">Email · Sarah B.</div>
-        </div>
-    </section>
+  <div class="page-head">
+    <div>
+      <h1>My valuations</h1>
+      <div class="sub">14 assignments from NHS · 1 due today · 3 valuations to submit</div>
+    </div>
+    <div class="filters">
+      <span class="filter-chip active">All <span style="opacity:0.7;">14</span></span>
+      <span class="filter-chip">Outstanding <span style="opacity:0.7;">3</span></span>
+      <span class="filter-chip">Scheduled <span style="opacity:0.7;">8</span></span>
+      <span class="filter-chip">Submitted <span style="opacity:0.7;">3</span></span>
+    </div>
+  </div>
 
-    <!-- TABS -->
-    <nav class="tabs">
-        <button class="tab" data-tab="contacts">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-            Contacts <span class="tab-count">3</span>
-        </button>
-        <button class="tab active" data-tab="valuations">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Valuations <span class="tab-count">4</span>
-        </button>
-        <button class="tab" data-tab="comms">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            Comms History <span class="tab-count">22</span>
-        </button>
-        <button class="tab" data-tab="coverage">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Coverage Area <span class="tab-count">12</span>
-        </button>
-        <button class="tab" data-tab="companies">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
-            Companies House <span class="tab-count tab-count-verified">✓</span>
-        </button>
-    </nav>
+  <div class="prop-list">
 
-    <!-- VALUATIONS PANEL (active) -->
-    <section class="tab-panel active" id="panel-valuations">
-        <div class="toolbar">
-            <div class="search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search by property, application, valuer…">
-            </div>
-            <div class="filter-pills">
-                <button class="filter-pill active">All<span class="filter-pill-count">4</span></button>
-                <button class="filter-pill">Booked<span class="filter-pill-count">1</span></button>
-                <button class="filter-pill">Figures to Chase<span class="filter-pill-count">1</span></button>
-                <button class="filter-pill">Submitted<span class="filter-pill-count">1</span></button>
-                <button class="filter-pill">SSTC<span class="filter-pill-count">1</span></button>
-                <button class="filter-pill">On Hold<span class="filter-pill-count">0</span></button>
-            </div>
-            <div class="toolbar-right">
-                <span>Sort: Most recent</span>
-            </div>
+    <!-- 1. Due today -->
+    <div class="prop-row urgent">
+      <div class="date-block">
+        <div class="month">May</div>
+        <div class="day">13</div>
+        <div class="weekday">Tue</div>
+        <div class="time">14:00</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">5 Park Lane Mansions</div>
+        <div class="addr-2">Edgbaston, Birmingham, B17 9DR</div>
+        <div class="meta">
+          <span><strong>Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Kapoor family</strong></span><span class="sep">·</span>
+          <span>3 beds · 2 baths</span><span class="sep">·</span>
+          <span>NHS Ref <strong>OPP-04221</strong></span>
         </div>
-
-        <div class="table-card">
-            <table class="list">
-                <thead>
-                    <tr>
-                        <th>Property</th>
-                        <th>Application</th>
-                        <th>Valuer</th>
-                        <th>NHS Valuation</th>
-                        <th>vs Sprift AVM</th>
-                        <th>Submitted</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="cell-main">17 Elmsworth Avenue</div>
-                            <div class="cell-sub">Reading RG1 7DX</div>
-                        </td>
-                        <td>
-                            <span class="app-ref">PT/89TY/987</span>
-                            <div class="cell-sub">Vendor: TEST Smith</div>
-                        </td>
-                        <td>
-                            <div class="cell-main">Sarah Bryant</div>
-                            <div class="cell-sub">Senior valuer</div>
-                        </td>
-                        <td class="cell-num"><strong>£345,000</strong></td>
-                        <td><span class="variance variance-pos">+1.8%</span></td>
-                        <td class="cell-sub cell-num">15 May 2025</td>
-                        <td><span class="pill pill-sstc"><span class="dot"></span>SSTC</span></td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
-                                <button class="row-action-btn" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
-                                <button class="row-action-btn" title="Call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="cell-main">99 Westbourne Grove</div>
-                            <div class="cell-sub">Reading RG2 4UW</div>
-                        </td>
-                        <td>
-                            <span class="app-ref">PT/89TY/991</span>
-                            <div class="cell-sub">Vendor: Clein John</div>
-                        </td>
-                        <td>
-                            <div class="cell-main">James Carter</div>
-                            <div class="cell-sub">Partner</div>
-                        </td>
-                        <td class="cell-num"><strong>£298,000</strong></td>
-                        <td><span class="variance variance-neutral">−0.6%</span></td>
-                        <td class="cell-sub cell-num">8 May 2025</td>
-                        <td><span class="pill pill-submitted"><span class="dot"></span>Submitted</span></td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
-                                <button class="row-action-btn" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
-                                <button class="row-action-btn" title="Call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="cell-main">12 Garrick Mews</div>
-                            <div class="cell-sub">Wokingham RG40 2BY</div>
-                        </td>
-                        <td>
-                            <span class="app-ref">PT/89TY/1004</span>
-                            <div class="cell-sub">Vendor: Rebecca Jones</div>
-                        </td>
-                        <td>
-                            <div class="cell-main">Priya Shah</div>
-                            <div class="cell-sub">Valuer</div>
-                        </td>
-                        <td class="cell-num"><strong>£425,000</strong></td>
-                        <td><span class="variance variance-pos">+2.4%</span></td>
-                        <td class="cell-sub">— Pending —</td>
-                        <td><span class="pill pill-figures"><span class="dot"></span>Figures to Chase</span></td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
-                                <button class="row-action-btn" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
-                                <button class="row-action-btn" title="Call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="cell-main">4 Skelton Close</div>
-                            <div class="cell-sub">Derby DE3 8EJ</div>
-                        </td>
-                        <td>
-                            <span class="app-ref">PT/89TY/1015</span>
-                            <div class="cell-sub">Vendor: Marie Hopkins</div>
-                        </td>
-                        <td>
-                            <div class="cell-main">James Carter</div>
-                            <div class="cell-sub">Partner</div>
-                        </td>
-                        <td class="cell-num">—</td>
-                        <td>—</td>
-                        <td class="cell-sub cell-num">Booked 21 May</td>
-                        <td><span class="pill pill-booked"><span class="dot"></span>Booked</span></td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
-                                <button class="row-action-btn" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
-                                <button class="row-action-btn" title="Call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg></button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="pills">
+          <span class="pill red">Visit today</span>
+          <span class="pill gold">Wain Homes</span>
+          <span class="pill gray">Not started</span>
         </div>
-    </section>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">0<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/3</span></div>
+        <div class="photos-lbl">Figures</div>
+        <div class="right-progress"><div style="width:0%;"></div></div>
+        <button class="open-btn">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
 
-    <!-- CONTACTS PANEL -->
-    <section class="tab-panel" id="panel-contacts">
-        <div class="table-card">
-            <table class="list">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>Branch</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th>Last contacted</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="cell-main">Sarah Bryant</div>
-                            <div class="cell-sub">Founding partner · senior valuer</div>
-                        </td>
-                        <td>Senior valuer</td>
-                        <td>Reading</td>
-                        <td class="mono">07700 900201</td>
-                        <td>sarah@bryantcarter.co.uk</td>
-                        <td class="cell-sub">45m ago</td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
-                                <button class="row-action-btn" title="Call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="cell-main">James Carter</div>
-                            <div class="cell-sub">Partner · CRM contact</div>
-                        </td>
-                        <td>Partner</td>
-                        <td>Reading</td>
-                        <td class="mono">07700 900233</td>
-                        <td>james@bryantcarter.co.uk</td>
-                        <td class="cell-sub">3d ago</td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
-                                <button class="row-action-btn" title="Call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="cell-main">Priya Shah</div>
-                            <div class="cell-sub">Wokingham branch valuer</div>
-                        </td>
-                        <td>Valuer</td>
-                        <td>Wokingham</td>
-                        <td class="mono">07700 900287</td>
-                        <td>priya@bryantcarter.co.uk</td>
-                        <td class="cell-sub">1w ago</td>
-                        <td>
-                            <div class="row-actions">
-                                <button class="row-action-btn" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
-                                <button class="row-action-btn" title="Call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg></button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- 2. Tomorrow -->
+    <div class="prop-row soon">
+      <div class="date-block">
+        <div class="month">May</div>
+        <div class="day">14</div>
+        <div class="weekday">Wed</div>
+        <div class="time">10:00</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">47 Maple Croft</div>
+        <div class="addr-2">Chorlton-cum-Hardy, Manchester, M21 8GX</div>
+        <div class="meta">
+          <span><strong>Semi-Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Mr &amp; Mrs Patel</strong></span><span class="sep">·</span>
+          <span>4 beds · 2 baths</span><span class="sep">·</span>
+          <span>NHS Ref <strong>OPP-04257</strong></span>
         </div>
-    </section>
-
-    <!-- COMMS PANEL -->
-    <section class="tab-panel" id="panel-comms">
-        <div class="toolbar">
-            <div class="search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search messages, calls, notes…">
-            </div>
-            <div class="filter-pills">
-                <button class="filter-pill active">All<span class="filter-pill-count">22</span></button>
-                <button class="filter-pill">Email<span class="filter-pill-count">12</span></button>
-                <button class="filter-pill">Call<span class="filter-pill-count">5</span></button>
-                <button class="filter-pill">SMS<span class="filter-pill-count">2</span></button>
-                <button class="filter-pill">WhatsApp<span class="filter-pill-count">2</span></button>
-                <button class="filter-pill">Note<span class="filter-pill-count">1</span></button>
-            </div>
+        <div class="pills">
+          <span class="pill gold">Tomorrow</span>
+          <span class="pill gold">Wain Homes</span>
+          <span class="pill gray">Not started</span>
         </div>
-        <div class="comms-list">
-            <div class="comm-item">
-                <div class="comm-icon email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">RE: Garrick Mews — figures landing tomorrow?</div>
-                    <div class="comm-meta">Email · Sarah Bryant · sarah@bryantcarter.co.uk</div>
-                    <div class="comm-preview">Hi Akash, Priya is finalising her report this afternoon. We'll send the formal figures with comparables by 11am tomorrow.</div>
-                </div>
-                <div class="comm-time">45m ago</div>
-            </div>
-            <div class="comm-item">
-                <div class="comm-icon call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">Inbound call · James Carter · 8m</div>
-                    <div class="comm-meta">Call · Skelton Close booking · James called +44 1189 712 340</div>
-                    <div class="comm-preview">Confirming valuation appointment for 21 May at 10:30. Marie's preferred — keys via porter as discussed.</div>
-                </div>
-                <div class="comm-time">2h ago</div>
-            </div>
-            <div class="comm-item">
-                <div class="comm-icon email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">Westbourne Grove — formal figures submitted</div>
-                    <div class="comm-meta">Email · James Carter · with comparable evidence PDF</div>
-                    <div class="comm-preview">Please find attached our valuation report at £298k. Three comparable agreed-sale evidences enclosed within 4-week window.</div>
-                </div>
-                <div class="comm-time">3d ago</div>
-            </div>
-            <div class="comm-item">
-                <div class="comm-icon wa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">WhatsApp from Sarah · Elmsworth Avenue update</div>
-                    <div class="comm-meta">WhatsApp · Sarah's mobile · Read</div>
-                    <div class="comm-preview">Buyer's solicitor confirmed today — completion target 28 June. We'll keep vendor warm with weekly check-ins.</div>
-                </div>
-                <div class="comm-time">5d ago</div>
-            </div>
-            <div class="comm-item">
-                <div class="comm-icon note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                <div class="comm-body">
-                    <div class="comm-title">Account note · Commercials review</div>
-                    <div class="comm-meta">Note · Account-level · Visible to NHS team only</div>
-                    <div class="comm-preview">B&amp;C have been our most accurate valuer this quarter — ±2.1% vs achieved. Worth promoting to primary panel for Reading + Wokingham postcodes.</div>
-                </div>
-                <div class="comm-time">2w ago</div>
-            </div>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">0<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/3</span></div>
+        <div class="photos-lbl">Figures</div>
+        <div class="right-progress"><div style="width:0%;"></div></div>
+        <button class="open-btn">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
+
+    <!-- 3. This Friday — in progress (opens form on click) -->
+    <div class="prop-row scheduled" data-open-form="1">
+      <div class="date-block">
+        <div class="month">May</div>
+        <div class="day">16</div>
+        <div class="weekday">Fri</div>
+        <div class="time">11:30</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">12 Broadway</div>
+        <div class="addr-2">Halton Moor, Leeds, LS15 0LX</div>
+        <div class="meta">
+          <span><strong>Semi-Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Mr &amp; Mrs Smith</strong></span><span class="sep">·</span>
+          <span>2 beds · 1 bath</span><span class="sep">·</span>
+          <span>NHS Ref <strong>OPP-04298</strong></span>
         </div>
-    </section>
-
-    <!-- COVERAGE AREA PANEL -->
-    <section class="tab-panel" id="panel-coverage">
-        <div class="coverage-wrap">
-            <div class="coverage-card">
-                <div class="coverage-title">Branch network</div>
-                <div class="coverage-stat"><span>Branches</span><strong>3</strong></div>
-                <div class="coverage-stat"><span>Valuers</span><strong>14</strong></div>
-                <div class="coverage-stat"><span>Postcodes covered</span><strong>12</strong></div>
-                <div class="coverage-stat"><span>Avg response time</span><strong>4h</strong></div>
-                <div class="coverage-stat"><span>Coverage tier</span><strong>Primary</strong></div>
-                <div class="coverage-stat"><span>Out-of-area calls</span><strong>13% YTD</strong></div>
-                <div class="coverage-title" style="margin-top: 18px;">Branches</div>
-                <div class="coverage-stat"><span>Reading <em style="color:var(--muted);font-style:normal;font-size:11px">· HQ</em></span><strong>RG1 5BE</strong></div>
-                <div class="coverage-stat"><span>Wokingham</span><strong>RG40 1AN</strong></div>
-                <div class="coverage-stat"><span>Henley-on-Thames</span><strong>RG9 2AA</strong></div>
-            </div>
-            <div class="coverage-card">
-                <div class="coverage-title">
-                    Postcode coverage
-                    <span class="kyc-summary kyc-summary-ok">12 districts</span>
-                </div>
-                <div class="postcode-grid">
-                    <div class="postcode-chip primary">RG1<span class="vol">38 valns</span></div>
-                    <div class="postcode-chip primary">RG2<span class="vol">24 valns</span></div>
-                    <div class="postcode-chip primary">RG6<span class="vol">19 valns</span></div>
-                    <div class="postcode-chip">RG4<span class="vol">12 valns</span></div>
-                    <div class="postcode-chip">RG5<span class="vol">9 valns</span></div>
-                    <div class="postcode-chip">RG7<span class="vol">6 valns</span></div>
-                    <div class="postcode-chip">RG40<span class="vol">18 valns</span></div>
-                    <div class="postcode-chip">RG41<span class="vol">11 valns</span></div>
-                    <div class="postcode-chip">RG42<span class="vol">4 valns</span></div>
-                    <div class="postcode-chip">RG9<span class="vol">7 valns</span></div>
-                    <div class="postcode-chip">RG10<span class="vol">3 valns</span></div>
-                    <div class="postcode-chip">SL5<span class="vol">2 valns</span></div>
-                </div>
-            </div>
+        <div class="pills">
+          <span class="pill green">In progress</span>
+          <span class="pill gold">Wain Homes · Timeline</span>
+          <span class="pill gray">Draft saved 18m ago</span>
         </div>
-    </section>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">2<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/3</span></div>
+        <div class="photos-lbl">Figures</div>
+        <div class="right-progress"><div style="width:67%;"></div></div>
+        <button class="open-btn">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
 
-    <!-- COMPANIES HOUSE PANEL -->
-    <section class="tab-panel" id="panel-companies">
-        <div class="ch-bar">
-            <div class="ch-bar-left">
-                <span class="ch-source-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
-                    Companies House (UK)
-                </span>
-                <span class="ch-meta">Last synced <strong>18 May 2025, 09:14</strong></span>
-            </div>
-            <div class="ch-bar-right">
-                <a class="ch-link" href="https://find-and-update.company-information.service.gov.uk/company/08512347" target="_blank">
-                    View on gov.uk
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-                <button class="btn btn-primary">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-                    Sync now
-                </button>
-            </div>
+    <!-- 4. Next week -->
+    <div class="prop-row scheduled">
+      <div class="date-block">
+        <div class="month">May</div>
+        <div class="day">20</div>
+        <div class="weekday">Tue</div>
+        <div class="time">15:00</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">22 The Willows</div>
+        <div class="addr-2">Fulwood, Sheffield, S10 3GP</div>
+        <div class="meta">
+          <span><strong>Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Ms J Henderson</strong></span><span class="sep">·</span>
+          <span>5 beds · 3 baths · double garage</span><span class="sep">·</span>
+          <span>NHS Ref <strong>OPP-04312</strong></span>
         </div>
-
-        <div class="ch-grid">
-            <!-- IDENTITY -->
-            <div class="ch-section">
-                <div class="ch-section-title">Identity</div>
-                <div class="ch-fields">
-                    <div class="ch-field">
-                        <div class="ch-field-label">Company Number</div>
-                        <div class="ch-field-value mono">08512347</div>
-                    </div>
-                    <div class="ch-field">
-                        <div class="ch-field-label">Status</div>
-                        <div class="ch-field-value"><span class="pill pill-sstc"><span class="dot"></span>Active</span></div>
-                    </div>
-                    <div class="ch-field">
-                        <div class="ch-field-label">Type</div>
-                        <div class="ch-field-value">Private Limited Company</div>
-                    </div>
-                    <div class="ch-field">
-                        <div class="ch-field-label">Incorporated</div>
-                        <div class="ch-field-value">14 May 2013</div>
-                    </div>
-                    <div class="ch-field ch-field-wide">
-                        <div class="ch-field-label">SIC Codes</div>
-                        <div class="ch-field-value mono">68310 · 68201 · 68209</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- REGISTERED OFFICE -->
-            <div class="ch-section">
-                <div class="ch-section-title">Registered Office</div>
-                <div class="ch-address">
-                    <div>Bryant &amp; Carter Estates Ltd</div>
-                    <div>27 Friar Street, Suite 4</div>
-                    <div>Reading</div>
-                    <div>Berkshire</div>
-                    <div class="mono">RG1 5BE</div>
-                    <div class="ch-country">United Kingdom</div>
-                </div>
-            </div>
-
-            <!-- KYC SIGNALS -->
-            <div class="ch-section ch-section-wide">
-                <div class="ch-section-title">
-                    KYC Signals
-                    <span class="kyc-summary kyc-summary-ok">No issues</span>
-                </div>
-                <div class="kyc-grid">
-                    <div class="kyc-row">
-                        <span class="kyc-label">Liquidated</span>
-                        <span class="kyc-flag kyc-flag-ok">No</span>
-                    </div>
-                    <div class="kyc-row">
-                        <span class="kyc-label">Has Charges</span>
-                        <span class="kyc-flag kyc-flag-ok">No</span>
-                    </div>
-                    <div class="kyc-row">
-                        <span class="kyc-label">Insolvency History</span>
-                        <span class="kyc-flag kyc-flag-ok">No</span>
-                    </div>
-                    <div class="kyc-row">
-                        <span class="kyc-label">Office In Dispute</span>
-                        <span class="kyc-flag kyc-flag-ok">No</span>
-                    </div>
-                    <div class="kyc-row">
-                        <span class="kyc-label">Address Undeliverable</span>
-                        <span class="kyc-flag kyc-flag-ok">No</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- COMPLIANCE DATES -->
-            <div class="ch-section ch-section-wide">
-                <div class="ch-section-title">Compliance Dates</div>
-                <div class="ch-compliance">
-                    <div class="ch-compliance-card">
-                        <div class="ch-compliance-label">Annual Accounts</div>
-                        <div class="ch-compliance-date">14 Feb 2026</div>
-                        <span class="ch-status-badge ch-status-ok">On time</span>
-                    </div>
-                    <div class="ch-compliance-card">
-                        <div class="ch-compliance-label">Confirmation Statement</div>
-                        <div class="ch-compliance-date">28 May 2025</div>
-                        <span class="ch-status-badge ch-status-ok">On time</span>
-                    </div>
-                </div>
-            </div>
+        <div class="pills">
+          <span class="pill green">Scheduled</span>
+          <span class="pill blue">Persimmon</span>
+          <span class="pill gray">Not started</span>
         </div>
-    </section>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">0<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/3</span></div>
+        <div class="photos-lbl">Figures</div>
+        <div class="right-progress"><div style="width:0%;"></div></div>
+        <button class="open-btn">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
+
+    <!-- 5. Following week -->
+    <div class="prop-row scheduled">
+      <div class="date-block">
+        <div class="month">May</div>
+        <div class="day">23</div>
+        <div class="weekday">Fri</div>
+        <div class="time">11:00</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">88 Coronation Drive</div>
+        <div class="addr-2">Gosforth, Newcastle, NE3 4QT</div>
+        <div class="meta">
+          <span><strong>Mid-Terrace</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Mr A Wilson</strong></span><span class="sep">·</span>
+          <span>3 beds · 1 bath</span><span class="sep">·</span>
+          <span>NHS Ref <strong>OPP-04330</strong></span>
+        </div>
+        <div class="pills">
+          <span class="pill green">Scheduled</span>
+          <span class="pill blue">Redrow</span>
+        </div>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">0<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/3</span></div>
+        <div class="photos-lbl">Figures</div>
+        <div class="right-progress"><div style="width:0%;"></div></div>
+        <button class="open-btn">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
+
+    <!-- 6. Submitted -->
+    <div class="prop-row done">
+      <div class="date-block">
+        <div class="month">May</div>
+        <div class="day">08</div>
+        <div class="weekday">Thu</div>
+        <div class="time">13:00</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">14 Heath Close</div>
+        <div class="addr-2">Stoke Bishop, Bristol, BS9 1AS</div>
+        <div class="meta">
+          <span><strong>Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Dr &amp; Mrs Khan</strong></span><span class="sep">·</span>
+          <span>4 beds · 3 baths</span><span class="sep">·</span>
+          <span>Submitted <strong>10 May</strong></span>
+        </div>
+        <div class="pills">
+          <span class="pill green">Submitted</span>
+          <span class="pill gold">£475K · £450K · £410K</span>
+          <span class="pill gray">NHS accepted 11 May</span>
+        </div>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">3<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/3</span></div>
+        <div class="photos-lbl">Figures</div>
+        <div class="right-progress"><div style="width:100%;"></div></div>
+        <button class="open-btn" style="background:var(--nhs-soft);">View <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ─── VIEW 2 — CALENDAR (placeholder) ───────────────────────────── -->
+<section class="view" data-view="calendar">
+  <div class="page-head">
+    <div>
+      <h1>Calendar</h1>
+      <div class="sub">Valuation appointments across the next 4 weeks</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid var(--nhs-border);border-radius:12px;padding:40px;text-align:center;box-shadow:var(--shadow);color:var(--ink-soft);">
+    Month grid · week view · day view — same anatomy as the Photographer portal calendar. Sample appointments would render here, colour-coded by urgency.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ─── VIEW 3 — SUBMITTED ────────────────────────────────────────── -->
+<section class="view" data-view="submitted">
+  <div class="page-head">
+    <div>
+      <h1>Submitted valuations</h1>
+      <div class="sub">3 valuations submitted to NHS this month · £42,000 in commissions accrued YTD</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid var(--nhs-border);border-radius:12px;padding:40px;text-align:center;box-shadow:var(--shadow);color:var(--ink-soft);">
+    Table view: date · property · figures (£M / £6W / £F) · status pill (Pending / Accepted / Rejected) · download PDF copy.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ─── VIEW 4 — VALUATION FORM ───────────────────────────────────── -->
+<section class="view" data-view="form">
+
+  <a class="breadcrumb" onclick="document.querySelector('.tab[data-view=list]').click()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to My Valuations
+  </a>
+
+  <!-- Property card header (list-row anatomy) -->
+  <div class="property-card">
+    <div class="detail-date-block soon">
+      <div class="month">May</div>
+      <div class="day">16</div>
+      <div class="weekday">Fri</div>
+      <div class="time">11:30</div>
+      <div class="remaining">In 3 days</div>
+    </div>
+
+    <div>
+      <div class="eyebrow">Valuation assignment</div>
+      <div class="addr-line-1">12 Broadway</div>
+      <div class="addr-line-2">Halton Moor, Leeds, LS15&nbsp;0LX</div>
+      <div class="addr-meta" style="margin-top:6px;">
+        <span><strong>Semi-Detached</strong></span><span style="color:var(--ink-mute);">·</span>
+        <span>Vendor: <strong>Mr &amp; Mrs Smith</strong></span><span style="color:var(--ink-mute);">·</span>
+        <span>NHS Ref <strong>OPP-04298</strong></span><span style="color:var(--ink-mute);">·</span>
+        <span>Wain Homes</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        <span class="pill green">In progress · 67%</span>
+        <span class="pill gold">Timeline valuations · 4 figures</span>
+        <span class="pill gray">Draft saved 18m ago</span>
+      </div>
+      <div class="briefing">
+        <div class="lbl">NHS briefing</div>
+        Vendor needs vacant possession by 31 July. Property fully refurbished in 2025 — new kitchen + bathrooms. Wain Homes scheme so we need the 4-figure timeline. Photographer visited 16 May so use the existing photos where possible.
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+      <a class="mini-map" href="https://www.google.com/maps/search/?api=1&amp;query=12+Broadway+Halton+Moor+Leeds+LS15+0LX" target="_blank">
+        <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=-1.4820%2C53.7922%2C-1.4620%2C53.8022&amp;layer=mapnik&amp;marker=53.7972%2C-1.4720" loading="lazy"></iframe>
+        <span class="pin-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a8 8 0 00-8 8c0 5.5 7.5 12 7.5 12s.5 0 1 0c0 0 7.5-6.5 7.5-12a8 8 0 00-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z"/></svg> 12 Broadway · LS15&nbsp;0LX</span>
+      </a>
+      <button class="directions-btn" onclick="window.open('https://www.google.com/maps/dir/?api=1&amp;destination=12+Broadway+Halton+Moor+Leeds+LS15+0LX', '_blank')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Get directions
+      </button>
+      <div class="directions-meta"><strong>12.4 mi</strong> from your branch · 22 min drive</div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 1 · Agent details ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Agent details
+    </h3>
+    <div class="form-grid">
+      <div class="field"><label>Agent name</label><input type="text" value="Tom Carter" readonly /></div>
+      <div class="field"><label>Email</label><input type="email" value="tom.carter@reedsrains.co.uk" readonly /></div>
+      <div class="field"><label>Telephone</label><input type="tel" value="0161 555 0142" readonly /></div>
+      <div class="field"><label>Branch</label><input type="text" value="Reeds Rains · Manchester" readonly /></div>
+      <div class="field"><label>Appointment date</label><input type="text" value="Fri 16 May 2026 · 11:30" readonly /></div>
+      <div class="field"><label>Date &amp; time of appraisal</label><input type="datetime-local" value="2026-05-16T11:30" /></div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 2 · Vendor contact ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.85.32 1.67.6 2.46a2 2 0 01-.45 2.11L8 9.91a16 16 0 006 6l1.62-1.27a2 2 0 012.11-.45c.79.28 1.61.48 2.46.6A2 2 0 0122 16.92z"/></svg>
+      Vendor contact
+    </h3>
+    <div class="form-grid">
+      <div class="field"><label>Customer name</label><input type="text" value="Mr &amp; Mrs Smith" readonly /></div>
+      <div class="field"><label>Email</label><input type="email" value="r.smith@gmail.com" readonly /></div>
+      <div class="field"><label>Telephone</label><input type="tel" value="07700 900245" readonly /></div>
+      <div class="field"><label>Application</label><input type="text" value="OPP-04298 · Wain Homes" readonly /></div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 3 · Property description ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg>
+      Description of property
+    </h3>
+    <div class="form-grid">
+      <div class="field"><label>Property type</label>
+        <select><option>Semi-Detached</option><option>Detached</option><option>Mid-Terrace</option><option>End-Terrace</option><option>Bungalow</option><option>Apartment</option></select>
+      </div>
+      <div class="field"><label>Type of construction</label><input type="text" placeholder="e.g. Brick · Cavity wall" /></div>
+      <div class="field"><label>Age of property</label><input type="number" placeholder="Years" /></div>
+      <div class="field"><label>Number of bedrooms</label><input type="number" value="2" /></div>
+      <div class="field"><label>Reception / living rooms</label><input type="number" value="1" /></div>
+      <div class="field"><label>Additional rooms</label><input type="number" placeholder="0" /></div>
+      <div class="field"><label>Garage</label>
+        <select><option>None</option><option>Single attached</option><option>Single detached</option><option>Double</option></select>
+      </div>
+      <div class="field"><label>Garden</label>
+        <select><option>Rear only</option><option>Front only</option><option>Front &amp; rear</option><option>Wraparound</option><option>None</option></select>
+      </div>
+      <div class="field"><label>Central heating</label>
+        <select><option>Gas</option><option>Electric</option><option>Oil</option><option>Heat pump</option><option>None</option></select>
+      </div>
+      <div class="field"><label>Double glazing</label>
+        <select><option>Full</option><option>Partial</option><option>None</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 4 · Condition ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Condition of property
+    </h3>
+    <div class="form-grid">
+      <div class="field"><label>Interior</label>
+        <select><option>Excellent</option><option>Good</option><option>Average</option><option>Needs work</option><option>Poor</option></select>
+      </div>
+      <div class="field"><label>Kitchen</label>
+        <select><option>Modern · 2025 refit</option><option>Good</option><option>Average</option><option>Dated</option></select>
+      </div>
+      <div class="field"><label>Bathroom</label>
+        <select><option>Modern</option><option>Good</option><option>Average</option><option>Dated</option></select>
+      </div>
+      <div class="field"><label>Decoration</label>
+        <select><option>Excellent</option><option>Good</option><option>Average</option><option>Needs redecoration</option></select>
+      </div>
+      <div class="field"><label>Carpets / flooring</label>
+        <select><option>New</option><option>Good</option><option>Worn</option><option>Needs replacement</option></select>
+      </div>
+      <div class="field"><label>Exterior</label>
+        <select><option>Excellent</option><option>Good</option><option>Average</option><option>Needs work</option></select>
+      </div>
+      <div class="field full"><label>Condition notes for NHS</label>
+        <textarea placeholder="Any condition issues that affect the valuation — damp, subsidence, lease length, planning, etc."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 5 · Marketing factors ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Marketing factors
+    </h3>
+    <div class="form-grid">
+      <div class="field full">
+        <label>Local market conditions, amenities &amp; new developments</label>
+        <textarea placeholder="Describe the area — schools, transport, recent developments, demand patterns…" rows="3"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 6 · Comparable properties (Sold) ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Comparable properties · sold
+    </h3>
+    <table class="comp-table">
+      <thead>
+        <tr><th></th><th>Property 1</th><th>Property 2</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>Address</th><td><input type="text" placeholder="Search NHS_Property…" /></td><td><input type="text" placeholder="Search NHS_Property…" /></td></tr>
+        <tr><th>Description</th><td><textarea placeholder="Brief description"></textarea></td><td><textarea placeholder="Brief description"></textarea></td></tr>
+        <tr><th>Agent</th><td><input type="text" placeholder="Agent name" /></td><td><input type="text" placeholder="Agent name" /></td></tr>
+        <tr><th>Sold date</th><td><input type="date" /></td><td><input type="date" /></td></tr>
+        <tr><th>Asking price</th><td><input type="text" placeholder="£" /></td><td><input type="text" placeholder="£" /></td></tr>
+        <tr><th>Time on market</th><td><input type="text" placeholder="e.g. 6 weeks" /></td><td><input type="text" placeholder="e.g. 6 weeks" /></td></tr>
+        <tr><th>Sold price</th><td><input type="text" placeholder="£" /></td><td><input type="text" placeholder="£" /></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── SECTION 7 · Comparable properties (On Market) ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Comparable properties · on market
+    </h3>
+    <table class="comp-table">
+      <thead>
+        <tr><th></th><th>Property 1</th><th>Property 2</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>Address</th><td><input type="text" placeholder="Search NHS_Property…" /></td><td><input type="text" placeholder="Search NHS_Property…" /></td></tr>
+        <tr><th>Description</th><td><textarea placeholder="Brief description"></textarea></td><td><textarea placeholder="Brief description"></textarea></td></tr>
+        <tr><th>Agent</th><td><input type="text" placeholder="Agent name" /></td><td><input type="text" placeholder="Agent name" /></td></tr>
+        <tr><th>Listed date</th><td><input type="date" /></td><td><input type="date" /></td></tr>
+        <tr><th>Asking price</th><td><input type="text" placeholder="£" /></td><td><input type="text" placeholder="£" /></td></tr>
+        <tr><th>Time on market</th><td><input type="text" placeholder="e.g. 4 weeks" /></td><td><input type="text" placeholder="e.g. 4 weeks" /></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── SECTION 8 · Desktop valuation tools ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Desktop valuation tools used
+    </h3>
+    <div class="form-grid">
+      <div class="field full">
+        <label>What tools are you using to verify the figures?</label>
+        <textarea placeholder="e.g. HMLR price-paid data, Rightmove Plus, Sprift, Land Registry, local comps from your branch system…" rows="3"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 9 · Market appraisal figures ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      Market appraisal figures
+      <span class="req-pill">Required</span>
+    </h3>
+
+    <div class="form-grid">
+      <div class="field full" style="margin-bottom:6px;">
+        <label>Should this property be considered for purchase &amp; immediate resale by NHS?</label>
+        <select><option>Yes — strong margin</option><option>Yes — marginal</option><option>No — too tight</option><option>No — needs work first</option></select>
+      </div>
+    </div>
+
+    <div class="val-figures" style="margin-top:14px;">
+      <div class="v-card market">
+        <div class="v-lbl">Market price</div>
+        <div class="v-help">Open-market asking that should sell within 12 weeks</div>
+        <div class="v-input"><span>£</span><input type="text" value="245,000" /></div>
+      </div>
+      <div class="v-card">
+        <div class="v-lbl">6-week sale</div>
+        <div class="v-help">Price that would sell within 6 weeks</div>
+        <div class="v-input"><span>£</span><input type="text" value="232,000" /></div>
+      </div>
+      <div class="v-card">
+        <div class="v-lbl">Forced sale</div>
+        <div class="v-help">Quick / cash-buyer price</div>
+        <div class="v-input"><span>£</span><input type="text" value="215,000" /></div>
+      </div>
+    </div>
+
+    <div class="help-banner">
+      <strong>Wain Homes scheme:</strong> This application uses the <strong>timeline valuation model</strong> — please also provide Open&nbsp;Market, 6-8&nbsp;Week, 4-6&nbsp;Week and 2-4&nbsp;Week figures via the additional row below (standard 3-figure block above stays mandatory either way).
+    </div>
+  </div>
+
+  <!-- ─── SECTION 10 · Photos ─── -->
+  <div class="form-section">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      Upload property photos
+    </h3>
+    <div class="photo-grid">
+      <label class="photo-up has-file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <div class="lbl">Kitchen</div>
+        <div class="sub">IMG_4471.jpg · 2.4 MB</div>
+      </label>
+      <label class="photo-up has-file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <div class="lbl">Bedroom</div>
+        <div class="sub">IMG_4472.jpg · 2.1 MB</div>
+      </label>
+      <label class="photo-up">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <div class="lbl">Bathroom</div>
+        <div class="sub">Click to upload</div>
+      </label>
+      <label class="photo-up">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <div class="lbl">Living room</div>
+        <div class="sub">Click to upload</div>
+      </label>
+      <label class="photo-up">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <div class="lbl">Parking</div>
+        <div class="sub">Click to upload</div>
+      </label>
+    </div>
+    <div class="help-banner" style="background:var(--nhs-pale);border-left-color:var(--nhs-dk);color:var(--ink-soft);">
+      <strong style="color:var(--nhs-dk);">Photos already on file:</strong> The NHS photographer visited this property on 16 May and uploaded 19 photos across all rooms. You can use those if your phone camera isn't usable on-site — they'll auto-attach to your submission. <a href="#" style="color:var(--nhs-dk);font-weight:600;">View photographer's photo set</a>.
+    </div>
+  </div>
+
+  <!-- ─── Sticky form footer ─── -->
+  <div class="form-footer">
+    <div class="left">
+      Draft auto-saved <strong>18 min ago</strong> · 9 of 10 sections complete
+    </div>
+    <div class="right">
+      <button class="btn">Save draft</button>
+      <button class="btn btn-primary">
+        Submit valuation to NHS
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </div>
+
+</section>
 
 </div>
 
 <script>
-// Tab switcher
-document.querySelectorAll('.tab').forEach(t => {
-    t.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        const key = t.dataset.tab;
-        const panel = document.getElementById('panel-' + key);
-        if (panel) panel.classList.add('active');
-    });
-});
+  function switchView(target) {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.view === target));
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === target));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchView(t.dataset.view)));
 
-// Filter pill toggle (within the active panel)
-document.querySelectorAll('.filter-pills').forEach(group => {
-    group.addEventListener('click', e => {
-        const pill = e.target.closest('.filter-pill');
-        if (!pill) return;
-        group.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('active'));
-        pill.classList.add('active');
-    });
-});
+  // Open form view from any list row click
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.filter-chip, .btn, .tab, .breadcrumb, .signout, .directions-btn, .mini-map, input, select, textarea, button, label.photo-up')) return;
+    if (e.target.closest('.prop-row, .open-btn')) {
+      e.preventDefault();
+      switchView('form');
+    }
+  });
 </script>
 
 </body>
