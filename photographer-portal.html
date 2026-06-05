@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NHS Photographer Portal · Mockup v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --nhs-dk: #075F50;
+    --nhs-mid: #4A6B5E;
+    --nhs-soft: #6B9080;
+    --nhs-sage: #C9D5CB;
+    --nhs-pale: #EAF4EF;
+    --nhs-pale-2: #F4F9F6;
+    --nhs-border: #C5DCCC;
+    --gold: #C9A84C;
+    --gold-tint: #FFF8E7;
+    --gold-dark: #8E743A;
+    --amber: #E07B2F;
+    --amber-tint: #FCEFE1;
+    --red: #B8341F;
+    --red-tint: #FCEAE6;
+    --blue: #4682A9;
+    --blue-tint: #DCEAF1;
+    --ink: #1F3D34;
+    --ink-soft: #5A6B7C;
+    --ink-mute: #9AA8A2;
+    --bg: #F7FAF8;
+    --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 4px 14px rgba(15,23,42,0.05);
+    --shadow-hover: 0 4px 14px rgba(15,23,42,0.10), 0 12px 32px rgba(15,23,42,0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.45; }
+
+  /* ── App bar ─────────────────────────────────────────── */
+  header.appbar {
+    background: var(--nhs-dk); color: #fff;
+    padding: 12px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  header.appbar .brand { display: flex; align-items: center; gap: 14px; font-weight: 800; font-size: 16px; }
+  header.appbar .logo {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gold); color: #5A4A1E;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px;
+  }
+  header.appbar .brand-meta { font-size: 11px; opacity: 0.75; font-weight: 500; margin-top: 2px; letter-spacing: 0.06em; text-transform: uppercase; }
+  header.appbar .user { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  header.appbar .avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.18);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;
+  }
+  header.appbar .name { font-weight: 600; }
+  header.appbar .role { font-size: 11px; opacity: 0.7; }
+  header.appbar .signout {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.24);
+    color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; font-weight: 500; margin-left: 10px;
+  }
+  header.appbar .signout:hover { background: rgba(255,255,255,0.20); }
+
+  /* ── Tab nav ─────────────────────────────────────────── */
+  .tabs {
+    background: #fff;
+    border-bottom: 1px solid var(--nhs-border);
+    padding: 0 28px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 14px 20px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .tab:hover { color: var(--nhs-dk); background: var(--nhs-pale-2); }
+  .tab.active { color: var(--nhs-dk); border-bottom-color: var(--nhs-dk); }
+  .tab svg { width: 15px; height: 15px; }
+  .tab .badge {
+    background: var(--gold); color: #5A4A1E;
+    font-size: 10px; font-weight: 800;
+    padding: 1px 6px; border-radius: 999px;
+    margin-left: 2px;
+  }
+  .tab.active .badge { background: var(--nhs-dk); color: #fff; }
+
+  /* ── Page wrap ──────────────────────────────────────── */
+  .page { max-width: 1180px; margin: 24px auto 60px; padding: 0 28px; }
+
+  /* ── View toggle ────────────────────────────────────── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── Page header ────────────────────────────────────── */
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .page-head h1 { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
+  .page-head .sub { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+  .page-head .filters { display: flex; gap: 8px; align-items: center; }
+  .filter-chip {
+    background: #fff; border: 1px solid var(--nhs-border);
+    color: var(--ink-soft); font-size: 12px; font-weight: 600;
+    padding: 6px 12px; border-radius: 999px;
+    cursor: pointer;
+  }
+  .filter-chip:hover { background: var(--nhs-pale); color: var(--nhs-dk); }
+  .filter-chip.active { background: var(--nhs-dk); color: #fff; border-color: var(--nhs-dk); }
+
+  /* ── PROPERTY LIST ROW ──────────────────────────────── */
+  .prop-list { display: flex; flex-direction: column; gap: 10px; }
+  .prop-row {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 10px;
+    padding: 0;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: 92px 1fr auto;
+    align-items: stretch;
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.05s;
+    overflow: hidden;
+  }
+  .prop-row:hover { box-shadow: var(--shadow-hover); }
+  .prop-row.urgent { border-left: 4px solid var(--red); }
+  .prop-row.soon   { border-left: 4px solid var(--gold); }
+  .prop-row.scheduled { border-left: 4px solid var(--nhs-soft); }
+  .prop-row.done   { border-left: 4px solid var(--nhs-sage); opacity: 0.85; }
+
+  /* Date block — calendar tear-off */
+  .date-block {
+    background: linear-gradient(180deg, var(--nhs-pale) 0%, var(--nhs-pale-2) 100%);
+    border-right: 1px solid var(--nhs-border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 14px 10px;
+    min-height: 88px;
+    position: relative;
+  }
+  .date-block .month {
+    font-size: 10px; font-weight: 800; color: var(--nhs-dk);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    background: var(--nhs-dk); color: #fff;
+    padding: 2px 9px; border-radius: 4px 4px 0 0;
+    width: calc(100% - 8px); text-align: center;
+    margin-bottom: 0;
+  }
+  .date-block .day {
+    font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1;
+    margin-top: 6px;
+  }
+  .date-block .weekday {
+    font-size: 10px; color: var(--ink-soft); margin-top: 2px;
+    text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+  }
+  .date-block .time {
+    font-size: 10px; color: var(--nhs-dk); font-weight: 700; margin-top: 5px;
+    background: #fff; padding: 2px 7px;
+    border: 1.5px solid var(--nhs-soft); border-radius: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Date block colour variants */
+  .prop-row.urgent .date-block { background: linear-gradient(180deg, #FCEAE6 0%, #FFF4F2 100%); }
+  .prop-row.urgent .date-block .month { background: var(--red); }
+  .prop-row.urgent .date-block .day { color: var(--red); }
+  .prop-row.soon .date-block { background: linear-gradient(180deg, #FFF8E7 0%, #FFFDF5 100%); }
+  .prop-row.soon .date-block .month { background: var(--gold-dark); }
+  .prop-row.done .date-block { background: linear-gradient(180deg, #F0F4F2 0%, #F8FAF9 100%); }
+  .prop-row.done .date-block .month { background: var(--nhs-soft); }
+  .prop-row.done .date-block .day { color: var(--ink-soft); }
+
+  /* Body of row */
+  .prop-body {
+    padding: 14px 18px;
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  .prop-body .addr-1 {
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .prop-body .addr-2 { color: var(--ink-soft); font-size: 12.5px; }
+  .prop-body .meta {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px;
+    font-size: 11.5px; color: var(--ink-soft);
+  }
+  .prop-body .meta strong { color: var(--ink); font-weight: 600; }
+  .prop-body .meta .sep { color: var(--ink-mute); }
+  .prop-body .pills { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .pill.green { background: var(--nhs-pale); color: var(--nhs-dk); }
+  .pill.gold  { background: var(--gold-tint); color: var(--gold-dark); }
+  .pill.red   { background: var(--red-tint); color: var(--red); }
+  .pill.blue  { background: var(--blue-tint); color: var(--blue); }
+  .pill.gray  { background: #ECEFEC; color: var(--ink-soft); }
+
+  /* Right action column */
+  .prop-right {
+    padding: 14px 18px;
+    display: flex; flex-direction: column; align-items: flex-end; justify-content: center;
+    gap: 8px;
+    min-width: 160px;
+    border-left: 1px solid var(--nhs-border);
+  }
+  .prop-right .photos-num {
+    font-size: 22px; font-weight: 800; color: var(--ink); line-height: 1;
+  }
+  .prop-right .photos-lbl {
+    font-size: 10.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+    line-height: 14px;          /* fixed so progress bar baseline doesn't shift between rows */
+    white-space: nowrap;
+  }
+  .prop-right .right-progress {
+    width: 100%;
+    height: 6px;
+    background: var(--nhs-pale);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .prop-right .right-progress > div {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--nhs-dk), var(--nhs-soft));
+  }
+  .prop-right .open-btn {
+    margin-top: 4px;
+    background: var(--nhs-dk); color: #fff;
+    border: none;
+    padding: 6px 14px; border-radius: 6px;
+    font-weight: 600; font-size: 12px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .prop-right .open-btn:hover { background: var(--nhs-mid); }
+
+  /* ── CALENDAR VIEW ──────────────────────────────────── */
+  .cal-shell {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .cal-bar {
+    padding: 16px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--nhs-pale-2);
+    border-bottom: 1px solid var(--nhs-border);
+  }
+  .cal-bar h3 { font-size: 17px; font-weight: 700; margin: 0; color: var(--ink); }
+  .cal-bar .nav { display: flex; gap: 6px; align-items: center; }
+  .cal-bar .nav button {
+    background: #fff; border: 1px solid var(--nhs-border); color: var(--nhs-dk);
+    width: 32px; height: 32px; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .cal-bar .nav button:hover { background: var(--nhs-pale); }
+  .cal-bar .nav .today-btn { width: auto; padding: 0 12px; font-weight: 600; font-size: 12px; }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+  .cal-grid .dow {
+    padding: 10px 12px;
+    font-size: 11px; font-weight: 700; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--nhs-border);
+    background: var(--nhs-pale-2);
+  }
+  .cal-grid .cell {
+    min-height: 100px;
+    padding: 8px;
+    border-right: 1px solid var(--nhs-border);
+    border-bottom: 1px solid var(--nhs-border);
+    background: #fff;
+    font-size: 11px;
+    position: relative;
+    cursor: pointer;
+  }
+  .cal-grid .cell:nth-child(7n) { border-right: none; }
+  .cal-grid .cell:hover { background: var(--nhs-pale-2); }
+  .cal-grid .cell.muted { background: #FAFCFB; color: var(--ink-mute); }
+  .cal-grid .cell.today { background: var(--gold-tint); }
+  .cal-grid .cell.today .dnum { background: var(--gold); color: #5A4A1E; }
+  .cal-grid .dnum {
+    font-weight: 700; font-size: 12px; color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+  }
+  .cal-event {
+    margin-top: 4px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    cursor: pointer;
+    line-height: 1.2;
+  }
+  .cal-event:hover { transform: translateX(1px); }
+  .cal-event.urgent { background: var(--red-tint); color: var(--red); border-left: 2px solid var(--red); }
+  .cal-event.soon   { background: var(--gold-tint); color: var(--gold-dark); border-left: 2px solid var(--gold); }
+  .cal-event.scheduled { background: var(--nhs-pale); color: var(--nhs-dk); border-left: 2px solid var(--nhs-dk); }
+  .cal-event.done   { background: #ECEFEC; color: var(--ink-soft); border-left: 2px solid var(--nhs-sage); }
+  .cal-event .time { font-size: 9px; opacity: 0.8; margin-right: 3px; font-weight: 700; }
+
+  /* ── APPOINTMENTS + PDF ─────────────────────────────── */
+  .appt-bar {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  }
+  .appt-bar-left { display: flex; gap: 24px; }
+  .appt-bar-left .stat-num { font-size: 22px; font-weight: 800; color: var(--ink); line-height: 1; }
+  .appt-bar-left .stat-lbl { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-top: 4px; }
+  .appt-bar-right { display: flex; gap: 8px; }
+  .appt-table {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .appt-table thead th {
+    background: var(--nhs-pale-2);
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--nhs-border);
+  }
+  .appt-table tbody td {
+    padding: 14px;
+    border-bottom: 1px solid var(--nhs-border);
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .appt-table tbody tr { cursor: pointer; }
+  .appt-table tbody tr:last-child td { border-bottom: none; }
+  .appt-table tbody tr:hover td { background: var(--nhs-pale-2); }
+  .appt-table .date-cell {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .appt-table .date-cell .day { color: var(--ink-soft); font-size: 11px; font-weight: 500; margin-left: 4px; }
+  .appt-table .addr {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .appt-table .addr .sub { display: block; color: var(--ink-soft); font-weight: 500; font-size: 11.5px; margin-top: 2px; }
+  .appt-table .photos { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--nhs-dk); }
+  .appt-table .actions { display: flex; gap: 6px; justify-content: flex-end; }
+  .actions .icon-btn {
+    background: var(--nhs-pale); color: var(--nhs-dk);
+    border: 1px solid var(--nhs-border);
+    width: 30px; height: 30px; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .actions .icon-btn svg { width: 14px; height: 14px; }
+  .actions .icon-btn:hover { background: var(--nhs-dk); color: #fff; }
+  .actions .pdf-btn {
+    background: var(--red); color: #fff;
+    border: 1px solid var(--red);
+    padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    font-weight: 600; font-size: 12px;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .actions .pdf-btn svg { width: 12px; height: 12px; }
+  .actions .pdf-btn:hover { background: #8B2818; }
+  .actions .pdf-btn.ready { background: var(--nhs-dk); border-color: var(--nhs-dk); }
+  .actions .pdf-btn.ready:hover { background: var(--nhs-mid); }
+
+  /* ── BUTTONS ────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    border-radius: 7px;
+    font-weight: 600;
+    font-size: 12.5px;
+    cursor: pointer;
+    border: 1px solid var(--nhs-border);
+    background: #fff;
+    color: var(--nhs-dk);
+  }
+  .btn:hover { background: var(--nhs-pale); }
+  .btn.btn-primary { background: var(--nhs-dk); color: #fff; border-color: var(--nhs-dk); }
+  .btn.btn-primary:hover { background: var(--nhs-mid); }
+  .btn svg { width: 13px; height: 13px; }
+
+  /* ── Detail header — date tear-off ─────────────────── */
+  /* Urgency rules (apply matching class):
+       .urgent     red    — today or overdue
+       .soon       gold   — within next 2 days
+       .scheduled  green  — 3+ days out (default)
+       .done       grey   — completed / submitted
+     Time pill always carries the sage outline regardless of urgency.
+     Block does NOT stretch — uses align-self:flex-start so the row's
+     tallest sibling doesn't drag it taller than its content. */
+  .detail-date-block {
+    width: 100px;
+    border-radius: 10px;
+    border: 1px solid var(--nhs-border);
+    overflow: hidden;
+    display: flex; flex-direction: column; align-items: stretch;
+    background: linear-gradient(180deg, var(--nhs-pale) 0%, var(--nhs-pale-2) 100%);
+    flex-shrink: 0;
+    align-self: flex-start;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.05);
+  }
+  .detail-date-block .month {
+    background: var(--nhs-dk);
+    color: #fff;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 0;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .detail-date-block .day {
+    font-size: 34px; font-weight: 800; color: var(--nhs-dk);
+    line-height: 1; text-align: center;
+    margin-top: 12px;
+  }
+  .detail-date-block .weekday {
+    font-size: 10.5px; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.10em;
+    font-weight: 700; margin-top: 5px; text-align: center;
+  }
+  .detail-date-block .time {
+    font-size: 11.5px;
+    color: var(--nhs-dk);
+    font-weight: 800;
+    background: #fff;
+    border: 1.5px solid var(--nhs-soft);
+    border-radius: 4px;
+    text-align: center;
+    padding: 4px 0;
+    margin: 10px 10px 0;
+    letter-spacing: 0.02em;
+  }
+  .detail-date-block .remaining {
+    margin-top: 12px;
+    padding: 6px 0;
+    background: var(--nhs-pale);
+    border-top: 1px solid var(--nhs-border);
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--nhs-dk);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  /* Urgency variants — ribbon + day color + outer border + footer tint */
+  .detail-date-block.urgent {
+    background: linear-gradient(180deg, #FCEAE6 0%, #FFF4F2 100%);
+    border-color: var(--red);
+  }
+  .detail-date-block.urgent .month { background: var(--red); }
+  .detail-date-block.urgent .day { color: var(--red); }
+  .detail-date-block.urgent .remaining { background: var(--red-tint); color: var(--red); border-top-color: rgba(184,52,31,0.22); }
+
+  .detail-date-block.soon {
+    background: linear-gradient(180deg, #FFF8E7 0%, #FFFDF5 100%);
+    border-color: var(--gold);
+  }
+  .detail-date-block.soon .month { background: var(--gold-dark); }
+  .detail-date-block.soon .day { color: var(--gold-dark); }
+  .detail-date-block.soon .remaining { background: var(--gold-tint); color: var(--gold-dark); border-top-color: rgba(201,168,76,0.32); }
+
+  .detail-date-block.scheduled {
+    background: linear-gradient(180deg, var(--nhs-pale) 0%, var(--nhs-pale-2) 100%);
+    border-color: var(--nhs-soft);
+  }
+  .detail-date-block.scheduled .month { background: var(--nhs-dk); }
+  .detail-date-block.scheduled .day { color: var(--nhs-dk); }
+  .detail-date-block.scheduled .remaining { background: var(--nhs-pale); color: var(--nhs-dk); border-top-color: var(--nhs-border); }
+
+  .detail-date-block.done {
+    background: linear-gradient(180deg, #F0F4F2 0%, #F8FAF9 100%);
+    border-color: var(--nhs-sage);
+    opacity: 0.85;
+  }
+  .detail-date-block.done .month { background: var(--nhs-soft); }
+  .detail-date-block.done .day { color: var(--ink-soft); }
+  .detail-date-block.done .remaining { background: #ECEFEC; color: var(--ink-soft); }
+
+  /* ── Compact right-side map ─────────────────────────── */
+  .mini-map {
+    width: 260px;
+    height: 170px;
+    border-radius: 8px;
+    border: 1px solid var(--nhs-border);
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    background: var(--nhs-pale-2);
+    display: block;
+  }
+  .mini-map iframe {
+    width: 100%; height: 100%; border: 0; display: block;
+    pointer-events: none;
+  }
+  .mini-map::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: transparent;
+    transition: background 0.15s;
+    pointer-events: none;
+  }
+  .mini-map:hover::after { background: rgba(7,95,80,0.06); }
+  .mini-map .pin-badge {
+    position: absolute; bottom: 8px; left: 8px;
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 999px;
+    padding: 4px 10px 4px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--nhs-dk);
+    display: inline-flex; align-items: center; gap: 5px;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.10);
+  }
+  .mini-map .pin-badge svg { width: 12px; height: 12px; color: var(--red); }
+  .mini-map .open-link {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid var(--nhs-border);
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--nhs-dk);
+    display: inline-flex; align-items: center; gap: 4px;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.10);
+  }
+  .mini-map .open-link svg { width: 11px; height: 11px; }
+
+  .directions-btn {
+    width: 260px;
+    background: var(--nhs-dk);
+    color: #fff;
+    border: 1px solid var(--nhs-dk);
+    padding: 9px 14px;
+    border-radius: 7px;
+    font-weight: 700; font-size: 12.5px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .directions-btn:hover { background: var(--nhs-mid); }
+  .directions-btn svg { width: 13px; height: 13px; }
+  .directions-meta {
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-align: center;
+    width: 260px;
+  }
+  .directions-meta strong { color: var(--ink); font-weight: 700; }
+
+  @media (max-width: 880px) {
+    .mini-map, .directions-btn, .directions-meta { width: 100%; }
+    .mini-map { height: 180px; }
+  }
+
+  /* ── BREADCRUMB (detail view) ──────────────────────── */
+  .breadcrumb {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--ink-soft);
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+  .breadcrumb:hover { color: var(--nhs-dk); }
+  .breadcrumb svg { width: 12px; height: 12px; }
+
+  /* ── DETAIL VIEW (reuse v1 layout) ─────────────────── */
+  .property-card {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    column-gap: 20px;
+    align-items: stretch;
+    margin-bottom: 20px;
+  }
+  .property-card > div:nth-child(2) {
+    display: flex; flex-direction: column;
+  }
+  .property-card .briefing {
+    margin-top: auto;        /* push briefing to bottom of middle col */
+    margin-bottom: 0;
+  }
+  @media (max-width: 880px) {
+    .property-card { grid-template-columns: 1fr; gap: 14px; }
+    .property-card .briefing { margin-top: 0; }
+  }
+  .property-card .eyebrow { color: var(--nhs-dk); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 4px; }
+  .property-card .addr-line-1 { font-size: 22px; font-weight: 800; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.01em; }
+  .property-card .addr-line-2 { color: var(--ink-soft); font-size: 14px; }
+  .property-card .addr-meta { margin-top: 12px; display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--ink-soft); }
+  .property-card .addr-meta strong { color: var(--ink); font-weight: 600; }
+  .property-card .deadline-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--gold-tint); color: var(--gold-dark);
+    border: 1px solid var(--gold); padding: 6px 12px; border-radius: 999px;
+    font-weight: 700; font-size: 12px;
+  }
+  .property-card .briefing {
+    background: var(--nhs-pale); border-left: 3px solid var(--nhs-dk);
+    padding: 12px 14px; border-radius: 0 8px 8px 0;
+    margin-top: 14px; font-size: 13px;
+  }
+  .property-card .briefing .lbl { font-size: 10.5px; font-weight: 700; color: var(--nhs-dk); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .progress-strip {
+    background: #fff; border: 1px solid var(--nhs-border);
+    border-radius: 12px; padding: 18px 22px;
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 22px; margin-bottom: 22px;
+  }
+  .progress-strip .pct-num { font-size: 32px; font-weight: 800; color: var(--nhs-dk); line-height: 1; }
+  .progress-strip .pct-meta { font-size: 11px; color: var(--ink-soft); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+  .progress-strip .bar { flex: 1; height: 10px; background: var(--nhs-pale); border-radius: 999px; overflow: hidden; }
+  .progress-strip .bar-fill { height: 100%; width: 42%; background: linear-gradient(90deg, var(--nhs-dk), var(--nhs-soft)); border-radius: 999px; }
+  .progress-strip .stats { display: flex; gap: 22px; }
+  .progress-strip .stat .n { font-weight: 800; font-size: 18px; }
+  .progress-strip .stat .l { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .placeholder-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .ph-card {
+    background: #fff; border: 1px solid var(--nhs-border);
+    border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    column-gap: 20px;
+    row-gap: 12px;
+    align-items: start;
+  }
+  @media (max-width: 760px) {
+    .ph-card { grid-template-columns: 1fr; }
+  }
+  .ph-card.state-complete { border-top: 3px solid var(--nhs-dk); }
+  .ph-card.state-empty.required { border-top: 3px solid var(--red); }
+  .ph-card.state-empty.optional { border-top: 3px solid var(--nhs-sage); }
+  .ph-card.state-partial { border-top: 3px solid var(--gold); }
+
+  /* Standardise card internals so every placeholder reads identically */
+  .ph-card .ph-photos {
+    min-height: 110px;
+    display: block;
+  }
+  .ph-card .thumb-row {
+    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+    grid-auto-rows: 86px;
+    align-content: start;
+    gap: 6px;
+    margin: 0;
+  }
+  .ph-card .drop-zone {
+    width: 100%;
+    padding: 22px 16px;
+    margin: 0;
+  }
+  .ph-card .ph-notes { margin-top: 0; padding-top: 0; border-top: none; }
+  .ph-card .ph-notes-input { min-height: 96px; }
+
+  /* Add-instance card — full-width horizontal banner */
+  .ph-add-card {
+    background: transparent;
+    border: 2px dashed var(--nhs-sage);
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    color: var(--nhs-dk);
+    transition: background 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .ph-add-card:hover {
+    background: var(--nhs-pale);
+    border-color: var(--nhs-dk);
+    border-style: solid;
+  }
+  .ph-add-card .plus {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ph-add-card .plus svg { width: 16px; height: 16px; }
+  .ph-add-card .lbl {
+    font-size: 13px; font-weight: 700;
+  }
+  .ph-add-card .hint {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-left: auto;
+  }
+
+  /* ── Per-placeholder remarks ─────────────────────── */
+  .ph-notes {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--nhs-border);
+  }
+  .ph-notes-lbl {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex; align-items: center; gap: 5px;
+    margin-bottom: 5px;
+  }
+  .ph-notes-lbl svg { width: 11px; height: 11px; color: var(--nhs-mid); }
+  .ph-notes-input {
+    width: 100%;
+    min-height: 38px;
+    padding: 6px 8px;
+    border: 1px solid var(--nhs-border);
+    border-radius: 5px;
+    font-size: 11.5px;
+    font-family: inherit;
+    color: var(--ink);
+    resize: vertical;
+    background: var(--nhs-pale-2);
+    line-height: 1.4;
+  }
+  .ph-notes-input::placeholder { color: var(--ink-mute); font-style: italic; }
+  .ph-notes-input:focus { outline: none; border-color: var(--nhs-dk); background: #fff; box-shadow: 0 0 0 3px rgba(7,95,80,0.08); }
+  .ph-notes-input.has-text {
+    background: var(--gold-tint);
+    border-color: var(--gold);
+  }
+  .ph-notes-input.has-text + .ph-notes-meta { color: var(--gold-dark); font-weight: 700; }
+  .ph-notes-meta {
+    margin-top: 3px;
+    font-size: 10px;
+    color: var(--ink-mute);
+    text-align: right;
+  }
+  .ph-card .ph-head {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--nhs-border);
+    margin-bottom: 0;
+  }
+  .ph-card .ph-title { font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+  .ph-card .ph-title .icon { width: 16px; height: 16px; color: var(--nhs-mid); }
+  .ph-req { color: var(--red); font-weight: 800; margin-left: 2px; }
+  .ph-status { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .ph-status.complete { background: var(--nhs-pale); color: var(--nhs-dk); }
+  .ph-status.empty { background: var(--red-tint); color: var(--red); }
+  .ph-status.partial { background: var(--gold-tint); color: var(--gold-dark); }
+  .thumb-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px; }
+  .thumb {
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    border: 1px solid var(--nhs-border);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .thumb.demo-1 { background: linear-gradient(135deg, #6F5A8C, #4B3C66); }
+  .thumb.demo-2 { background: linear-gradient(135deg, #4682A9, #2C5475); }
+  .thumb.demo-3 { background: linear-gradient(135deg, #B07F4A, #7E5A30); }
+  .thumb.demo-4 { background: linear-gradient(135deg, #C9A84C, #8E743A); }
+  .thumb.demo-5 { background: linear-gradient(135deg, #5A6F7B, #3D4D55); }
+  .thumb.demo-6 { background: linear-gradient(135deg, #6B9080, #4A6B5E); }
+
+  /* Primary pin — always visible on the primary photo */
+  .thumb .primary-tag {
+    position: absolute; top: 5px; left: 5px;
+    background: var(--nhs-dk); color: #fff;
+    font-size: 8.5px; font-weight: 800;
+    padding: 2px 6px; border-radius: 3px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    z-index: 2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+
+  /* Hover overlay — delete + set-primary actions */
+  .thumb-hover {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(7,15,20,0.0) 0%, rgba(7,15,20,0.55) 100%);
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    padding: 8px;
+    z-index: 1;
+  }
+  .thumb:hover .thumb-hover { opacity: 1; }
+  .thumb-btn {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    border: none;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink);
+    transition: background 0.15s, transform 0.05s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .thumb-btn svg { width: 13px; height: 13px; }
+  .thumb-btn:hover { transform: scale(1.08); }
+  .thumb-btn.delete:hover { background: var(--red); color: #fff; }
+  .thumb-btn.primary:hover { background: var(--gold); color: #fff; }
+
+  /* "+ Add more" tile at the end of every thumb-row */
+  .thumb.thumb-add {
+    background: transparent;
+    border: 2px dashed var(--nhs-sage);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 3px;
+    color: var(--nhs-soft);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .thumb.thumb-add:hover {
+    border-color: var(--nhs-dk);
+    color: var(--nhs-dk);
+    border-style: solid;
+    background: var(--nhs-pale);
+  }
+  .thumb.thumb-add svg { width: 22px; height: 22px; }
+  .thumb.thumb-add .add-lbl {
+    font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .drop-zone {
+    border: 2px dashed var(--nhs-sage); background: var(--nhs-pale-2);
+    border-radius: 8px; padding: 18px 12px;
+    text-align: center; color: var(--ink-soft); font-size: 12px;
+  }
+  .drop-zone .camera-icon { width: 26px; height: 26px; color: var(--nhs-soft); margin: 0 auto 6px; display: block; }
+
+  /* ── Mobile ─────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    header.appbar { padding: 10px 16px; }
+    header.appbar .user .name, header.appbar .user .role { display: none; }
+    .tabs { padding: 0 16px; }
+    .tab { padding: 12px 12px; font-size: 12px; }
+    .page { padding: 0 16px; }
+    .prop-row { grid-template-columns: 78px 1fr; }
+    .prop-right { grid-column: 1 / -1; border-left: none; border-top: 1px solid var(--nhs-border); align-items: stretch; flex-direction: row; justify-content: space-between; }
+    .cal-grid .cell { min-height: 64px; padding: 4px; }
+    .appt-table thead { display: none; }
+    .appt-table, .appt-table tbody, .appt-table tr, .appt-table td { display: block; width: 100%; }
+    .appt-table tr { padding: 12px 14px; border-bottom: 1px solid var(--nhs-border); }
+    .appt-table td { padding: 4px 0; border-bottom: none; }
+    .appt-table .actions { justify-content: flex-start; margin-top: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── Top app bar ─────────────────────────────────────────── -->
+<header class="appbar">
+  <div class="brand">
+    <div class="logo">NHS</div>
+    <div>
+      <div>Photographer Portal</div>
+      <div class="brand-meta">New Home Solutions</div>
+    </div>
+  </div>
+  <div class="user">
+    <div class="avatar">MP</div>
+    <div>
+      <div class="name">Mike Patel</div>
+      <div class="role">Photographer · ID 0042</div>
+    </div>
+    <button class="signout">Sign out</button>
+  </div>
+</header>
+
+<!-- ─── Tabs ─────────────────────────────────────────────────── -->
+<nav class="tabs">
+  <div class="tab active" data-view="list">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    My Properties <span class="badge">6</span>
+  </div>
+  <div class="tab" data-view="calendar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Calendar
+  </div>
+  <div class="tab" data-view="appts">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+    Appointments &amp; PDFs
+  </div>
+  <div class="tab" data-view="detail">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+    Property Detail
+  </div>
+</nav>
+
+<div class="page">
+
+<!-- ─── VIEW 1 — PROPERTY LIST ──────────────────────────────── -->
+<section class="view active" data-view="list">
+
+  <div class="page-head">
+    <div>
+      <h1>My properties</h1>
+      <div class="sub">6 active assignments · 1 due today · 2 overdue is highlighted in red</div>
+    </div>
+    <div class="filters">
+      <span class="filter-chip active">All <span style="opacity:0.7;">6</span></span>
+      <span class="filter-chip">Outstanding <span style="opacity:0.7;">4</span></span>
+      <span class="filter-chip">In progress <span style="opacity:0.7;">1</span></span>
+      <span class="filter-chip">Submitted <span style="opacity:0.7;">1</span></span>
+    </div>
+  </div>
+
+  <div class="prop-list">
+
+    <!-- 1. TODAY — URGENT -->
+    <div class="prop-row urgent">
+      <div class="date-block">
+        <div class="month">MAY</div>
+        <div class="day">13</div>
+        <div class="weekday">Tue</div>
+        <div class="time">10:30</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">5 Park Lane Mansions</div>
+        <div class="addr-2">Edgbaston, Birmingham, B17 9DR</div>
+        <div class="meta">
+          <span><strong>Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Kapoor family</strong></span><span class="sep">·</span>
+          <span>3 beds · 2 baths</span><span class="sep">·</span>
+          <span>Lock-box <strong>2891</strong></span>
+        </div>
+        <div class="pills">
+          <span class="pill red">Due today</span>
+          <span class="pill gold">Timeline valuations</span>
+          <span class="pill gray">Not started</span>
+        </div>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">0<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/12</span></div>
+        <div class="photos-lbl">Placeholders</div>
+        <div class="right-progress"><div style="width:0%;"></div></div>
+        <button class="open-btn">Open
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. TOMORROW — SOON -->
+    <div class="prop-row soon">
+      <div class="date-block">
+        <div class="month">MAY</div>
+        <div class="day">14</div>
+        <div class="weekday">Wed</div>
+        <div class="time">09:00</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">47 Maple Croft</div>
+        <div class="addr-2">Chorlton-cum-Hardy, Manchester, M21 8GX</div>
+        <div class="meta">
+          <span><strong>Semi-Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Mr & Mrs Patel</strong></span><span class="sep">·</span>
+          <span>4 beds · 2 baths · garage</span><span class="sep">·</span>
+          <span>Keys with <strong>Reeds Rains</strong></span>
+        </div>
+        <div class="pills">
+          <span class="pill gold">Tomorrow</span>
+          <span class="pill blue">Wain Homes</span>
+          <span class="pill gray">Not started</span>
+        </div>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">0<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/14</span></div>
+        <div class="photos-lbl">Placeholders</div>
+        <div class="right-progress"><div style="width:0%;"></div></div>
+        <button class="open-btn">Open
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. THIS FRIDAY — IN PROGRESS -->
+    <div class="prop-row scheduled">
+      <div class="date-block">
+        <div class="month">MAY</div>
+        <div class="day">16</div>
+        <div class="weekday">Fri</div>
+        <div class="time">11:00</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">12 Broadway</div>
+        <div class="addr-2">Halton Moor, Leeds, LS15 0LX</div>
+        <div class="meta">
+          <span><strong>Semi-Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Mr & Mrs Smith</strong></span><span class="sep">·</span>
+          <span>2 beds · 1 bath</span><span class="sep">·</span>
+          <span>Lock-box <strong>4471</strong></span>
+        </div>
+        <div class="pills">
+          <span class="pill green">In progress</span>
+          <span class="pill gold">42% complete</span>
+          <span class="pill gray">Auto-saved 2m ago</span>
+        </div>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">9<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/12</span></div>
+        <div class="photos-lbl">Placeholders</div>
+        <div class="right-progress"><div style="width:75%;"></div></div>
+        <button class="open-btn">Open
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 4. NEXT WEEK -->
+    <div class="prop-row scheduled">
+      <div class="date-block">
+        <div class="month">MAY</div>
+        <div class="day">20</div>
+        <div class="weekday">Tue</div>
+        <div class="time">14:00</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">22 The Willows</div>
+        <div class="addr-2">Fulwood, Sheffield, S10 3GP</div>
+        <div class="meta">
+          <span><strong>Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Ms J Henderson</strong></span><span class="sep">·</span>
+          <span>5 beds · 3 baths · double garage</span><span class="sep">·</span>
+          <span>Vendor on-site</span>
+        </div>
+        <div class="pills">
+          <span class="pill green">Scheduled</span>
+          <span class="pill blue">Persimmon</span>
+          <span class="pill gray">Not started</span>
+        </div>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">0<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/16</span></div>
+        <div class="photos-lbl">Placeholders</div>
+        <div class="right-progress"><div style="width:0%;"></div></div>
+        <button class="open-btn">Open
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 5. FOLLOWING WEEK -->
+    <div class="prop-row scheduled">
+      <div class="date-block">
+        <div class="month">MAY</div>
+        <div class="day">23</div>
+        <div class="weekday">Fri</div>
+        <div class="time">10:00</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">88 Coronation Drive</div>
+        <div class="addr-2">Gosforth, Newcastle upon Tyne, NE3 4QT</div>
+        <div class="meta">
+          <span><strong>Mid-Terrace</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Mr A Wilson</strong></span><span class="sep">·</span>
+          <span>3 beds · 1 bath</span><span class="sep">·</span>
+          <span>Keys at <strong>NHS office</strong></span>
+        </div>
+        <div class="pills">
+          <span class="pill green">Scheduled</span>
+          <span class="pill blue">Redrow</span>
+          <span class="pill gray">Not started</span>
+        </div>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">0<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/10</span></div>
+        <div class="photos-lbl">Placeholders</div>
+        <div class="right-progress"><div style="width:0%;"></div></div>
+        <button class="open-btn">Open
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 6. SUBMITTED — DONE -->
+    <div class="prop-row done">
+      <div class="date-block">
+        <div class="month">MAY</div>
+        <div class="day">08</div>
+        <div class="weekday">Thu</div>
+        <div class="time">15:30</div>
+      </div>
+      <div class="prop-body">
+        <div class="addr-1">14 Heath Close</div>
+        <div class="addr-2">Stoke Bishop, Bristol, BS9 1AS</div>
+        <div class="meta">
+          <span><strong>Detached</strong></span><span class="sep">·</span>
+          <span>Vendor: <strong>Dr & Mrs Khan</strong></span><span class="sep">·</span>
+          <span>4 beds · 3 baths · outbuilding</span><span class="sep">·</span>
+          <span>Submitted <strong>09 May</strong></span>
+        </div>
+        <div class="pills">
+          <span class="pill green">Submitted</span>
+          <span class="pill gold">PDF generated</span>
+          <span class="pill gray">Auto-archived 14 May</span>
+        </div>
+      </div>
+      <div class="prop-right">
+        <div class="photos-num">14<span style="font-size:13px;color:var(--ink-soft);font-weight:600;">/14</span></div>
+        <div class="photos-lbl">Placeholders</div>
+        <div class="right-progress"><div style="width:100%;"></div></div>
+        <button class="open-btn" style="background:var(--nhs-soft);">View PDF
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ─── VIEW 2 — CALENDAR ───────────────────────────────────── -->
+<section class="view" data-view="calendar">
+
+  <div class="page-head">
+    <div>
+      <h1>Calendar</h1>
+      <div class="sub">Photography appointments across the next 4 weeks</div>
+    </div>
+    <div class="filters">
+      <span class="filter-chip active">Month</span>
+      <span class="filter-chip">Week</span>
+      <span class="filter-chip">List</span>
+    </div>
+  </div>
+
+  <div class="cal-shell">
+    <div class="cal-bar">
+      <h3>May 2026</h3>
+      <div class="nav">
+        <button title="Previous">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="today-btn">Today</button>
+        <button title="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="cal-grid">
+      <div class="dow">Mon</div>
+      <div class="dow">Tue</div>
+      <div class="dow">Wed</div>
+      <div class="dow">Thu</div>
+      <div class="dow">Fri</div>
+      <div class="dow">Sat</div>
+      <div class="dow">Sun</div>
+
+      <!-- Week 1 (Apr 28 - May 4) — muted -->
+      <div class="cell muted"><span class="dnum">28</span></div>
+      <div class="cell muted"><span class="dnum">29</span></div>
+      <div class="cell muted"><span class="dnum">30</span></div>
+      <div class="cell"><span class="dnum">1</span></div>
+      <div class="cell"><span class="dnum">2</span></div>
+      <div class="cell"><span class="dnum">3</span></div>
+      <div class="cell"><span class="dnum">4</span></div>
+
+      <!-- Week 2 (May 5-11) — past appointments -->
+      <div class="cell"><span class="dnum">5</span></div>
+      <div class="cell"><span class="dnum">6</span></div>
+      <div class="cell"><span class="dnum">7</span></div>
+      <div class="cell">
+        <span class="dnum">8</span>
+        <div class="cal-event done"><span class="time">15:30</span>14 Heath Cl · Bristol ✓</div>
+      </div>
+      <div class="cell"><span class="dnum">9</span></div>
+      <div class="cell"><span class="dnum">10</span></div>
+      <div class="cell"><span class="dnum">11</span></div>
+
+      <!-- Week 3 (May 12-18) — current week incl. today (13) -->
+      <div class="cell"><span class="dnum">12</span></div>
+      <div class="cell today">
+        <span class="dnum">13</span>
+        <div class="cal-event urgent"><span class="time">10:30</span>5 Park Ln · B'ham</div>
+      </div>
+      <div class="cell">
+        <span class="dnum">14</span>
+        <div class="cal-event soon"><span class="time">09:00</span>47 Maple Croft · M/c</div>
+      </div>
+      <div class="cell"><span class="dnum">15</span></div>
+      <div class="cell">
+        <span class="dnum">16</span>
+        <div class="cal-event scheduled"><span class="time">11:00</span>12 Broadway · Leeds</div>
+      </div>
+      <div class="cell"><span class="dnum">17</span></div>
+      <div class="cell"><span class="dnum">18</span></div>
+
+      <!-- Week 4 (May 19-25) — upcoming -->
+      <div class="cell"><span class="dnum">19</span></div>
+      <div class="cell">
+        <span class="dnum">20</span>
+        <div class="cal-event scheduled"><span class="time">14:00</span>22 The Willows · Sheffield</div>
+      </div>
+      <div class="cell"><span class="dnum">21</span></div>
+      <div class="cell"><span class="dnum">22</span></div>
+      <div class="cell">
+        <span class="dnum">23</span>
+        <div class="cal-event scheduled"><span class="time">10:00</span>88 Coronation Dr · N'cle</div>
+      </div>
+      <div class="cell"><span class="dnum">24</span></div>
+      <div class="cell"><span class="dnum">25</span></div>
+
+      <!-- Week 5 -->
+      <div class="cell"><span class="dnum">26</span></div>
+      <div class="cell"><span class="dnum">27</span></div>
+      <div class="cell"><span class="dnum">28</span></div>
+      <div class="cell"><span class="dnum">29</span></div>
+      <div class="cell"><span class="dnum">30</span></div>
+      <div class="cell"><span class="dnum">31</span></div>
+      <div class="cell muted"><span class="dnum">1</span></div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div style="margin-top:14px;display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-soft);">
+    <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--red);border-radius:2px;"></span>Urgent / today</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--gold);border-radius:2px;"></span>This week</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--nhs-dk);border-radius:2px;"></span>Scheduled</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--nhs-sage);border-radius:2px;"></span>Submitted / done</span>
+  </div>
+
+</section>
+
+<!-- ─── VIEW 3 — APPOINTMENTS & PDF ─────────────────────────── -->
+<section class="view" data-view="appts">
+
+  <div class="page-head">
+    <div>
+      <h1>Appointments &amp; PDFs</h1>
+      <div class="sub">Per-appointment PDF contact sheets — generate after submission for vendor records or invoicing</div>
+    </div>
+    <div class="filters">
+      <span class="filter-chip active">All time</span>
+      <span class="filter-chip">This month</span>
+      <span class="filter-chip">Last 30 days</span>
+    </div>
+  </div>
+
+  <div class="appt-bar">
+    <div class="appt-bar-left">
+      <div><div class="stat-num">6</div><div class="stat-lbl">Appointments</div></div>
+      <div><div class="stat-num">1</div><div class="stat-lbl">Submitted</div></div>
+      <div><div class="stat-num">1</div><div class="stat-lbl">PDFs generated</div></div>
+      <div><div class="stat-num">£840</div><div class="stat-lbl">Invoiced YTD</div></div>
+    </div>
+    <div class="appt-bar-right">
+      <button class="btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Generate batch PDF
+      </button>
+    </div>
+  </div>
+
+  <table class="appt-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Property</th>
+        <th>Vendor</th>
+        <th style="text-align:right;">Photos</th>
+        <th>Status</th>
+        <th style="text-align:right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td class="date-cell">13 May 2026 <span class="day">· Tue 10:30</span></td>
+        <td class="addr">5 Park Lane Mansions <span class="sub">Edgbaston, Birmingham B17 9DR</span></td>
+        <td>Kapoor family</td>
+        <td style="text-align:right;"><span class="photos">0 / 12</span></td>
+        <td><span class="pill red">Due today</span></td>
+        <td>
+          <div class="actions">
+            <button class="icon-btn" title="Open property">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </button>
+            <button class="pdf-btn" disabled style="opacity:0.5;cursor:not-allowed;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              PDF
+            </button>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="date-cell">14 May 2026 <span class="day">· Wed 09:00</span></td>
+        <td class="addr">47 Maple Croft <span class="sub">Chorlton-cum-Hardy, Manchester M21 8GX</span></td>
+        <td>Mr &amp; Mrs Patel</td>
+        <td style="text-align:right;"><span class="photos">0 / 14</span></td>
+        <td><span class="pill gold">Tomorrow</span></td>
+        <td>
+          <div class="actions">
+            <button class="icon-btn" title="Open property">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </button>
+            <button class="pdf-btn" disabled style="opacity:0.5;cursor:not-allowed;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              PDF
+            </button>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="date-cell">16 May 2026 <span class="day">· Fri 11:00</span></td>
+        <td class="addr">12 Broadway <span class="sub">Halton Moor, Leeds LS15 0LX</span></td>
+        <td>Mr &amp; Mrs Smith</td>
+        <td style="text-align:right;"><span class="photos">19 / 12</span></td>
+        <td><span class="pill gold">In progress · 42%</span></td>
+        <td>
+          <div class="actions">
+            <button class="icon-btn" title="Open property">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </button>
+            <button class="pdf-btn" disabled style="opacity:0.6;cursor:not-allowed;" title="Submit photos first">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              PDF
+            </button>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="date-cell">20 May 2026 <span class="day">· Tue 14:00</span></td>
+        <td class="addr">22 The Willows <span class="sub">Fulwood, Sheffield S10 3GP</span></td>
+        <td>Ms J Henderson</td>
+        <td style="text-align:right;"><span class="photos">0 / 16</span></td>
+        <td><span class="pill green">Scheduled</span></td>
+        <td>
+          <div class="actions">
+            <button class="icon-btn" title="Open property">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </button>
+            <button class="pdf-btn" disabled style="opacity:0.5;cursor:not-allowed;">PDF</button>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="date-cell">23 May 2026 <span class="day">· Fri 10:00</span></td>
+        <td class="addr">88 Coronation Drive <span class="sub">Gosforth, Newcastle NE3 4QT</span></td>
+        <td>Mr A Wilson</td>
+        <td style="text-align:right;"><span class="photos">0 / 10</span></td>
+        <td><span class="pill green">Scheduled</span></td>
+        <td>
+          <div class="actions">
+            <button class="icon-btn" title="Open property">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </button>
+            <button class="pdf-btn" disabled style="opacity:0.5;cursor:not-allowed;">PDF</button>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="date-cell">08 May 2026 <span class="day">· Thu 15:30</span></td>
+        <td class="addr">14 Heath Close <span class="sub">Stoke Bishop, Bristol BS9 1AS</span></td>
+        <td>Dr &amp; Mrs Khan</td>
+        <td style="text-align:right;"><span class="photos">28 / 14</span></td>
+        <td><span class="pill green">Submitted 09 May</span></td>
+        <td>
+          <div class="actions">
+            <button class="icon-btn" title="Open property">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </button>
+            <button class="pdf-btn ready">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Download PDF
+            </button>
+          </div>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+
+</section>
+
+<!-- ─── VIEW 4 — PROPERTY DETAIL ───────────────────────────── -->
+<section class="view" data-view="detail">
+
+  <a class="breadcrumb" onclick="document.querySelector('.tab[data-view=list]').click()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to My Properties
+  </a>
+
+  <div class="property-card">
+
+    <!-- ─── LEFT · Date tear-off (list-row anatomy) ─── -->
+    <div class="detail-date-block scheduled">
+      <div class="month">May</div>
+      <div class="day">16</div>
+      <div class="weekday">Fri</div>
+      <div class="time">17:00</div>
+      <div class="remaining">In 3 days</div>
+    </div>
+
+    <!-- ─── MIDDLE · Address + meta + pills ─── -->
+    <div>
+      <div class="addr-line-1" style="font-size:20px;">12 Broadway</div>
+      <div class="addr-line-2">Halton Moor, Leeds, LS15&nbsp;0LX</div>
+      <div class="addr-meta" style="margin-top:6px;">
+        <span><strong>Semi-Detached</strong></span><span style="color:var(--ink-mute);">·</span>
+        <span>UPRN <strong>72028905</strong></span><span style="color:var(--ink-mute);">·</span>
+        <span>Vendor: <strong>Mr &amp; Mrs Smith</strong></span><span style="color:var(--ink-mute);">·</span>
+        <span>2 beds · 1 bath</span><span style="color:var(--ink-mute);">·</span>
+        <span>Lock-box <strong>4471</strong></span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        <span class="pill green">In progress · 42%</span>
+        <span class="pill gold">Due Fri 16 May · 17:00</span>
+        <span class="pill gray">Auto-saved 2 min ago</span>
+      </div>
+      <div class="briefing" style="margin-top:12px;">
+        <div class="lbl">Briefing from NHS</div>
+        Front + rear elevation, all habitable rooms, garden in landscape. Vendor wants the kitchen highlighted (recently refitted). Two bedrooms expected — confirm on site. Avoid wide-angle distortion on bedrooms.
+      </div>
+    </div>
+
+    <!-- ─── RIGHT · Map + Get directions ─── -->
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+      <a class="mini-map"
+         href="https://www.google.com/maps/search/?api=1&amp;query=12+Broadway+Halton+Moor+Leeds+LS15+0LX"
+         target="_blank"
+         title="Open in Google Maps">
+        <iframe
+          src="https://www.openstreetmap.org/export/embed.html?bbox=-1.4820%2C53.7922%2C-1.4620%2C53.8022&amp;layer=mapnik&amp;marker=53.7972%2C-1.4720"
+          loading="lazy"
+          title="Property location"></iframe>
+        <span class="pin-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a8 8 0 00-8 8c0 5.5 7.5 12 7.5 12s.5 0 1 0c0 0 7.5-6.5 7.5-12a8 8 0 00-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z"/></svg>
+          12 Broadway · LS15&nbsp;0LX
+        </span>
+        <span class="open-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"/></svg>
+          Open
+        </span>
+      </a>
+
+      <button class="directions-btn" onclick="window.open('https://www.google.com/maps/dir/?api=1&amp;destination=12+Broadway+Halton+Moor+Leeds+LS15+0LX', '_blank')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Get directions
+      </button>
+
+      <div class="directions-meta">
+        <strong>9.2 mi</strong> from your last job · 18 min drive
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-strip">
+    <div>
+      <div class="pct-num">42<span style="font-size:18px;color:var(--ink-soft);font-weight:600;">%</span></div>
+      <div class="pct-meta">Submission ready</div>
+    </div>
+    <div class="bar"><div class="bar-fill"></div></div>
+    <div class="stats">
+      <div class="stat"><div class="n" style="color:var(--nhs-dk);">5</div><div class="l">Complete</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">Partial</div></div>
+      <div class="stat"><div class="n" style="color:var(--amber);">5</div><div class="l">Outstanding</div></div>
+      <div class="stat"><div class="n">19</div><div class="l">Photos</div></div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;margin:24px 0 10px;align-items:baseline;flex-wrap:wrap;gap:8px;">
+    <h2 style="font-size:16px;margin:0;font-weight:700;">
+      Required placeholders
+      <span style="background:var(--nhs-pale);color:var(--nhs-dk);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-left:8px;">4 categories</span>
+    </h2>
+    <span style="font-size:12px;color:var(--ink-soft);">Each required placeholder needs ≥ 1 photo to submit</span>
+  </div>
+
+  <div class="placeholder-grid">
+
+    <!-- ─ Living Room ─ -->
+    <div class="ph-card state-complete">
+      <div class="ph-head">
+        <div class="ph-title">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a3 3 0 013-3h12a3 3 0 013 3v6"/><path d="M3 21h18"/></svg>
+          Living Room <span class="ph-req">*</span>
+        </div>
+        <span class="ph-status complete">✓ Complete</span>
+      </div>
+      <div class="ph-photos">
+        <div class="thumb-row">
+          <div class="thumb demo-3">
+            <span class="primary-tag">Primary</span>
+            <div class="thumb-hover">
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb demo-4">
+            <div class="thumb-hover">
+              <button class="thumb-btn primary" title="Set as primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb demo-1">
+            <div class="thumb-hover">
+              <button class="thumb-btn primary" title="Set as primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb demo-6">
+            <div class="thumb-hover">
+              <button class="thumb-btn primary" title="Set as primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb thumb-add" title="Upload more photos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <div class="add-lbl">Add</div>
+          </div>
+        </div>
+      </div>
+      <div class="ph-notes">
+        <label class="ph-notes-lbl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes for NHS
+        </label>
+        <textarea class="ph-notes-input" placeholder="Anything the team should know about this room?"></textarea>
+      </div>
+    </div>
+
+    <!-- ─ Kitchen ─ -->
+    <div class="ph-card state-partial">
+      <div class="ph-head">
+        <div class="ph-title">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+          Kitchen <span class="ph-req">*</span>
+        </div>
+        <span class="ph-status partial">Uploading…</span>
+      </div>
+      <div class="ph-photos">
+        <div class="thumb-row">
+          <div class="thumb demo-4">
+            <div class="thumb-hover">
+              <button class="thumb-btn primary" title="Set as primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb demo-3">
+            <div class="thumb-hover">
+              <button class="thumb-btn primary" title="Set as primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb" style="background:var(--nhs-pale);"><span style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;">68%</span></div>
+          <div class="thumb thumb-add" title="Upload more photos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <div class="add-lbl">Add</div>
+          </div>
+        </div>
+      </div>
+      <div class="ph-notes">
+        <label class="ph-notes-lbl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes for NHS
+        </label>
+        <textarea class="ph-notes-input has-text" placeholder="">Refit done March 2026 — vendor wants this highlighted. New induction hob, quartz worktops.</textarea>
+      </div>
+    </div>
+
+    <!-- ─ Bedroom 1 ─ -->
+    <div class="ph-card state-complete">
+      <div class="ph-head">
+        <div class="ph-title">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12V8h20v4"/><path d="M2 12v6h20v-6"/></svg>
+          Bedroom 1 <span class="ph-req">*</span>
+        </div>
+        <span class="ph-status complete">✓ Complete</span>
+      </div>
+      <div class="ph-photos">
+        <div class="thumb-row">
+          <div class="thumb demo-1">
+            <span class="primary-tag">Primary</span>
+            <div class="thumb-hover">
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb demo-2">
+            <div class="thumb-hover">
+              <button class="thumb-btn primary" title="Set as primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb demo-6">
+            <div class="thumb-hover">
+              <button class="thumb-btn primary" title="Set as primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb thumb-add" title="Upload more photos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <div class="add-lbl">Add</div>
+          </div>
+        </div>
+      </div>
+      <div class="ph-notes">
+        <label class="ph-notes-lbl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes for NHS
+        </label>
+        <textarea class="ph-notes-input has-text" placeholder="">Master · vendor will repaint the feature wall before listing.</textarea>
+      </div>
+    </div>
+
+    <!-- ─ Bedroom 2 ─ -->
+    <div class="ph-card state-empty required">
+      <div class="ph-head">
+        <div class="ph-title">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12V8h20v4"/><path d="M2 12v6h20v-6"/></svg>
+          Bedroom 2 <span class="ph-req">*</span>
+        </div>
+        <span class="ph-status empty">Outstanding</span>
+      </div>
+      <div class="ph-photos">
+        <div class="drop-zone">
+          <svg class="camera-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <div><strong>Drop photos here</strong></div>
+        </div>
+      </div>
+      <div class="ph-notes">
+        <label class="ph-notes-lbl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes for NHS
+        </label>
+        <textarea class="ph-notes-input" placeholder="Notes for this bedroom"></textarea>
+      </div>
+    </div>
+
+    <!-- ─ Add bedroom ─ -->
+    <div class="ph-add-card">
+      <div class="plus">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <div class="lbl">Add another bedroom</div>
+      <div class="hint">Bedroom 3, 4 …</div>
+    </div>
+
+    <!-- ─ Bathroom 1 ─ -->
+    <div class="ph-card state-empty required">
+      <div class="ph-head">
+        <div class="ph-title">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h18"/><path d="M5 10V6a3 3 0 016 0"/><path d="M3 10v4a4 4 0 004 4h10a4 4 0 004-4v-4"/></svg>
+          Bathroom 1 <span class="ph-req">*</span>
+        </div>
+        <span class="ph-status empty">Outstanding</span>
+      </div>
+      <div class="ph-photos">
+        <div class="drop-zone">
+          <svg class="camera-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <div><strong>Drop photos here</strong></div>
+        </div>
+      </div>
+      <div class="ph-notes">
+        <label class="ph-notes-lbl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes for NHS
+        </label>
+        <textarea class="ph-notes-input" placeholder="Family bath, en-suite etc."></textarea>
+      </div>
+    </div>
+
+    <!-- ─ Add bathroom ─ -->
+    <div class="ph-add-card">
+      <div class="plus">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <div class="lbl">Add another bathroom</div>
+      <div class="hint">En-suite · family bath</div>
+    </div>
+
+  </div>
+
+  <!-- ─── Optional categories ─── -->
+  <div style="display:flex;justify-content:space-between;margin:28px 0 10px;align-items:baseline;flex-wrap:wrap;gap:8px;">
+    <h2 style="font-size:16px;margin:0;font-weight:700;">
+      Optional placeholders
+      <span style="background:var(--nhs-pale-2);color:var(--ink-soft);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-left:8px;">4 categories</span>
+    </h2>
+    <span style="font-size:12px;color:var(--ink-soft);">Skip if not applicable</span>
+  </div>
+
+  <div class="placeholder-grid">
+
+    <!-- ─ Toilet ─ -->
+    <div class="ph-card state-empty optional">
+      <div class="ph-head">
+        <div class="ph-title">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="3" width="12" height="18" rx="2"/><circle cx="12" cy="14" r="2"/></svg>
+          Toilet
+        </div>
+        <span class="ph-status empty optional">Not yet</span>
+      </div>
+      <div class="ph-photos">
+        <div class="drop-zone">
+          <svg class="camera-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <div><strong>Drop photos here</strong></div>
+        </div>
+      </div>
+      <div class="ph-notes">
+        <label class="ph-notes-lbl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes for NHS
+        </label>
+        <textarea class="ph-notes-input" placeholder="Downstairs WC / cloakroom etc."></textarea>
+      </div>
+    </div>
+
+    <!-- ─ Parking Area ─ -->
+    <div class="ph-card state-complete">
+      <div class="ph-head">
+        <div class="ph-title">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M5 11V7a7 7 0 0114 0v4"/></svg>
+          Parking Area
+        </div>
+        <span class="ph-status complete">✓ Complete</span>
+      </div>
+      <div class="ph-photos">
+        <div class="thumb-row">
+          <div class="thumb demo-5">
+            <span class="primary-tag">Primary</span>
+            <div class="thumb-hover">
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb demo-3">
+            <div class="thumb-hover">
+              <button class="thumb-btn primary" title="Set as primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+              <button class="thumb-btn delete" title="Delete photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="thumb thumb-add" title="Upload more photos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <div class="add-lbl">Add</div>
+          </div>
+        </div>
+      </div>
+      <div class="ph-notes">
+        <label class="ph-notes-lbl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes for NHS
+        </label>
+        <textarea class="ph-notes-input has-text" placeholder="">Driveway fits 2 cars side-by-side.</textarea>
+      </div>
+    </div>
+
+    <!-- ─ Balcony ─ -->
+    <div class="ph-card state-empty optional">
+      <div class="ph-head">
+        <div class="ph-title">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="15" x2="9" y2="21"/><line x1="15" y1="15" x2="15" y2="21"/></svg>
+          Balcony
+        </div>
+        <span class="ph-status empty optional">Not yet</span>
+      </div>
+      <div class="ph-photos">
+        <div class="drop-zone">
+          <svg class="camera-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <div><strong>Drop photos here</strong></div>
+        </div>
+      </div>
+      <div class="ph-notes">
+        <label class="ph-notes-lbl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes for NHS
+        </label>
+        <textarea class="ph-notes-input has-text" placeholder="">No balcony on this property — flagging so NHS knows it's not missed.</textarea>
+      </div>
+    </div>
+
+    <!-- ─ Other ─ -->
+    <div class="ph-card state-empty optional">
+      <div class="ph-head">
+        <div class="ph-title">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.7l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.7l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          Other
+        </div>
+        <span class="ph-status empty optional">Not yet</span>
+      </div>
+      <div class="ph-photos">
+        <div class="drop-zone">
+          <svg class="camera-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <div><strong>Drop photos here</strong></div>
+        </div>
+      </div>
+      <div class="ph-notes">
+        <label class="ph-notes-lbl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes for NHS
+        </label>
+        <textarea class="ph-notes-input" placeholder="Hallway, garden, outbuildings, dining, conservatory etc."></textarea>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="background:var(--gold-tint);border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 8px 8px 0;margin-top:18px;font-size:12px;color:var(--ink-soft);">
+    <strong style="color:var(--gold-dark);">Categories match Salesforce</strong> — photographer-facing list is
+    <code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:#fff;padding:1px 5px;border-radius:3px;">Living&nbsp;Room · Kitchen · Bedroom · Bathroom · Toilet · Parking&nbsp;Area · Balcony · Other</code>.
+    <strong>Street&nbsp;View</strong> is excluded — that's captured from Google Street View by NHS, not the photographer.
+  </div>
+
+</section>
+
+</div>
+
+<script>
+  // Tab switcher
+  function switchView(targetView) {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.view === targetView));
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === targetView));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => switchView(t.dataset.view));
+  });
+
+  // Delegated open-detail handler — fires when a user clicks any clickable
+  // surface that represents a property: a property row, an appointment row,
+  // a calendar event chip, or the explicit "Open" button. Skips clicks on
+  // sub-buttons (PDF, icon buttons, remove buttons) so they keep their own
+  // semantics later.
+  document.addEventListener('click', (e) => {
+    // Ignore clicks that bubbled from explicit sub-buttons
+    if (e.target.closest('.pdf-btn, .icon-btn, .room-block-remove, .signout, .filter-chip, .btn, .tab, .breadcrumb, .room-block')) return;
+
+    const surface =
+      e.target.closest('.prop-row') ||
+      e.target.closest('.appt-table tbody tr') ||
+      e.target.closest('.cal-event') ||
+      e.target.closest('.open-btn');
+
+    if (surface) {
+      e.preventDefault();
+      switchView('detail');
+    }
+  });
+
+  // The action sub-buttons inside rows: open detail too (icon-btn = "Open
+  // property"; pdf-btn keeps its own future PDF flow but here we just route
+  // to detail for the mockup).
+  document.querySelectorAll('.appt-table .icon-btn').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      switchView('detail');
+    });
+  });
+</script>
+
+</body>
+</html>

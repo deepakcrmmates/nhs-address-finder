@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NHS Portals — New Home Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --nhs-dk: #075F50;
+    --nhs-mid: #4A6B5E;
+    --nhs-soft: #6B9080;
+    --nhs-sage: #C9D5CB;
+    --nhs-pale: #EAF4EF;
+    --nhs-pale-2: #F4F9F6;
+    --nhs-border: #C5DCCC;
+    --gold: #C9A84C;
+    --gold-tint: #FFF8E7;
+    --gold-dark: #8E743A;
+    --blue: #4682A9;
+    --blue-tint: #DCEAF1;
+    --blue-dark: #2C5475;
+    --ink: #1F3D34;
+    --ink-soft: #5A6B7C;
+    --ink-mute: #9AA8A2;
+    --bg: #F7FAF8;
+    --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 4px 14px rgba(15,23,42,0.05);
+    --shadow-lift: 0 12px 36px rgba(15,23,42,0.14), 0 4px 12px rgba(15,23,42,0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(at 5% 0%, rgba(7,95,80,0.06) 0%, transparent 50%),
+      radial-gradient(at 95% 100%, rgba(201,168,76,0.06) 0%, transparent 50%),
+      var(--bg);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── App bar ─────────────────────────────────────────── */
+  header.appbar {
+    background: var(--nhs-dk);
+    color: #fff;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  header.appbar .brand { display: flex; align-items: center; gap: 14px; font-weight: 800; font-size: 16px; }
+  header.appbar .logo {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--gold); color: #5A4A1E;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px;
+  }
+  header.appbar .brand-meta { font-size: 11px; opacity: 0.75; font-weight: 500; margin-top: 2px; letter-spacing: 0.08em; text-transform: uppercase; }
+  header.appbar .user { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+  header.appbar .avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.18);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;
+  }
+  header.appbar .user .name { font-weight: 600; }
+  header.appbar .user .role { font-size: 11px; opacity: 0.7; }
+  header.appbar .signout {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.24);
+    color: #fff; padding: 7px 13px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; font-weight: 600;
+  }
+  header.appbar .signout:hover { background: rgba(255,255,255,0.20); }
+
+  /* ── Hero ───────────────────────────────────────────── */
+  .hero {
+    max-width: 1180px;
+    margin: 48px auto 28px;
+    padding: 0 32px;
+    text-align: center;
+  }
+  .hero .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  .hero .eyebrow svg { width: 13px; height: 13px; }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 .accent { color: var(--nhs-dk); }
+  .hero .sub {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* ── Portal grid ───────────────────────────────────── */
+  .portals {
+    max-width: 1180px;
+    margin: 32px auto 60px;
+    padding: 0 32px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+  @media (max-width: 960px) {
+    .portals { grid-template-columns: 1fr; gap: 16px; }
+  }
+
+  /* ── Portal card ──────────────────────────────────── */
+  .portal-card {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex; flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+    position: relative;
+  }
+  .portal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
+    border-color: var(--nhs-soft);
+  }
+  .portal-card:hover .enter-btn { background: var(--nhs-dk); color: #fff; gap: 10px; }
+  .portal-card:hover .enter-btn svg { transform: translateX(3px); }
+
+  /* Accent strip on top */
+  .portal-card .accent {
+    height: 6px;
+    background: var(--nhs-dk);
+  }
+  .portal-card.housebuilder .accent { background: var(--gold); }
+  .portal-card.agent       .accent { background: var(--blue); }
+  .portal-card.photographer .accent { background: var(--nhs-dk); }
+
+  .portal-card-body {
+    padding: 30px 28px 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Icon block */
+  .portal-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .portal-card.housebuilder .portal-icon { background: var(--gold-tint); color: var(--gold-dark); }
+  .portal-card.agent .portal-icon { background: var(--blue-tint); color: var(--blue-dark); }
+  .portal-card.photographer .portal-icon { background: var(--nhs-pale); color: var(--nhs-dk); }
+  .portal-icon svg { width: 26px; height: 26px; }
+
+  /* Title row */
+  .portal-name {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .portal-tag {
+    background: var(--nhs-pale-2);
+    color: var(--ink-soft);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .portal-card.housebuilder .portal-tag { background: var(--gold-tint); color: var(--gold-dark); }
+  .portal-card.agent .portal-tag { background: var(--blue-tint); color: var(--blue-dark); }
+  .portal-card.photographer .portal-tag { background: var(--nhs-pale); color: var(--nhs-dk); }
+  .portal-card.photographer .portal-tag.live,
+  .portal-card.agent .portal-tag.live { background: #DCFCE7; color: #15803D; }
+
+  .portal-desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 22px;
+    line-height: 1.5;
+  }
+
+  /* What you can do */
+  .portal-list {
+    list-style: none;
+    margin: 0 0 22px;
+    padding: 0;
+    display: flex; flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .portal-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--ink);
+  }
+  .portal-list li svg {
+    width: 14px; height: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--nhs-soft);
+  }
+  .portal-card.housebuilder .portal-list li svg { color: var(--gold-dark); }
+  .portal-card.agent .portal-list li svg { color: var(--blue-dark); }
+
+  /* User row (signed-in indicator) */
+  .portal-user {
+    padding: 10px 14px;
+    background: var(--nhs-pale-2);
+    border-top: 1px solid var(--nhs-border);
+    border-radius: 0;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .portal-user .av {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--nhs-dk);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .portal-card.housebuilder .portal-user .av { background: var(--gold-dark); }
+  .portal-card.agent .portal-user .av { background: var(--blue-dark); }
+  .portal-user strong { color: var(--ink); font-weight: 700; }
+  .portal-user .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #22C55E;
+    box-shadow: 0 0 0 3px rgba(34,197,94,0.18);
+    margin-left: auto;
+  }
+
+  /* Enter button */
+  .enter-btn {
+    margin-top: auto;
+    background: #fff;
+    color: var(--nhs-dk);
+    border: 1.5px solid var(--nhs-dk);
+    padding: 11px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: background 0.15s, color 0.15s, gap 0.15s;
+  }
+  .portal-card.housebuilder .enter-btn { color: var(--gold-dark); border-color: var(--gold-dark); }
+  .portal-card.housebuilder:hover .enter-btn { background: var(--gold-dark); color: #fff; }
+  .portal-card.agent .enter-btn { color: var(--blue-dark); border-color: var(--blue-dark); }
+  .portal-card.agent:hover .enter-btn { background: var(--blue-dark); color: #fff; }
+  .enter-btn svg { width: 14px; height: 14px; transition: transform 0.15s; }
+
+  /* Stats row at the top of each card */
+  .portal-stats {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .portal-stats .stat {
+    background: var(--nhs-pale-2);
+    border-radius: 8px;
+    padding: 9px 12px;
+    flex: 1;
+  }
+  .portal-card.housebuilder .portal-stats .stat { background: var(--gold-tint); }
+  .portal-card.agent .portal-stats .stat { background: var(--blue-tint); }
+  .portal-stats .v {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .portal-stats .l {
+    font-size: 10px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    margin-top: 3px;
+  }
+
+  /* ── Free tool feature card (Address Finder) ───────── */
+  .tool-section {
+    max-width: 1180px;
+    margin: 20px auto 0;
+    padding: 0 32px;
+  }
+  .tool-section .sec-eyebrow {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .tool-section .sec-eyebrow .lbl {
+    color: var(--ink-soft);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .tool-section .sec-eyebrow .rule {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .tool-card {
+    background:
+      radial-gradient(at 100% 0%, rgba(7,95,80,0.08) 0%, transparent 50%),
+      #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    align-items: stretch;
+    /* It's an <a> tag so kill the default link chrome */
+    text-decoration: none;
+    color: var(--ink);
+    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s;
+  }
+  .tool-card, .tool-card * { text-decoration: none; }
+  .tool-card:hover {
+    box-shadow: var(--shadow-lift);
+    border-color: var(--nhs-soft);
+    transform: translateY(-2px);
+  }
+  .tool-card:hover .enter-tool { background: var(--sage-dark, #053f34); gap: 12px; }
+  @media (max-width: 880px) { .tool-card { grid-template-columns: 1fr; } }
+
+  .tool-card-body { padding: 26px 28px 24px; }
+  .tool-card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .tool-card .free-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #DCFCE7;
+    color: #15803D;
+    border: 1px solid #BDF0CC;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .tool-card .free-pill svg { width: 12px; height: 12px; }
+  .tool-card .partners-line { font-size: 11px; color: var(--ink-soft); font-weight: 600; }
+  .tool-card .partners-line strong { color: var(--ink); font-weight: 700; }
+  .tool-card h2 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .tool-card h2 .accent { color: var(--nhs-dk); }
+  .tool-card .desc {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin: 0 0 16px;
+    max-width: 540px;
+  }
+
+  .tool-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px 14px;
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+  }
+  .tool-features li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12.5px;
+    color: var(--ink);
+  }
+  .tool-features li svg {
+    flex-shrink: 0;
+    width: 16px; height: 16px;
+    color: var(--nhs-dk);
+    margin-top: 1px;
+  }
+  .tool-features li strong { color: var(--ink); font-weight: 700; }
+  .tool-features li .sub { display: block; color: var(--ink-soft); font-weight: 500; font-size: 11.5px; margin-top: 1px; }
+
+  /* "Coming soon" callout under the feature list */
+  .coming-soon {
+    background: var(--gold-tint);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin: 0 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .coming-soon .cs-label {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: #fff;
+    border: 1px dashed var(--gold);
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .coming-soon .cs-label svg { width: 11px; height: 11px; }
+  .coming-soon .cs-items {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    flex: 1;
+    font-size: 12.5px;
+    color: var(--ink);
+  }
+  .coming-soon .cs-items .cs-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .coming-soon .cs-items svg {
+    width: 14px; height: 14px;
+    color: var(--gold-dark);
+    flex-shrink: 0;
+  }
+  .coming-soon .cs-items strong { color: var(--ink); font-weight: 700; }
+  .coming-soon .cs-items .sub-tag {
+    color: var(--ink-soft);
+    font-size: 11px;
+  }
+
+  .tool-card .enter-tool {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--nhs-dk);
+    color: #fff;
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13.5px;
+    text-decoration: none;
+    transition: background 0.15s, gap 0.15s;
+  }
+  .tool-card .enter-tool:hover { background: var(--sage-dark, #053f34); gap: 12px; }
+  .tool-card .enter-tool svg { width: 14px; height: 14px; }
+
+  /* Visual side panel */
+  .tool-side {
+    background: var(--nhs-pale-2);
+    border-left: 1px solid var(--nhs-border);
+    padding: 26px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+  }
+  @media (max-width: 880px) {
+    .tool-side { border-left: none; border-top: 1px solid var(--nhs-border); }
+  }
+  .tool-side .demo-bar {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+  }
+  .tool-side .demo-bar svg { width: 14px; height: 14px; color: var(--nhs-soft); flex-shrink: 0; }
+  .tool-side .demo-bar .pc { font-weight: 800; color: var(--nhs-dk); letter-spacing: 0.04em; }
+  .tool-side .demo-bar .cursor {
+    display: inline-block;
+    width: 1px;
+    background: var(--ink);
+    animation: blink 1s steps(2, end) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .tool-side .demo-result {
+    background: #fff;
+    border: 1px solid var(--nhs-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--ink);
+  }
+  .tool-side .demo-result .uprn-mini {
+    background: var(--nhs-pale);
+    color: var(--nhs-dk);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .tool-side .demo-result .epc-mini {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 3px;
+    color: #fff;
+  }
+  .tool-side .demo-result .epc-mini.b { background: #19B459; }
+  .tool-side .demo-result .epc-mini.c { background: #8DCE46; color: #1F3D34; }
+  .tool-side .demo-result .addr-mini {
+    font-size: 11px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tool-side .demo-caption {
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* ── Bottom bar ────────────────────────────────────── */
+  .bottom-bar {
+    max-width: 1180px;
+    margin: 36px auto 0;          /* gap above the divider line */
+    padding: 24px 32px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--nhs-border);
+    padding-top: 24px;
+  }
+  .bottom-bar a {
+    color: var(--nhs-dk);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .bottom-bar a:hover { text-decoration: underline; }
+  .bottom-bar .left { display: flex; gap: 16px; align-items: center; }
+  .bottom-bar .right { display: flex; gap: 16px; align-items: center; }
+  .bottom-bar .sep { color: var(--ink-mute); }
+</style>
+</head>
+<body>
+
+<!-- ─── App bar ─────────────────────────────────────────────── -->
+<header class="appbar">
+  <div class="brand">
+    <div class="logo">NHS</div>
+    <div>
+      <div>New Home Solutions</div>
+      <div class="brand-meta">Partner portals</div>
+    </div>
+  </div>
+  <div class="user">
+    <div class="avatar">DR</div>
+    <div>
+      <div class="name">Deepak Rana</div>
+      <div class="role">Signed in · NHS administrator</div>
+    </div>
+    <button class="signout">Sign out</button>
+  </div>
+</header>
+
+<!-- ─── Hero ────────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="eyebrow">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    Three portals · one sign-in
+  </div>
+  <h1>Choose your <span class="accent">workspace</span></h1>
+  <p class="sub">Each role has a tailored view of the same NHS pipeline. Pick the portal that matches what you came here to do.</p>
+</div>
+
+<!-- ─── Portal cards ────────────────────────────────────────── -->
+<div class="portals">
+
+  <!-- ─── 1. Housebuilder ─── -->
+  <a class="portal-card housebuilder" href="housebuilder-portal.html">
+    <div class="accent"></div>
+    <div class="portal-card-body">
+      <div class="portal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21V8l9-5 9 5v13"/>
+          <path d="M9 21v-6h6v6"/>
+          <path d="M3 10l9-5 9 5"/>
+        </svg>
+      </div>
+      <h2 class="portal-name">Housebuilder</h2>
+      <p class="portal-desc">Track applications, valuations and progress for your developments.</p>
+      <button class="enter-btn">
+        Enter
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+    <div class="portal-user">
+      <div class="av">WH</div>
+      <div>Wain Homes · <strong>Sarah Briggs</strong></div>
+      <span class="dot" title="Online"></span>
+    </div>
+  </a>
+
+  <!-- ─── 2. Estate Agent ─── -->
+  <a class="portal-card agent" href="estate-agent-portal.html">
+    <div class="accent"></div>
+    <div class="portal-card-body">
+      <div class="portal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 22V12h6v10"/>
+          <path d="M3 9l9-7 9 7"/>
+          <path d="M3 22h18"/>
+          <path d="M19 9v13"/>
+          <path d="M5 9v13"/>
+        </svg>
+      </div>
+      <h2 class="portal-name">Estate Agent</h2>
+      <p class="portal-desc">Submit valuations for properties allocated to your branch.</p>
+      <button class="enter-btn">
+        Enter
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+    <div class="portal-user">
+      <div class="av">RR</div>
+      <div>Reeds Rains · <strong>Tom Carter</strong></div>
+      <span class="dot" title="Online"></span>
+    </div>
+  </a>
+
+  <!-- ─── 3. Photographer ─── -->
+  <a class="portal-card photographer" href="photographer-portal.html">
+    <div class="accent"></div>
+    <div class="portal-card-body">
+      <div class="portal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9a2 2 0 012-2h2l2-2h6l2 2h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+          <circle cx="12" cy="13" r="3.5"/>
+        </svg>
+      </div>
+      <h2 class="portal-name">Photographer</h2>
+      <p class="portal-desc">Upload room-by-room photography for assigned properties.</p>
+      <button class="enter-btn">
+        Enter
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+    <div class="portal-user">
+      <div class="av">MP</div>
+      <div>Independent · <strong>Mike Patel</strong></div>
+      <span class="dot" title="Online"></span>
+    </div>
+  </a>
+
+</div>
+
+<!-- ─── Free tool: NHS Address Finder ───────────────────────── -->
+<section class="tool-section">
+  <div class="sec-eyebrow">
+    <span class="lbl">Free tools for partners</span>
+    <span class="rule"></span>
+  </div>
+
+  <a class="tool-card" href="index.html">
+    <div class="tool-card-body">
+      <div class="tool-card-head">
+        <span class="free-pill">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Free service
+        </span>
+        <span class="partners-line">Available to <strong>all</strong> partners · no sign-up needed</span>
+      </div>
+      <h2>NHS Address Finder · <span class="accent">Find any UK address, EPC certificate &amp; OS map</span></h2>
+      <p class="desc">A free everyday tool we provide to our estate agents, photographers and housebuilders. Type a postcode → see every address with its UPRN, energy rating and certificate, and pop the property open on an Ordnance Survey or Google Street View map.</p>
+
+      <ul class="tool-features">
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <div><strong>Postcode → addresses</strong><span class="sub">Official OS AddressBase Premium</span></div>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 12h10M7 17h6"/></svg>
+          <div><strong>UPRN per address</strong><span class="sub">Copy-to-clipboard, ready to paste</span></div>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <div><strong>EPC certificate</strong><span class="sub">A-G band pill + full staircase ladder</span></div>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 2a8 8 0 00-8 8c0 5.5 7.5 12 7.5 12s.5 0 1 0c0 0 7.5-6.5 7.5-12a8 8 0 00-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+          <div><strong>OS Maps view</strong><span class="sub">Road / Outdoor / Light tile styles</span></div>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="8" r="3"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg>
+          <div><strong>Street View</strong><span class="sub">Google 360° pano in a lightbox</span></div>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+          <div><strong>Works on mobile</strong><span class="sub">Use on-site from a phone or tablet</span></div>
+        </li>
+      </ul>
+
+      <div class="coming-soon">
+        <span class="cs-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Coming soon
+        </span>
+        <div class="cs-items">
+          <span class="cs-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+            <strong>Broadband coverage</strong> <span class="sub-tag">· Ofcom Connected Nations</span>
+          </span>
+          <span class="cs-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <strong>Mobile coverage</strong> <span class="sub-tag">· 4G / 5G signal map</span>
+          </span>
+        </div>
+      </div>
+
+      <span class="enter-tool">
+        Open Address Finder
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </span>
+    </div>
+
+    <div class="tool-side">
+      <div class="demo-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="pc">UB2 4WQ</span>
+        <span class="cursor">&nbsp;</span>
+      </div>
+      <div class="demo-result">
+        <span class="uprn-mini">12191496</span>
+        <span class="addr-mini">69 Doniford House, Healum Avenue</span>
+        <span class="epc-mini b">B</span>
+      </div>
+      <div class="demo-result">
+        <span class="uprn-mini">12191495</span>
+        <span class="addr-mini">68 Doniford House, Healum Avenue</span>
+        <span class="epc-mini b">B</span>
+      </div>
+      <div class="demo-result">
+        <span class="uprn-mini">12191487</span>
+        <span class="addr-mini">60 Doniford House, Healum Avenue</span>
+        <span class="epc-mini c">C</span>
+      </div>
+      <div class="demo-caption">Live preview · click to try it</div>
+    </div>
+  </a>
+</section>
+
+<!-- ─── Bottom bar ──────────────────────────────────────────── -->
+<div class="bottom-bar">
+  <div class="left">
+    <span>NHS Partner Portals · v1 mockup</span>
+    <span class="sep">·</span>
+    <span>Single sign-on via Salesforce Experience Cloud</span>
+  </div>
+  <div class="right">
+    <a href="#">Help &amp; FAQs</a>
+    <span class="sep">·</span>
+    <a href="mailto:portal@newhomesolutions.co.uk">Contact NHS support</a>
+    <span class="sep">·</span>
+    <a href="#">Switch role</a>
+  </div>
+</div>
+
+</body>
+</html>
