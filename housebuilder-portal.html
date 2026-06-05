@@ -528,7 +528,7 @@
     <span class="tab-count">3</span>
   </button>
   <button class="tab" data-stage="offers">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+    <span style="font-size:16px;font-weight:800;line-height:1;width:16px;text-align:center;display:inline-block">£</span>
     Offers
     <span class="tab-count">2</span>
   </button>
@@ -547,7 +547,7 @@
     <div class="toolbar">
       <div class="search-box">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" placeholder="Search by address, plot, vendor name…"/>
+        <input type="text" id="app-search" placeholder="Search by address, plot, vendor name…"/>
       </div>
       <div class="stage-caption" id="stage-caption" style="font-size:12.5px;color:var(--muted-lt,#6B7280);font-weight:600;white-space:nowrap">
         Showing <strong id="stage-caption-name" style="color:var(--nhs-dk,#075F50)">Valuations</strong>
@@ -555,196 +555,13 @@
     </div>
 
     <div class="table-wrap">
-      <table class="apps-table">
-        <thead>
-          <tr>
-            <th>Property</th>
-            <th>Vendor</th>
-            <th class="stage-col">App Received</th>
-            <th class="stage-col">Vendor Contacted</th>
-            <th class="stage-col">Agents Booked</th>
-            <th class="stage-col">Figures Returned</th>
-            <th class="stage-col">On Market</th>
-            <th class="stage-col">Offers</th>
-            <th class="stage-col">Sales Progression</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr data-stage="valuations" onclick="openDetail()">
-            <td>
-              <div class="app-address">555 Tong Rd, LS12 5AT</div>
-              <div class="app-meta">The View · Plot 5</div>
-            </td>
-            <td>
-              <div class="app-vendor">Jordan Edmondson</div>
-              <div class="app-vendor-sub">App-2026-042</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">8 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">9 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">12 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">Due 19 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-          </tr>
-          <tr data-stage="market" onclick="openDetail()">
-            <td>
-              <div class="app-address">12 New Leeds, LS13 1EB</div>
-              <div class="app-meta">Brookes View 1 · Plot 1</div>
-            </td>
-            <td>
-              <div class="app-vendor">Deepak Kumar</div>
-              <div class="app-vendor-sub">App-2026-038</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">2 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">3 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">6 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">13 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">18 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-          </tr>
-          <tr data-stage="offers" onclick="openDetail()">
-            <td>
-              <div class="app-address">Edge 45, Newborough Scarborough</div>
-              <div class="app-meta">Birmingham · Plot PT/89TY/987</div>
-            </td>
-            <td>
-              <div class="app-vendor">Ben Stokes</div>
-              <div class="app-vendor-sub">App-2026-031</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">28 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">29 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">2 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">9 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">14 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">2 offers</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-          </tr>
-          <tr data-stage="progression" onclick="openDetail()">
-            <td>
-              <div class="app-address">Project 78 Gallery Ltd, Norman Road</div>
-              <div class="app-meta">Test123 · Plot T123</div>
-            </td>
-            <td>
-              <div class="app-vendor">Kelvin Will</div>
-              <div class="app-vendor-sub">App-2026-029</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">25 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">26 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">30 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">6 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">11 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">18 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">In progress</span></td>
-          </tr>
-          <tr data-stage="valuations" onclick="openDetail()">
-            <td>
-              <div class="app-address">Sarnie 67, Sheep Street Bicester</div>
-              <div class="app-meta">Test123 · Plot T123</div>
-            </td>
-            <td>
-              <div class="app-vendor">Deepak Rana</div>
-              <div class="app-vendor-sub">App-2026-026</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">20 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">22 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date urgent">Overdue 2d</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-          </tr>
-          <tr data-stage="progression" onclick="openDetail()">
-            <td>
-              <div class="app-address">123 Cleaners, Shirland Road</div>
-              <div class="app-meta">ABC Development · Plot LEEDS/2024/10/001</div>
-            </td>
-            <td>
-              <div class="app-vendor">Adam Smith</div>
-              <div class="app-vendor-sub">App-2026-024</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">15 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">17 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">20 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">27 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">2 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">11 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">Exchange due</span></td>
-          </tr>
-          <tr data-stage="valuations" onclick="openDetail()">
-            <td>
-              <div class="app-address">9 Mill Garth, LS14 6PR</div>
-              <div class="app-meta">Brookes View 2 · Plot 9</div>
-            </td>
-            <td>
-              <div class="app-vendor">Hannah Price</div>
-              <div class="app-vendor-sub">App-2026-045</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">14 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">15 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">Booking</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-          </tr>
-          <tr data-stage="market" onclick="openDetail()">
-            <td>
-              <div class="app-address">21 Tong Meadow, LS12 6BX</div>
-              <div class="app-meta">The View · Plot 21</div>
-            </td>
-            <td>
-              <div class="app-vendor">Olivia Hughes</div>
-              <div class="app-vendor-sub">App-2026-036</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">26 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">28 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">31 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">7 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">Listed 12 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-          </tr>
-          <tr data-stage="market" onclick="openDetail()">
-            <td>
-              <div class="app-address">3 Calder Rise, WF1 4QH</div>
-              <div class="app-meta">Riverside · Plot 3</div>
-            </td>
-            <td>
-              <div class="app-vendor">Marcus Reed</div>
-              <div class="app-vendor-sub">App-2026-034</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">22 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">24 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">27 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">3 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">Listed 9 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-          </tr>
-          <tr data-stage="offers" onclick="openDetail()">
-            <td>
-              <div class="app-address">7 Aire View, LS13 4NN</div>
-              <div class="app-meta">Brookes View 1 · Plot 7</div>
-            </td>
-            <td>
-              <div class="app-vendor">Priya Shah</div>
-              <div class="app-vendor-sub">App-2026-030</div>
-            </td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">19 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">21 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">24 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">31 Mar</span></td>
-            <td class="stage-cell"><span class="stage-mark done">✓</span><span class="stage-date">7 Apr</span></td>
-            <td class="stage-cell"><span class="stage-mark current">●</span><span class="stage-date">3 offers</span></td>
-            <td class="stage-cell"><span class="stage-mark pending">○</span></td>
-          </tr>
-        </tbody>
+      <table class="apps-table" id="apps-table">
+        <thead id="apps-thead"></thead>
+        <tbody id="apps-tbody"></tbody>
       </table>
     </div>
 
-    <div style="margin-top:14px;font-size:11.5px;color:var(--muted-lt);display:flex;align-items:center;gap:16px">
+    <div id="stage-legend" style="margin-top:14px;font-size:11.5px;color:var(--muted-lt);display:flex;align-items:center;gap:16px">
       <span style="display:inline-flex;align-items:center;gap:6px"><span class="stage-mark done" style="width:14px;height:14px;font-size:9px">✓</span> Complete</span>
       <span style="display:inline-flex;align-items:center;gap:6px"><span class="stage-mark current" style="width:14px;height:14px;font-size:9px;box-shadow:none">●</span> In progress</span>
       <span style="display:inline-flex;align-items:center;gap:6px"><span class="stage-mark pending" style="width:14px;height:14px;font-size:9px">○</span> Not yet started</span>
@@ -999,33 +816,94 @@
 </footer>
 
 <script>
-  // ── Stage tabs: Valuations · On Market · Offers · Sales Progression ──
-  // Each tab filters the applications table to the rows at that stage
-  // (rows carry data-stage). The detail view is a drill-down on row click.
-  const STAGE_NAMES = {
-    valuations: 'Valuations',
-    market: 'On Market',
-    offers: 'Offers',
-    progression: 'Sales Progression'
+  // ── Housebuilder applications, grouped by stage ──────────────────────
+  // Four tabs (Valuations · On Market · Offers · Sales Progression). Each
+  // renders its own list with stage-appropriate columns. Dummy data for the
+  // demo; row click drills into the detail view.
+  const STAGE_NAMES = { valuations:'Valuations', market:'On Market', offers:'Offers', progression:'Sales Progression' };
+
+  const COLUMNS = {
+    valuations:  ['Property','Vendor','App Received','Vendor Contacted','Agents Booked','Figures Returned','Status'],
+    market:      ['Property','Vendor','Listed','Agent','Asking Price','Days on Market','Status'],
+    offers:      ['Property','Vendor','Asking Price','Offers','Highest Offer','Status'],
+    progression: ['Property','Vendor','Agreed Price','Solicitor','Exchange','Completion','Status']
   };
 
-  function filterStage(stage){
-    document.querySelectorAll('#stage-tabs .tab').forEach(t=>{
-      t.classList.toggle('active', t.dataset.stage === stage);
-    });
-    let shown = 0;
-    document.querySelectorAll('.apps-table tbody tr').forEach(tr=>{
-      const match = tr.dataset.stage === stage;
-      tr.style.display = match ? '' : 'none';
-      if (match) shown++;
-    });
+  const APPS = [
+    // ── Valuations (pipeline) ──
+    { stage:'valuations', address:'555 Tong Rd, LS12 5AT', meta:'The View · Plot 5', vendor:'Jordan Edmondson', app:'App-2026-042',
+      steps:[['done','8 Apr'],['done','9 Apr'],['done','12 Apr'],['current','Due 19 Apr']], status:['Awaiting figures','amber'] },
+    { stage:'valuations', address:'Sarnie 67, Sheep Street Bicester', meta:'Test123 · Plot T123', vendor:'Deepak Rana', app:'App-2026-026',
+      steps:[['done','20 Mar'],['done','22 Mar'],['current','Overdue 2d','urgent'],['pending']], status:['Chasing agents','amber'] },
+    { stage:'valuations', address:'9 Mill Garth, LS14 6PR', meta:'Brookes View 2 · Plot 9', vendor:'Hannah Price', app:'App-2026-045',
+      steps:[['done','14 Apr'],['done','15 Apr'],['current','Booking'],['pending']], status:['Booking agents','amber'] },
+    // ── On Market ──
+    { stage:'market', address:'12 New Leeds, LS13 1EB', meta:'Brookes View 1 · Plot 1', vendor:'Deepak Kumar', app:'App-2026-038',
+      listed:'18 Apr 2026', agent:'Manning Stainton', asking:'£285,000', days:'18 days', status:['Live · viewings booked','green'] },
+    { stage:'market', address:'21 Tong Meadow, LS12 6BX', meta:'The View · Plot 21', vendor:'Olivia Hughes', app:'App-2026-036',
+      listed:'12 Apr 2026', agent:'Dacre Son &amp; Hartley', asking:'£410,000', days:'24 days', status:['Live','green'] },
+    { stage:'market', address:'3 Calder Rise, WF1 4QH', meta:'Riverside · Plot 3', vendor:'Marcus Reed', app:'App-2026-034',
+      listed:'9 Apr 2026', agent:'Reeds Rains', asking:'£232,500', days:'27 days', status:['Live · reduced','amber'] },
+    // ── Offers ──
+    { stage:'offers', address:'Edge 45, Newborough Scarborough', meta:'Birmingham · Plot PT/89TY/987', vendor:'Ben Stokes', app:'App-2026-031',
+      asking:'£268,000', offers:'2 offers', highest:'£255,000', status:['Reviewing','blue'] },
+    { stage:'offers', address:'7 Aire View, LS13 4NN', meta:'Brookes View 1 · Plot 7', vendor:'Priya Shah', app:'App-2026-030',
+      asking:'£315,000', offers:'3 offers', highest:'£312,000', status:['Recommend accept','green'] },
+    // ── Sales Progression ──
+    { stage:'progression', address:'Project 78 Gallery Ltd, Norman Road', meta:'Test123 · Plot T123', vendor:'Kelvin Will', app:'App-2026-029',
+      agreed:'£340,000', solicitor:'Gordons LLP', exchange:'Due 2 May', completion:'Due 16 May', status:['In progress','blue'] },
+    { stage:'progression', address:'123 Cleaners, Shirland Road', meta:'ABC Development · Plot LEEDS/2024/10/001', vendor:'Adam Smith', app:'App-2026-024',
+      agreed:'£198,000', solicitor:'Schofield Sweeney', exchange:'24 Apr ✓', completion:'Due 8 May', status:['Exchanged','green'] }
+  ];
+
+  const PILL = {
+    amber:['#FFF8E7','#8E743A','#EAD9A8'], green:['#DCFCE7','#15803D','#BBF7D0'],
+    blue:['#DCEAF1','#2C5475','#BCD7E8'], sage:['#EAF4EF','#075F50','#C5DCCC']
+  };
+  function pill(s){ const c = PILL[s[1]] || PILL.sage;
+    return '<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[2]+';white-space:nowrap">'+s[0]+'</span>'; }
+  function stageCell(step){
+    if (!step || step[0]==='pending') return '<td class="stage-cell"><span class="stage-mark pending">○</span></td>';
+    const mark = step[0]==='done' ? '<span class="stage-mark done">✓</span>' : '<span class="stage-mark current">●</span>';
+    const date = step[1] ? '<span class="stage-date'+(step[2]==='urgent'?' urgent':'')+'">'+step[1]+'</span>' : '';
+    return '<td class="stage-cell">'+mark+date+'</td>';
+  }
+  const td = (v, bold) => '<td'+(bold?' style="font-weight:700"':'')+'>'+(v==null?'':v)+'</td>';
+
+  function rowHtml(a){
+    const prop = '<td><div class="app-address">'+a.address+'</div><div class="app-meta">'+a.meta+'</div></td>';
+    const vend = '<td><div class="app-vendor">'+a.vendor+'</div><div class="app-vendor-sub">'+a.app+'</div></td>';
+    let cells;
+    if (a.stage==='valuations') cells = a.steps.map(stageCell).join('') + '<td>'+pill(a.status)+'</td>';
+    else if (a.stage==='market') cells = td(a.listed)+td(a.agent)+td(a.asking,true)+td(a.days)+'<td>'+pill(a.status)+'</td>';
+    else if (a.stage==='offers') cells = td(a.asking,true)+td(a.offers)+'<td style="font-weight:700;color:#075F50">'+a.highest+'</td><td>'+pill(a.status)+'</td>';
+    else cells = td(a.agreed,true)+td(a.solicitor)+td(a.exchange)+td(a.completion)+'<td>'+pill(a.status)+'</td>';
+    return '<tr onclick="openDetail()">'+prop+vend+cells+'</tr>';
+  }
+
+  let currentStage = 'valuations';
+
+  function render(stage){
+    currentStage = stage;
+    document.querySelectorAll('#stage-tabs .tab').forEach(t=>t.classList.toggle('active', t.dataset.stage===stage));
+    const cols = COLUMNS[stage];
+    document.getElementById('apps-thead').innerHTML =
+      '<tr>'+cols.map((c,i)=>'<th'+(stage==='valuations'&&i>=2&&i<6?' class="stage-col"':'')+'>'+c+'</th>').join('')+'</tr>';
+    const q = (document.getElementById('app-search').value||'').trim().toLowerCase();
+    const rows = APPS.filter(a=>a.stage===stage)
+      .filter(a=> !q || (a.address+' '+a.vendor+' '+a.app+' '+a.meta).toLowerCase().includes(q));
+    document.getElementById('apps-tbody').innerHTML = rows.length
+      ? rows.map(rowHtml).join('')
+      : '<tr><td colspan="'+cols.length+'" style="text-align:center;padding:34px;color:#9AA8A2">No applications in this stage'+(q?' matching that search':'')+'</td></tr>';
     const cap = document.getElementById('stage-caption-name');
-    if (cap) cap.textContent = STAGE_NAMES[stage] + ' (' + shown + ')';
+    if (cap) cap.textContent = STAGE_NAMES[stage]+' ('+rows.length+')';
+    document.getElementById('stage-legend').style.display = stage==='valuations' ? 'flex' : 'none';
   }
 
   document.querySelectorAll('#stage-tabs .tab').forEach(tab=>{
-    tab.addEventListener('click', ()=>filterStage(tab.dataset.stage));
+    tab.addEventListener('click', ()=>render(tab.dataset.stage));
   });
+  document.getElementById('app-search').addEventListener('input', ()=>render(currentStage));
 
   // Drill-down: row → property detail, and back
   function openDetail(){
@@ -1041,22 +919,7 @@
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  // Search box filters within the active stage
-  const searchInput = document.querySelector('.search-box input');
-  if (searchInput){
-    searchInput.addEventListener('input', ()=>{
-      const q = searchInput.value.trim().toLowerCase();
-      const activeStage = document.querySelector('#stage-tabs .tab.active').dataset.stage;
-      document.querySelectorAll('.apps-table tbody tr').forEach(tr=>{
-        const inStage = tr.dataset.stage === activeStage;
-        const text = tr.textContent.toLowerCase();
-        tr.style.display = (inStage && (!q || text.includes(q))) ? '' : 'none';
-      });
-    });
-  }
-
-  // Land on Valuations by default
-  filterStage('valuations');
+  render('valuations');
 </script>
 </body>
 </html>
