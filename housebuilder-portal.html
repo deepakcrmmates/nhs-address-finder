@@ -122,15 +122,18 @@
     font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;
   }
   .tab.active .tab-count{background:var(--nhs-dk);color:#fff}
-  /* Valuations sub-tabs */
+  /* Valuations sub-tabs — second tier of the SAME tab bar.
+     When sub-tabs are showing, the main tab row drops its divider/shadow so
+     the two rows merge into one elevated white bar. */
+  .tabs.has-subtabs{ border-bottom-color:transparent; box-shadow:none; }
   .subtabs{
-    background:var(--nhs-pale-2,#F4F9F6);border-bottom:1px solid var(--divider);
-    padding:10px 32px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+    background:#fff;border-bottom:1px solid var(--divider);box-shadow:var(--shadow-sm);
+    padding:1px 32px 11px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
     position:sticky;top:104px;z-index:88;
   }
   .subtab{
-    background:#fff;border:1.5px solid var(--border,#DDE5E1);border-radius:20px;
-    padding:6px 14px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted,#5A6B7C);
+    background:var(--nhs-pale-2,#F4F9F6);border:1.5px solid var(--border,#DDE5E1);border-radius:20px;
+    padding:5px 13px;font-family:inherit;font-size:12px;font-weight:600;color:var(--muted,#5A6B7C);
     cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:7px;
   }
   .subtab:hover{background:var(--nhs-pale,#EAF4EF);border-color:var(--nhs-soft,#6B9080)}
@@ -534,7 +537,7 @@
 </section>
 
 <!-- ═══ STAGE TABS ═══ -->
-<div class="tabs" id="stage-tabs">
+<div class="tabs has-subtabs" id="stage-tabs">
   <button class="tab active" data-stage="valuations">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11H3v10h6zM21 3h-6v18h6zM15 7H9v14h6z"/></svg>
     Valuations
@@ -929,7 +932,8 @@
     currentStage = stage;
     const isVal = stage === 'valuations';
     document.querySelectorAll('#stage-tabs .tab').forEach(t=>t.classList.toggle('active', t.dataset.stage===stage));
-    // Sub-tabs show only on Valuations
+    // Sub-tabs show only on Valuations; merge them into the main tab bar
+    document.getElementById('stage-tabs').classList.toggle('has-subtabs', isVal);
     document.getElementById('val-subtabs').style.display = isVal ? 'flex' : 'none';
     if (isVal){
       document.querySelectorAll('#val-subtabs .subtab').forEach(st=>{
