@@ -823,7 +823,7 @@
   const STAGE_NAMES = { valuations:'Valuations', market:'On Market', offers:'Offers', progression:'Sales Progression' };
 
   const COLUMNS = {
-    valuations:  ['Property','Vendor','App Received','Vendor Contacted','Agents Booked','Figures Returned','Status'],
+    valuations:  ['Property','Vendor','App Received','Vendor Contacted','Agents Booked','Chasing Figures','Figures Returned','Status'],
     market:      ['Property','Vendor','Listed','Agent','Asking Price','Days on Market','Status'],
     offers:      ['Property','Vendor','Asking Price','Offers','Highest Offer','Status'],
     progression: ['Property','Vendor','Agreed Price','Solicitor','Exchange','Completion','Status']
@@ -832,11 +832,11 @@
   const APPS = [
     // ── Valuations (pipeline) ──
     { stage:'valuations', address:'555 Tong Rd, LS12 5AT', meta:'The View · Plot 5', vendor:'Jordan Edmondson', app:'App-2026-042',
-      steps:[['done','8 Apr'],['done','9 Apr'],['done','12 Apr'],['current','Due 19 Apr']], status:['Awaiting figures','amber'] },
+      steps:[['done','8 Apr'],['done','9 Apr'],['done','12 Apr'],['current','Due 19 Apr'],['pending']], status:['Awaiting figures','amber'] },
     { stage:'valuations', address:'Sarnie 67, Sheep Street Bicester', meta:'Test123 · Plot T123', vendor:'Deepak Rana', app:'App-2026-026',
-      steps:[['done','20 Mar'],['done','22 Mar'],['current','Overdue 2d','urgent'],['pending']], status:['Chasing agents','amber'] },
+      steps:[['done','20 Mar'],['done','22 Mar'],['current','Overdue 2d','urgent'],['pending'],['pending']], status:['Chasing agents','amber'] },
     { stage:'valuations', address:'9 Mill Garth, LS14 6PR', meta:'Brookes View 2 · Plot 9', vendor:'Hannah Price', app:'App-2026-045',
-      steps:[['done','14 Apr'],['done','15 Apr'],['current','Booking'],['pending']], status:['Booking agents','amber'] },
+      steps:[['done','14 Apr'],['done','15 Apr'],['current','Booking'],['pending'],['pending']], status:['Booking agents','amber'] },
     // ── On Market ──
     { stage:'market', address:'12 New Leeds, LS13 1EB', meta:'Brookes View 1 · Plot 1', vendor:'Deepak Kumar', app:'App-2026-038',
       listed:'18 Apr 2026', agent:'Manning Stainton', asking:'£285,000', days:'18 days', status:['Live · viewings booked','green'] },
@@ -888,7 +888,7 @@
     document.querySelectorAll('#stage-tabs .tab').forEach(t=>t.classList.toggle('active', t.dataset.stage===stage));
     const cols = COLUMNS[stage];
     document.getElementById('apps-thead').innerHTML =
-      '<tr>'+cols.map((c,i)=>'<th'+(stage==='valuations'&&i>=2&&i<6?' class="stage-col"':'')+'>'+c+'</th>').join('')+'</tr>';
+      '<tr>'+cols.map((c,i)=>'<th'+(stage==='valuations'&&i>=2&&i<7?' class="stage-col"':'')+'>'+c+'</th>').join('')+'</tr>';
     const q = (document.getElementById('app-search').value||'').trim().toLowerCase();
     const rows = APPS.filter(a=>a.stage===stage)
       .filter(a=> !q || (a.address+' '+a.vendor+' '+a.app+' '+a.meta).toLowerCase().includes(q));
