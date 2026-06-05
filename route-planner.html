@@ -13,6 +13,9 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet" />
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
 
+<!-- jsPDF — formatted route-plan PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <style>
   :root {
     --nhs-dk: #075F50;
@@ -283,7 +286,8 @@
   .rs-leg .lname { font-size: 12.5px; font-weight: 600; line-height: 1.25; }
   .rs-leg .lname small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 11px; }
   .rs-leg .ldist { font-size: 11.5px; color: var(--ink-soft); font-weight: 600; text-align: right; white-space: nowrap; }
-  .rs-actions { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); }
+  .rs-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); }
+  .rs-actions a.wide { flex: 1 1 100%; }
   .rs-actions a, .rs-actions button {
     flex: 1; text-decoration: none; text-align: center; font-family: inherit; font-size: 12px; font-weight: 700;
     padding: 9px; border-radius: 9px; cursor: pointer; border: 1.5px solid var(--border); background: #fff; color: var(--ink);
@@ -445,10 +449,14 @@
       </div>
       <div class="rs-legs" id="rs-legs"></div>
       <div class="rs-actions">
-        <a id="rs-gmaps" href="#" target="_blank" rel="noopener" class="primary">
+        <a id="rs-gmaps" href="#" target="_blank" rel="noopener" class="primary wide">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
           Open in Google Maps
         </a>
+        <button id="rs-pdf" onclick="downloadRoutePdf()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          Save PDF
+        </button>
         <button onclick="window.print()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Print
@@ -492,6 +500,7 @@ let stopSeq = 0;                 // monotonically increasing id for stop rows
 const stops = [];                // [{ id, label, query, coords:[lng,lat]|null, el }]
 let returnResolved = null;       // resolved coords for "return to other"
 let routeMarkers = [];
+let lastRoute = null;            // { route, ordered, name, mode } — for the PDF export
 
 const $ = (id) => document.getElementById(id);
 
@@ -800,6 +809,7 @@ async function fetchDirections(coordList) {
 
 // ── Draw + summarise ─────────────────────────────────────────────────
 function drawRoute(route, ordered, name, mode) {
+  lastRoute = { route, ordered, name, mode };
   $('empty-hint').style.display = 'none';
 
   // route geometry
@@ -866,6 +876,202 @@ function googleMapsUrl(ordered) {
   const gmode = profile === 'driving' ? 'driving' : (profile === 'cycling' ? 'bicycling' : 'walking');
   url += '&travelmode=' + gmode;
   return url;
+}
+
+// ── PDF export ───────────────────────────────────────────────────────
+// Formatted A4 route plan, drawn natively with jsPDF (crisp vector text)
+// plus a Mapbox Static Image of the route (reliable, unlike capturing the
+// live WebGL map). Brand palette matches the Address Finder.
+const PDF_C = {
+  dk: [7, 95, 80], dark: [5, 63, 52], soft: [107, 144, 128], gold: [201, 168, 76],
+  goldDk: [142, 116, 58], ink: [31, 61, 52], inkSoft: [90, 107, 124],
+  sage: [201, 213, 203], pale: [234, 244, 239], pale2: [244, 249, 246], border: [197, 220, 204]
+};
+
+async function downloadRoutePdf() {
+  if (!lastRoute) return;
+  if (!window.jspdf || !window.jspdf.jsPDF) { alert('PDF library failed to load — check your connection and try again.'); return; }
+
+  const btn = $('rs-pdf');
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="gen-spin" style="border-top-color:var(--ink)"></span> Building…'; }
+
+  try {
+    const { route, ordered, name, mode } = lastRoute;
+    const JsPDF = window.jspdf.jsPDF;
+    const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+    const W = 210, M = 16;
+
+    // ── Header band ──
+    pdf.setFillColor(...PDF_C.dk); pdf.rect(0, 0, W, 30, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.5);
+    pdf.text('NEW HOME', M, 13);
+    pdf.setFontSize(14); pdf.text('SOLUTIONS', M, 20.5);
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(16);
+    pdf.text('Route Plan', W - M, 14, { align: 'right' });
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF_C.sage);
+    pdf.text('Staff field tool', W - M, 20.5, { align: 'right' });
+    pdf.setFillColor(...PDF_C.gold); pdf.rect(0, 30, W, 1.3, 'F');
+
+    let y = 41;
+
+    // ── Meta row: staff / date / mode ──
+    const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const modeLabel = mode === 'start' ? 'Return to start' : (mode === 'other' ? 'Return to set address' : 'One way');
+    const meta = [
+      ['STAFF', name],
+      ['DATE', today],
+      ['TRAVEL', profile.charAt(0).toUpperCase() + profile.slice(1)],
+      ['RETURN', modeLabel]
+    ];
+    const colW = (W - 2 * M) / meta.length;
+    meta.forEach((m, i) => {
+      const x = M + i * colW;
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7); pdf.setTextColor(...PDF_C.inkSoft);
+      pdf.text(m[0], x, y);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(10.5); pdf.setTextColor(...PDF_C.ink);
+      pdf.text(String(m[1] || '—'), x, y + 5.5);
+    });
+    y += 11;
+
+    // ── Totals strip ──
+    pdf.setFillColor(...PDF_C.pale); pdf.roundedRect(M, y, W - 2 * M, 18, 2.5, 2.5, 'F');
+    const totals = [
+      [(route.distance / 1609.344).toFixed(1) + ' mi', 'total distance'],
+      [fmtDuration(route.duration), 'estimated time'],
+      [String(ordered.length), 'stops']
+    ];
+    const tW = (W - 2 * M) / totals.length;
+    totals.forEach((t, i) => {
+      const cx = M + i * tW + tW / 2;
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(15); pdf.setTextColor(...PDF_C.dk);
+      pdf.text(t[0], cx, y + 8, { align: 'center' });
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(...PDF_C.inkSoft);
+      pdf.text(t[1], cx, y + 13.5, { align: 'center' });
+      if (i < totals.length - 1) { pdf.setDrawColor(...PDF_C.border); pdf.line(M + (i + 1) * tW, y + 3, M + (i + 1) * tW, y + 15); }
+    });
+    y += 24;
+
+    // ── Static route map ──
+    const mapH = 92;
+    try {
+      const mapImg = await fetchStaticRouteMap(route, ordered, Math.round((W - 2 * M) * 4), mapH * 4);
+      if (mapImg) {
+        pdf.addImage(mapImg, 'PNG', M, y, W - 2 * M, mapH, undefined, 'FAST');
+        pdf.setDrawColor(...PDF_C.border); pdf.roundedRect(M, y, W - 2 * M, mapH, 2, 2, 'S');
+      } else { drawMapPlaceholder(pdf, M, y, W - 2 * M, mapH); }
+    } catch { drawMapPlaceholder(pdf, M, y, W - 2 * M, mapH); }
+    y += mapH + 9;
+
+    // ── Stops table ──
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8); pdf.setTextColor(...PDF_C.inkSoft);
+    pdf.text('STOPS (IN ORDER)', M, y);
+    pdf.text('LEG', W - M, y, { align: 'right' });
+    y += 2.5; pdf.setDrawColor(...PDF_C.border); pdf.line(M, y, W - M, y); y += 4;
+
+    ordered.forEach((o, i) => {
+      const rowH = 12;
+      if (i % 2 === 1) { pdf.setFillColor(...PDF_C.pale2); pdf.rect(M, y - 3, W - 2 * M, rowH, 'F'); }
+      // badge
+      const bc = o.isReturn ? PDF_C.goldDk : (o.label === 'A' ? PDF_C.dk : PDF_C.soft);
+      pdf.setFillColor(...bc); pdf.circle(M + 4, y + 2.5, 3.4, 'F');
+      pdf.setTextColor(255, 255, 255); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8.5);
+      pdf.text(o.isReturn ? 'R' : o.label, M + 4, y + 3.6, { align: 'center' });
+      // address (wrap to 2 lines)
+      const addr = pdf.splitTextToSize(String(o.name || ''), W - 2 * M - 14 - 22);
+      pdf.setTextColor(...PDF_C.ink); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.5);
+      pdf.text(addr.slice(0, 2), M + 11, y + 1.5);
+      // leg distance
+      const leg = (i > 0 && route.legs[i - 1]) ? (route.legs[i - 1].distance / 1609.344).toFixed(1) + ' mi' : 'start';
+      pdf.setTextColor(...PDF_C.inkSoft); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8.5);
+      pdf.text(leg, W - M, y + 1.5, { align: 'right' });
+      y += rowH;
+    });
+
+    // ── Footer ──
+    const fy = 285;
+    pdf.setDrawColor(...PDF_C.border); pdf.line(M, fy, W - M, fy);
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7); pdf.setTextColor(...PDF_C.inkSoft);
+    pdf.text('Generated by New Home Solutions Route Planner · staff use only', M, fy + 4);
+    pdf.text('Map © Mapbox © OpenStreetMap', W - M, fy + 4, { align: 'right' });
+
+    const safe = (s) => String(s || '').replace(/[^\w-]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').slice(0, 40);
+    pdf.save('Route_Plan_' + (safe(name) || 'staff') + '_' + new Date().toISOString().slice(0, 10) + '.pdf');
+  } catch (e) {
+    console.error('PDF generation failed:', e);
+    alert('Could not generate the PDF — ' + (e && e.message ? e.message : 'unknown error'));
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+  }
+}
+
+// Build a Mapbox Static Images URL with the route path + lettered pins, fetch
+// it, and return a data URL for jsPDF. Returns null on any failure.
+async function fetchStaticRouteMap(route, ordered, wPx, hPx) {
+  const w = Math.min(1280, Math.max(400, Math.round(wPx)));
+  const h = Math.min(1280, Math.max(300, Math.round(hPx)));
+  // simplify the line so the encoded polyline stays well under URL limits
+  let coords = route.geometry.coordinates || [];
+  if (coords.length > 100) {
+    const step = Math.ceil(coords.length / 100);
+    const reduced = coords.filter((_, i) => i % step === 0);
+    if (reduced[reduced.length - 1] !== coords[coords.length - 1]) reduced.push(coords[coords.length - 1]);
+    coords = reduced;
+  }
+  const path = 'path-4+075f50-0.85(' + encodeURIComponent(encodePolyline(coords)) + ')';
+
+  // one pin per distinct stop (dedupe so a return-to-start doesn't double up)
+  const seen = new Set();
+  const pins = [];
+  ordered.forEach(o => {
+    const key = o.coords[0].toFixed(5) + ',' + o.coords[1].toFixed(5);
+    if (seen.has(key)) return;
+    seen.add(key);
+    const colour = o.isReturn ? '8e743a' : (o.label === 'A' ? '075f50' : '6b9080');
+    const lbl = (o.isReturn ? 'r' : String(o.label).toLowerCase()).slice(0, 1);
+    pins.push('pin-s-' + lbl + '+' + colour + '(' + o.coords[0].toFixed(5) + ',' + o.coords[1].toFixed(5) + ')');
+  });
+
+  const overlay = [path].concat(pins).join(',');
+  const url = 'https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/'
+    + overlay + '/auto/' + w + 'x' + h
+    + '?padding=40&access_token=' + MAPBOX_TOKEN;
+  if (url.length > 8100) return null;             // bail rather than send a too-long URL
+
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const blob = await res.blob();
+  return await new Promise((resolve) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => resolve(null);
+    r.readAsDataURL(blob);
+  });
+}
+
+function drawMapPlaceholder(pdf, x, y, w, h) {
+  pdf.setFillColor(...PDF_C.pale2); pdf.roundedRect(x, y, w, h, 2, 2, 'F');
+  pdf.setDrawColor(...PDF_C.border); pdf.roundedRect(x, y, w, h, 2, 2, 'S');
+  pdf.setTextColor(...PDF_C.inkSoft); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9);
+  pdf.text('Map preview unavailable — see the on-screen map or Google Maps link.', x + w / 2, y + h / 2, { align: 'center' });
+}
+
+// Google/Mapbox polyline encoding (precision 5). coords are [lng, lat].
+function encodePolyline(coords) {
+  let lastLat = 0, lastLng = 0, out = '';
+  const enc = (v) => {
+    let num = v < 0 ? ~(v << 1) : (v << 1), s = '';
+    while (num >= 0x20) { s += String.fromCharCode((0x20 | (num & 0x1f)) + 63); num >>= 5; }
+    s += String.fromCharCode(num + 63);
+    return s;
+  };
+  for (const [lng, lat] of coords) {
+    const la = Math.round(lat * 1e5), ln = Math.round(lng * 1e5);
+    out += enc(la - lastLat) + enc(ln - lastLng);
+    lastLat = la; lastLng = ln;
+  }
+  return out;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
