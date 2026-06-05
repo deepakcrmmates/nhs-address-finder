@@ -882,11 +882,23 @@ function googleMapsUrl(ordered) {
 // Formatted A4 route plan, drawn natively with jsPDF (crisp vector text)
 // plus a Mapbox Static Image of the route (reliable, unlike capturing the
 // live WebGL map). Brand palette matches the Address Finder.
+// Brand palette per the document spec (sage — NOT the legacy #075F50 teal),
+// matching scripts/generate_technical_document_pdf.py.
 const PDF_C = {
-  dk: [7, 95, 80], dark: [5, 63, 52], soft: [107, 144, 128], gold: [201, 168, 76],
-  goldDk: [142, 116, 58], ink: [31, 61, 52], inkSoft: [90, 107, 124],
-  sage: [201, 213, 203], pale: [234, 244, 239], pale2: [244, 249, 246], border: [197, 220, 204]
+  dk: [74, 107, 94],     // #4A6B5E Sage Dark
+  mid: [107, 144, 128],  // #6B9080 Sage
+  sage: [201, 213, 203], // #C9D5CB Sage Background
+  pale: [234, 244, 239], // #EAF4EF Sage Tint
+  pale2: [244, 249, 246],// #F4F9F6
+  border: [197, 220, 204],// #C5DCCC
+  ink: [13, 30, 74],     // #0D1E4A Navy (values/headings)
+  muted: [107, 114, 128],// #6B7280
+  amber: [122, 90, 0]    // #7A5A00 (accent / return leg)
 };
+
+const PDF = { W: 210, H: 297, LM: 18, RM: 16, SPINE: 8 };
+PDF.CW = PDF.W - PDF.LM - PDF.RM;     // content width
+PDF.RIGHT = PDF.W - PDF.RM;
 
 async function downloadRoutePdf() {
   if (!lastRoute) return;
@@ -900,102 +912,125 @@ async function downloadRoutePdf() {
     const { route, ordered, name, mode } = lastRoute;
     const JsPDF = window.jspdf.jsPDF;
     const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
-    const W = 210, M = 16;
+    const { W, LM, RM, CW, RIGHT } = PDF;
 
-    // ── Header band ──
-    pdf.setFillColor(...PDF_C.dk); pdf.rect(0, 0, W, 30, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.5);
-    pdf.text('NEW HOME', M, 13);
-    pdf.setFontSize(14); pdf.text('SOLUTIONS', M, 20.5);
-    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(16);
-    pdf.text('Route Plan', W - M, 14, { align: 'right' });
-    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF_C.sage);
-    pdf.text('Staff field tool', W - M, 20.5, { align: 'right' });
-    pdf.setFillColor(...PDF_C.gold); pdf.rect(0, 30, W, 1.3, 'F');
+    // ── Page chrome: left brand spine + dark footer bar (drawn per page) ──
+    const drawFooter = () => {
+      const by = PDF.H - 12;
+      pdf.setFillColor(...PDF_C.dk); pdf.rect(PDF.SPINE, by, W - PDF.SPINE, 12, 'F');
+      pdf.setTextColor(255, 255, 255); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8);
+      pdf.text('New Home Solutions — Route Planner', LM, by + 5);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7); pdf.setTextColor(...PDF_C.sage);
+      pdf.text('Staff use only', LM, by + 8.8);
+      pdf.text('Map © Mapbox © OpenStreetMap', RIGHT, by + 7, { align: 'right' });
+    };
+    const drawSpine = () => { pdf.setFillColor(...PDF_C.dk); pdf.rect(0, 0, PDF.SPINE, PDF.H, 'F'); };
+    drawSpine();
 
-    let y = 41;
+    // ── Header band (light sage, per brand spec) ──
+    pdf.setFillColor(...PDF_C.sage); pdf.rect(PDF.SPINE, 0, W - PDF.SPINE, 30, 'F');
+    pdf.setTextColor(...PDF_C.dk); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(15);
+    pdf.text('NEW HOME SOLUTIONS', LM, 14);
+    pdf.setDrawColor(...PDF_C.dk); pdf.setLineWidth(0.5); pdf.line(LM, 16.5, LM + 78, 16.5);
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF_C.muted);
+    pdf.text('Part Exchange & Assisted Move Specialists', LM, 21.5);
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(16); pdf.setTextColor(...PDF_C.dk);
+    pdf.text('Route Plan', RIGHT, 13, { align: 'right' });
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF_C.muted);
+    pdf.text('Staff field tool', RIGHT, 19, { align: 'right' });
 
-    // ── Meta row: staff / date / mode ──
+    let y = 39;
+
+    // ── Meta row: framed key/value cells (staff / date / travel / return) ──
     const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     const modeLabel = mode === 'start' ? 'Return to start' : (mode === 'other' ? 'Return to set address' : 'One way');
     const meta = [
-      ['STAFF', name],
-      ['DATE', today],
-      ['TRAVEL', profile.charAt(0).toUpperCase() + profile.slice(1)],
-      ['RETURN', modeLabel]
+      ['STAFF', name], ['DATE', today],
+      ['TRAVEL', profile.charAt(0).toUpperCase() + profile.slice(1)], ['RETURN', modeLabel]
     ];
-    const colW = (W - 2 * M) / meta.length;
+    const mh = 12, colW = CW / meta.length;
     meta.forEach((m, i) => {
-      const x = M + i * colW;
-      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7); pdf.setTextColor(...PDF_C.inkSoft);
-      pdf.text(m[0], x, y);
-      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(10.5); pdf.setTextColor(...PDF_C.ink);
-      pdf.text(String(m[1] || '—'), x, y + 5.5);
+      const x = LM + i * colW;
+      pdf.setFillColor(...PDF_C.pale); pdf.rect(x, y, colW - 2, 4.6, 'F');
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(6.8); pdf.setTextColor(...PDF_C.dk);
+      pdf.text(m[0], x + 2.5, y + 3.2);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(10); pdf.setTextColor(...PDF_C.ink);
+      pdf.text(pdf.splitTextToSize(String(m[1] || '—'), colW - 4)[0], x + 2.5, y + 9.6);
     });
-    y += 11;
+    pdf.setDrawColor(...PDF_C.border); pdf.setLineWidth(0.3);
+    pdf.rect(LM, y, CW, mh, 'S');
+    y += mh + 6;
 
     // ── Totals strip ──
-    pdf.setFillColor(...PDF_C.pale); pdf.roundedRect(M, y, W - 2 * M, 18, 2.5, 2.5, 'F');
+    pdf.setFillColor(...PDF_C.pale); pdf.setDrawColor(...PDF_C.border); pdf.setLineWidth(0.3);
+    pdf.roundedRect(LM, y, CW, 18, 2, 2, 'FD');
     const totals = [
       [(route.distance / 1609.344).toFixed(1) + ' mi', 'total distance'],
       [fmtDuration(route.duration), 'estimated time'],
       [String(ordered.length), 'stops']
     ];
-    const tW = (W - 2 * M) / totals.length;
+    const tW = CW / totals.length;
     totals.forEach((t, i) => {
-      const cx = M + i * tW + tW / 2;
+      const cx = LM + i * tW + tW / 2;
       pdf.setFont('helvetica', 'bold'); pdf.setFontSize(15); pdf.setTextColor(...PDF_C.dk);
       pdf.text(t[0], cx, y + 8, { align: 'center' });
-      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(...PDF_C.inkSoft);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(...PDF_C.muted);
       pdf.text(t[1], cx, y + 13.5, { align: 'center' });
-      if (i < totals.length - 1) { pdf.setDrawColor(...PDF_C.border); pdf.line(M + (i + 1) * tW, y + 3, M + (i + 1) * tW, y + 15); }
+      if (i > 0) { pdf.setDrawColor(...PDF_C.border); pdf.line(LM + i * tW, y + 3, LM + i * tW, y + 15); }
     });
     y += 24;
 
     // ── Static route map ──
-    const mapH = 92;
+    const mapH = 82;
     try {
-      const mapImg = await fetchStaticRouteMap(route, ordered, Math.round((W - 2 * M) * 4), mapH * 4);
+      const mapImg = await fetchStaticRouteMap(route, ordered, Math.round(CW * 4), Math.round(mapH * 4));
       if (mapImg) {
-        pdf.addImage(mapImg, 'PNG', M, y, W - 2 * M, mapH, undefined, 'FAST');
-        pdf.setDrawColor(...PDF_C.border); pdf.roundedRect(M, y, W - 2 * M, mapH, 2, 2, 'S');
-      } else { drawMapPlaceholder(pdf, M, y, W - 2 * M, mapH); }
-    } catch { drawMapPlaceholder(pdf, M, y, W - 2 * M, mapH); }
-    y += mapH + 9;
+        pdf.addImage(mapImg, 'PNG', LM, y, CW, mapH, undefined, 'FAST');
+        pdf.setDrawColor(...PDF_C.border); pdf.setLineWidth(0.3); pdf.roundedRect(LM, y, CW, mapH, 2, 2, 'S');
+      } else { drawMapPlaceholder(pdf, LM, y, CW, mapH); }
+    } catch { drawMapPlaceholder(pdf, LM, y, CW, mapH); }
+    y += mapH + 8;
 
-    // ── Stops table ──
-    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8); pdf.setTextColor(...PDF_C.inkSoft);
-    pdf.text('STOPS (IN ORDER)', M, y);
-    pdf.text('LEG', W - M, y, { align: 'right' });
-    y += 2.5; pdf.setDrawColor(...PDF_C.border); pdf.line(M, y, W - M, y); y += 4;
+    // ── Stops — framed cards (A, B, C …) ──
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8); pdf.setTextColor(...PDF_C.dk);
+    pdf.text('STOPS (IN ORDER)', LM, y);
+    pdf.setTextColor(...PDF_C.muted); pdf.setFont('helvetica', 'normal');
+    pdf.text('leg distance →', RIGHT, y, { align: 'right' });
+    y += 4;
 
+    const cardH = 12, gap = 2, pitch = cardH + gap, pageBottom = PDF.H - 16;
     ordered.forEach((o, i) => {
-      const rowH = 12;
-      if (i % 2 === 1) { pdf.setFillColor(...PDF_C.pale2); pdf.rect(M, y - 3, W - 2 * M, rowH, 'F'); }
+      if (y + cardH > pageBottom) {            // overflow → new page
+        drawFooter(); pdf.addPage(); drawSpine(); y = 20;
+      }
+      // frame
+      pdf.setFillColor(...PDF_C.pale2); pdf.setDrawColor(...PDF_C.border); pdf.setLineWidth(0.3);
+      pdf.roundedRect(LM, y, CW, cardH, 1.8, 1.8, 'FD');
+      const midY = y + cardH / 2;
       // badge
-      const bc = o.isReturn ? PDF_C.goldDk : (o.label === 'A' ? PDF_C.dk : PDF_C.soft);
-      pdf.setFillColor(...bc); pdf.circle(M + 4, y + 2.5, 3.4, 'F');
-      pdf.setTextColor(255, 255, 255); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8.5);
-      pdf.text(o.isReturn ? 'R' : o.label, M + 4, y + 3.6, { align: 'center' });
-      // address (wrap to 2 lines)
-      const addr = pdf.splitTextToSize(String(o.name || ''), W - 2 * M - 14 - 22);
-      pdf.setTextColor(...PDF_C.ink); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.5);
-      pdf.text(addr.slice(0, 2), M + 11, y + 1.5);
-      // leg distance
-      const leg = (i > 0 && route.legs[i - 1]) ? (route.legs[i - 1].distance / 1609.344).toFixed(1) + ' mi' : 'start';
-      pdf.setTextColor(...PDF_C.inkSoft); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8.5);
-      pdf.text(leg, W - M, y + 1.5, { align: 'right' });
-      y += rowH;
+      const bc = o.isReturn ? PDF_C.amber : (o.label === 'A' ? PDF_C.dk : PDF_C.mid);
+      pdf.setFillColor(...bc); pdf.circle(LM + 7, midY, 3.6, 'F');
+      pdf.setTextColor(255, 255, 255); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(9);
+      pdf.text(o.isReturn ? 'R' : o.label, LM + 7, midY + 1.15, { align: 'center' });
+      // address — bold first line + muted remainder
+      const main = firstLine(o.name), sub = restLine(o.name);
+      const tx = LM + 14, availW = CW - 14 - 24;
+      pdf.setTextColor(...PDF_C.ink); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(9.5);
+      pdf.text(pdf.splitTextToSize(main, availW)[0], tx, sub ? midY - 0.6 : midY + 1.2);
+      if (sub) {
+        pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.6); pdf.setTextColor(...PDF_C.muted);
+        pdf.text(pdf.splitTextToSize(sub, availW)[0], tx, midY + 3.4);
+      }
+      // leg-distance pill
+      const leg = (i > 0 && route.legs[i - 1]) ? (route.legs[i - 1].distance / 1609.344).toFixed(1) + ' mi' : 'START';
+      const pillW = 19, pillX = LM + CW - pillW - 3, pillY = midY - 3;
+      pdf.setFillColor(...PDF_C.pale); pdf.roundedRect(pillX, pillY, pillW, 6, 3, 3, 'F');
+      pdf.setTextColor(...PDF_C.dk); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7.5);
+      pdf.text(leg, pillX + pillW / 2, pillY + 4, { align: 'center' });
+      y += pitch;
     });
 
-    // ── Footer ──
-    const fy = 285;
-    pdf.setDrawColor(...PDF_C.border); pdf.line(M, fy, W - M, fy);
-    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7); pdf.setTextColor(...PDF_C.inkSoft);
-    pdf.text('Generated by New Home Solutions Route Planner · staff use only', M, fy + 4);
-    pdf.text('Map © Mapbox © OpenStreetMap', W - M, fy + 4, { align: 'right' });
-
+    drawFooter();
     const safe = (s) => String(s || '').replace(/[^\w-]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').slice(0, 40);
     pdf.save('Route_Plan_' + (safe(name) || 'staff') + '_' + new Date().toISOString().slice(0, 10) + '.pdf');
   } catch (e) {
@@ -1019,7 +1054,7 @@ async function fetchStaticRouteMap(route, ordered, wPx, hPx) {
     if (reduced[reduced.length - 1] !== coords[coords.length - 1]) reduced.push(coords[coords.length - 1]);
     coords = reduced;
   }
-  const path = 'path-4+075f50-0.85(' + encodeURIComponent(encodePolyline(coords)) + ')';
+  const path = 'path-4+4a6b5e-0.85(' + encodeURIComponent(encodePolyline(coords)) + ')';
 
   // one pin per distinct stop (dedupe so a return-to-start doesn't double up)
   const seen = new Set();
@@ -1028,7 +1063,7 @@ async function fetchStaticRouteMap(route, ordered, wPx, hPx) {
     const key = o.coords[0].toFixed(5) + ',' + o.coords[1].toFixed(5);
     if (seen.has(key)) return;
     seen.add(key);
-    const colour = o.isReturn ? '8e743a' : (o.label === 'A' ? '075f50' : '6b9080');
+    const colour = o.isReturn ? '7a5a00' : (o.label === 'A' ? '4a6b5e' : '6b9080');
     const lbl = (o.isReturn ? 'r' : String(o.label).toLowerCase()).slice(0, 1);
     pins.push('pin-s-' + lbl + '+' + colour + '(' + o.coords[0].toFixed(5) + ',' + o.coords[1].toFixed(5) + ')');
   });
@@ -1053,7 +1088,7 @@ async function fetchStaticRouteMap(route, ordered, wPx, hPx) {
 function drawMapPlaceholder(pdf, x, y, w, h) {
   pdf.setFillColor(...PDF_C.pale2); pdf.roundedRect(x, y, w, h, 2, 2, 'F');
   pdf.setDrawColor(...PDF_C.border); pdf.roundedRect(x, y, w, h, 2, 2, 'S');
-  pdf.setTextColor(...PDF_C.inkSoft); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9);
+  pdf.setTextColor(...PDF_C.muted); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9);
   pdf.text('Map preview unavailable — see the on-screen map or Google Maps link.', x + w / 2, y + h / 2, { align: 'center' });
 }
 
