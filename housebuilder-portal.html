@@ -105,7 +105,7 @@
   /* ═══ TABS ═══ */
   .tabs{
     background:#fff;border-bottom:1px solid var(--divider);
-    padding:0 32px;display:flex;gap:4px;
+    padding:0 32px;display:flex;gap:4px;justify-content:center;
     box-shadow:var(--shadow-sm);
     position:sticky;top:59px;z-index:90;
   }
@@ -122,6 +122,24 @@
     font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;
   }
   .tab.active .tab-count{background:var(--nhs-dk);color:#fff}
+  /* Valuations sub-tabs */
+  .subtabs{
+    background:var(--nhs-pale-2,#F4F9F6);border-bottom:1px solid var(--divider);
+    padding:10px 32px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+    position:sticky;top:104px;z-index:88;
+  }
+  .subtab{
+    background:#fff;border:1.5px solid var(--border,#DDE5E1);border-radius:20px;
+    padding:6px 14px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted,#5A6B7C);
+    cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:7px;
+  }
+  .subtab:hover{background:var(--nhs-pale,#EAF4EF);border-color:var(--nhs-soft,#6B9080)}
+  .subtab.active{background:var(--nhs-dk,#075F50);color:#fff;border-color:var(--nhs-dk,#075F50)}
+  .subtab .c{
+    background:var(--nhs-pale,#EAF4EF);color:var(--nhs-dk,#075F50);
+    font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:9px;
+  }
+  .subtab.active .c{background:rgba(255,255,255,0.22);color:#fff}
 
   /* ═══ CONTAINER ═══ */
   .container{max-width:1400px;margin:0 auto;padding:22px 32px 48px}
@@ -539,6 +557,14 @@
   </button>
 </div>
 
+<!-- ═══ VALUATIONS SUB-TABS (shown only on the Valuations tab) ═══ -->
+<div class="subtabs" id="val-subtabs">
+  <button class="subtab active" data-sub="ongoing">Ongoing <span class="c">3</span></button>
+  <button class="subtab" data-sub="historic">Historic / Returned <span class="c">2</span></button>
+  <button class="subtab" data-sub="instructed">Instructed <span class="c">1</span></button>
+  <button class="subtab" data-sub="lost">Lost Opportunities <span class="c">2</span></button>
+</div>
+
 <div class="container">
 
   <!-- ═══ OVERVIEW VIEW ═══ -->
@@ -832,11 +858,24 @@
   const APPS = [
     // ── Valuations (pipeline) ──
     { stage:'valuations', address:'555 Tong Rd, LS12 5AT', meta:'The View · Plot 5', vendor:'Jordan Edmondson', app:'App-2026-042',
-      steps:[['done','8 Apr'],['done','9 Apr'],['done','12 Apr'],['current','Due 19 Apr'],['pending']], status:['Awaiting figures','amber'] },
+      steps:[['done','8 Apr'],['done','9 Apr'],['done','12 Apr'],['current','Due 19 Apr'],['pending']], status:['Awaiting figures','amber'], sub:'ongoing' },
     { stage:'valuations', address:'Sarnie 67, Sheep Street Bicester', meta:'Test123 · Plot T123', vendor:'Deepak Rana', app:'App-2026-026',
-      steps:[['done','20 Mar'],['done','22 Mar'],['current','Overdue 2d','urgent'],['pending'],['pending']], status:['Chasing agents','amber'] },
+      steps:[['done','20 Mar'],['done','22 Mar'],['current','Overdue 2d','urgent'],['pending'],['pending']], status:['Chasing agents','amber'], sub:'ongoing' },
     { stage:'valuations', address:'9 Mill Garth, LS14 6PR', meta:'Brookes View 2 · Plot 9', vendor:'Hannah Price', app:'App-2026-045',
-      steps:[['done','14 Apr'],['done','15 Apr'],['current','Booking'],['pending'],['pending']], status:['Booking agents','amber'] },
+      steps:[['done','14 Apr'],['done','15 Apr'],['current','Booking'],['pending'],['pending']], status:['Booking agents','amber'], sub:'ongoing' },
+    // ── Valuations · Historic / Returned (figures all in) ──
+    { stage:'valuations', address:'88 Park Lane, LS8 1AB', meta:'The View · Plot 14', vendor:'Grace Thornton', app:'App-2026-019', sub:'historic',
+      steps:[['done','2 Mar'],['done','3 Mar'],['done','6 Mar'],['done','11 Mar'],['done','16 Mar']], status:['Recommendation sent','green'] },
+    { stage:'valuations', address:'14 Oakwood Grove, LS9 7TT', meta:'Brookes View 2 · Plot 4', vendor:'Daniel Carter', app:'App-2026-015', sub:'historic',
+      steps:[['done','24 Feb'],['done','26 Feb'],['done','1 Mar'],['done','6 Mar'],['done','10 Mar']], status:['Figures returned','green'] },
+    // ── Valuations · Instructed (agent instructed to market) ──
+    { stage:'valuations', address:'5 Beech Court, LS16 5DP', meta:'Riverside · Plot 11', vendor:'Aisha Khan', app:'App-2026-021', sub:'instructed',
+      steps:[['done','4 Mar'],['done','5 Mar'],['done','9 Mar'],['done','14 Mar'],['done','19 Mar']], status:['Instructed · Manning Stainton','blue'] },
+    // ── Valuations · Lost Opportunities ──
+    { stage:'valuations', address:'30 Elm Road, LS11 8QE', meta:'The View · Plot 2', vendor:'Robert Field', app:'App-2026-011', sub:'lost',
+      steps:[['done','12 Feb'],['done','14 Feb'],['done','18 Feb'],['pending'],['pending']], status:['Vendor withdrew','red'] },
+    { stage:'valuations', address:'2 Cedar Close, LS27 0HH', meta:'Brookes View 1 · Plot 6', vendor:'Megan Lewis', app:'App-2026-008', sub:'lost',
+      steps:[['done','5 Feb'],['done','7 Feb'],['pending'],['pending'],['pending']], status:['Sold privately','grey'] },
     // ── On Market ──
     { stage:'market', address:'12 New Leeds, LS13 1EB', meta:'Brookes View 1 · Plot 1', vendor:'Deepak Kumar', app:'App-2026-038',
       listed:'18 Apr 2026', agent:'Manning Stainton', asking:'£285,000', days:'18 days', status:['Live · viewings booked','green'] },
@@ -858,7 +897,8 @@
 
   const PILL = {
     amber:['#FFF8E7','#8E743A','#EAD9A8'], green:['#DCFCE7','#15803D','#BBF7D0'],
-    blue:['#DCEAF1','#2C5475','#BCD7E8'], sage:['#EAF4EF','#075F50','#C5DCCC']
+    blue:['#DCEAF1','#2C5475','#BCD7E8'], sage:['#EAF4EF','#075F50','#C5DCCC'],
+    red:['#FCEAE6','#B8341F','#F0C5BC'], grey:['#F1F5F9','#64748B','#E2E8F0']
   };
   function pill(s){ const c = PILL[s[1]] || PILL.sage;
     return '<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[2]+';white-space:nowrap">'+s[0]+'</span>'; }
@@ -882,26 +922,42 @@
   }
 
   let currentStage = 'valuations';
+  let currentSub = 'ongoing';
+  const SUB_NAMES = { ongoing:'Ongoing', historic:'Historic / Returned', instructed:'Instructed', lost:'Lost Opportunities' };
 
   function render(stage){
     currentStage = stage;
+    const isVal = stage === 'valuations';
     document.querySelectorAll('#stage-tabs .tab').forEach(t=>t.classList.toggle('active', t.dataset.stage===stage));
+    // Sub-tabs show only on Valuations
+    document.getElementById('val-subtabs').style.display = isVal ? 'flex' : 'none';
+    if (isVal){
+      document.querySelectorAll('#val-subtabs .subtab').forEach(st=>{
+        st.classList.toggle('active', st.dataset.sub === currentSub);
+        const c = st.querySelector('.c');
+        if (c) c.textContent = APPS.filter(a=>a.stage==='valuations' && a.sub===st.dataset.sub).length;
+      });
+    }
     const cols = COLUMNS[stage];
     document.getElementById('apps-thead').innerHTML =
-      '<tr>'+cols.map((c,i)=>'<th'+(stage==='valuations'&&i>=2&&i<7?' class="stage-col"':'')+'>'+c+'</th>').join('')+'</tr>';
+      '<tr>'+cols.map((c,i)=>'<th'+(isVal&&i>=2&&i<7?' class="stage-col"':'')+'>'+c+'</th>').join('')+'</tr>';
     const q = (document.getElementById('app-search').value||'').trim().toLowerCase();
-    const rows = APPS.filter(a=>a.stage===stage)
-      .filter(a=> !q || (a.address+' '+a.vendor+' '+a.app+' '+a.meta).toLowerCase().includes(q));
+    let pool = APPS.filter(a=>a.stage===stage);
+    if (isVal) pool = pool.filter(a=>a.sub===currentSub);
+    const rows = pool.filter(a=> !q || (a.address+' '+a.vendor+' '+a.app+' '+a.meta).toLowerCase().includes(q));
     document.getElementById('apps-tbody').innerHTML = rows.length
       ? rows.map(rowHtml).join('')
-      : '<tr><td colspan="'+cols.length+'" style="text-align:center;padding:34px;color:#9AA8A2">No applications in this stage'+(q?' matching that search':'')+'</td></tr>';
+      : '<tr><td colspan="'+cols.length+'" style="text-align:center;padding:34px;color:#9AA8A2">No applications here'+(q?' matching that search':'')+'</td></tr>';
     const cap = document.getElementById('stage-caption-name');
-    if (cap) cap.textContent = STAGE_NAMES[stage]+' ('+rows.length+')';
-    document.getElementById('stage-legend').style.display = stage==='valuations' ? 'flex' : 'none';
+    if (cap) cap.textContent = (isVal ? SUB_NAMES[currentSub] : STAGE_NAMES[stage]) + ' ('+rows.length+')';
+    document.getElementById('stage-legend').style.display = isVal ? 'flex' : 'none';
   }
 
   document.querySelectorAll('#stage-tabs .tab').forEach(tab=>{
     tab.addEventListener('click', ()=>render(tab.dataset.stage));
+  });
+  document.querySelectorAll('#val-subtabs .subtab').forEach(st=>{
+    st.addEventListener('click', ()=>{ currentSub = st.dataset.sub; render('valuations'); });
   });
   document.getElementById('app-search').addEventListener('input', ()=>render(currentStage));
 
@@ -910,12 +966,14 @@
     document.getElementById('view-overview').classList.remove('active');
     document.getElementById('view-detail').classList.add('active');
     document.getElementById('stage-tabs').style.display = 'none';
+    document.getElementById('val-subtabs').style.display = 'none';
     window.scrollTo({top:0,behavior:'smooth'});
   }
   function closeDetail(){
     document.getElementById('view-detail').classList.remove('active');
     document.getElementById('view-overview').classList.add('active');
     document.getElementById('stage-tabs').style.display = '';
+    render(currentStage);   // restores the table + sub-tab visibility
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
