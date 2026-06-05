@@ -116,33 +116,33 @@
     transition:all 0.15s;display:flex;align-items:center;gap:8px;
   }
   .tab:hover{color:var(--nhs-dk)}
-  .tab.active{color:var(--nhs-dk);border-bottom-color:var(--nhs-dk)}
+  .tab.active{color:#fff;background:var(--nhs-dk);border-bottom-color:transparent;border-radius:9px 9px 0 0}
   .tab-count{
     background:var(--nhs-pale);color:var(--nhs-dk);
     font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;
   }
-  .tab.active .tab-count{background:var(--nhs-dk);color:#fff}
+  .tab.active .tab-count{background:rgba(255,255,255,0.22);color:#fff}
   /* Valuations sub-tabs — second tier of the SAME tab bar.
      When sub-tabs are showing, the main tab row drops its divider/shadow so
      the two rows merge into one elevated white bar. */
   .tabs.has-subtabs{ border-bottom-color:transparent; box-shadow:none; }
   .subtabs{
-    background:#fff;border-bottom:1px solid var(--divider);box-shadow:var(--shadow-sm);
-    padding:1px 32px 11px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+    background:var(--nhs-dk,#075F50);border-bottom:none;box-shadow:0 2px 6px rgba(7,95,80,0.18);
+    padding:10px 32px 12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
     position:sticky;top:104px;z-index:88;
   }
   .subtab{
-    background:var(--nhs-pale-2,#F4F9F6);border:1.5px solid var(--border,#DDE5E1);border-radius:20px;
-    padding:5px 13px;font-family:inherit;font-size:12px;font-weight:600;color:var(--muted,#5A6B7C);
+    background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);border-radius:20px;
+    padding:5px 13px;font-family:inherit;font-size:12px;font-weight:600;color:#EAF4EF;
     cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:7px;
   }
-  .subtab:hover{background:var(--nhs-pale,#EAF4EF);border-color:var(--nhs-soft,#6B9080)}
-  .subtab.active{background:var(--nhs-dk,#075F50);color:#fff;border-color:var(--nhs-dk,#075F50)}
+  .subtab:hover{background:rgba(255,255,255,0.20)}
+  .subtab.active{background:#fff;color:var(--nhs-dk,#075F50);border-color:#fff}
   .subtab .c{
-    background:var(--nhs-pale,#EAF4EF);color:var(--nhs-dk,#075F50);
+    background:rgba(255,255,255,0.18);color:#fff;
     font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:9px;
   }
-  .subtab.active .c{background:rgba(255,255,255,0.22);color:#fff}
+  .subtab.active .c{background:var(--nhs-pale,#EAF4EF);color:var(--nhs-dk,#075F50)}
 
   /* ═══ CONTAINER ═══ */
   .container{max-width:1400px;margin:0 auto;padding:22px 32px 48px}
