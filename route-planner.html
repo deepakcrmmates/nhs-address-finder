@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Route Planner — New Home Solutions (staff)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+<!-- Mapbox GL JS — map rendering + Directions / Geocoding APIs -->
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
+
+<style>
+  :root {
+    --nhs-dk: #075F50;
+    --nhs-dark: #053f34;
+    --nhs-mid: #4A6B5E;
+    --nhs-soft: #6B9080;
+    --nhs-sage: #C9D5CB;
+    --nhs-pale: #EAF4EF;
+    --nhs-pale-2: #F4F9F6;
+    --nhs-border: #C5DCCC;
+    --gold: #C9A84C;
+    --gold-tint: #FFF8E7;
+    --gold-dark: #8E743A;
+    --blue: #4682A9;
+    --blue-tint: #DCEAF1;
+    --blue-dark: #2C5475;
+    --red: #B8341F;
+    --red-tint: #FCEAE6;
+    --green-ok: #15803D;
+    --green-tint: #DCFCE7;
+    --ink: #1F3D34;
+    --ink-soft: #5A6B7C;
+    --ink-mute: #9AA8A2;
+    --border: #DDE5E1;
+    --bg: #F7FAF8;
+    --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 6px 16px rgba(15,23,42,0.04);
+    --shadow-lift: 0 12px 36px rgba(15,23,42,0.14), 0 4px 12px rgba(15,23,42,0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── App bar — typographic NHS logo (matches index.html branding) ── */
+  header.appbar {
+    background: var(--nhs-dk);
+    color: #fff;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: sticky; top: 0; z-index: 50;
+  }
+  header.appbar .brand { display: flex; align-items: center; gap: 18px; }
+  .nhs-wordmark {
+    font-family: 'Futura LT Light', 'Futura', 'Futura LT', 'ITC Futura',
+                 'Century Gothic', 'Avenir Next', 'Avenir', 'Trebuchet MS', sans-serif;
+    font-weight: 300; font-size: 20px; line-height: 1; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #fff;
+    display: inline-flex; flex-direction: column; gap: 4px;
+  }
+  .nhs-wordmark .wm-row-1 { font-size: 16px; opacity: 0.92; }
+  .nhs-wordmark .wm-row-2 { font-size: 20px; font-weight: 300; }
+  header.appbar .brand-divider { width: 1px; height: 34px; background: rgba(255,255,255,0.22); }
+  header.appbar .brand-text { line-height: 1.25; }
+  header.appbar .brand-text .title { font-size: 14px; font-weight: 700; }
+  header.appbar .brand-meta { font-size: 10.5px; opacity: 0.75; font-weight: 500; margin-top: 2px; letter-spacing: 0.08em; text-transform: uppercase; }
+  header.appbar .right-actions { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+  header.appbar .right-actions a {
+    color: #EAF4EF; text-decoration: none; font-weight: 600;
+    padding: 7px 13px; border-radius: 8px; transition: background .15s, color .15s;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  header.appbar .right-actions a:hover { background: rgba(255,255,255,0.10); color: #fff; }
+  header.appbar .right-actions a svg { width: 15px; height: 15px; }
+
+  /* ── Staff banner ── */
+  .staff-strip {
+    background: var(--gold-tint); border-bottom: 1px solid #EAD9A8;
+    color: var(--gold-dark); font-size: 12px; font-weight: 600;
+    padding: 8px 28px; display: flex; align-items: center; gap: 9px;
+    letter-spacing: 0.02em;
+  }
+  .staff-strip svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  /* ── Layout: form panel + map ── */
+  .planner {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    min-height: calc(100vh - 52px - 35px);
+  }
+  @media (max-width: 940px) { .planner { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: #fff; border-right: 1px solid var(--border);
+    padding: 24px 22px 32px; overflow-y: auto;
+  }
+  .panel h1 { font-size: 19px; font-weight: 800; margin: 0 0 3px; letter-spacing: -0.01em; }
+  .panel .lede { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 20px; }
+
+  .field { margin-bottom: 16px; }
+  .field > label {
+    display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 6px;
+  }
+  .inp {
+    width: 100%; padding: 11px 13px; font-size: 14px; font-family: inherit;
+    border: 1.5px solid var(--border); border-radius: 10px; background: var(--nhs-pale-2);
+    color: var(--ink); transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .inp:focus {
+    outline: none; border-color: var(--nhs-soft); background: #fff;
+    box-shadow: 0 0 0 3px rgba(107,144,128,0.15);
+  }
+  .inp::placeholder { color: var(--ink-mute); }
+
+  /* ── Stop rows ── */
+  .stops-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 4px 0 8px;
+  }
+  .stops-head .lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+
+  .stop {
+    position: relative; display: grid; grid-template-columns: 30px 1fr 28px;
+    gap: 9px; align-items: center; margin-bottom: 9px;
+  }
+  .stop .badge {
+    width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    font-weight: 800; font-size: 13px; color: #fff; background: var(--nhs-soft);
+    flex-shrink: 0;
+  }
+  .stop.is-start .badge { background: var(--nhs-dk); }
+  .stop.is-return .badge { background: var(--gold-dark); }
+  .stop .inp-wrap { position: relative; }
+  .stop .geo-ok {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--green-ok); display: none;
+  }
+  .stop.resolved .geo-ok { display: block; }
+  .stop.resolved .inp { padding-right: 32px; border-color: var(--nhs-border); background: var(--green-tint); }
+  .stop .rm {
+    width: 28px; height: 28px; border-radius: 8px; border: none; cursor: pointer;
+    background: transparent; color: var(--ink-mute); display: grid; place-items: center;
+    transition: background .15s, color .15s;
+  }
+  .stop .rm:hover { background: var(--red-tint); color: var(--red); }
+  .stop .rm svg { width: 16px; height: 16px; }
+  .stop .rm[disabled] { opacity: 0; pointer-events: none; }
+
+  /* ── Geocoder suggestion dropdown ── */
+  .suggest {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30;
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: var(--shadow-lift); overflow: hidden; display: none;
+  }
+  .suggest.open { display: block; }
+  .suggest button {
+    display: block; width: 100%; text-align: left; border: none; background: #fff;
+    padding: 9px 12px; font-size: 12.5px; font-family: inherit; color: var(--ink);
+    cursor: pointer; border-bottom: 1px solid var(--nhs-pale);
+  }
+  .suggest button:last-child { border-bottom: none; }
+  .suggest button:hover, .suggest button.active { background: var(--nhs-pale); }
+  /* source header — flags when matches come from the authoritative OS list */
+  .suggest .s-head {
+    padding: 7px 12px; font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--nhs-dk); background: var(--nhs-pale);
+    border-bottom: 1px solid var(--nhs-border); display: flex; align-items: center; gap: 6px;
+  }
+  .suggest .s-head svg { width: 12px; height: 12px; }
+  .suggest button .s-main { font-weight: 600; display: block; }
+  .suggest button .s-sub { font-size: 11px; color: var(--ink-soft); display: block; margin-top: 1px; }
+  .suggest button .s-sub:empty { display: none; }
+
+  .add-stop {
+    border: 1.5px dashed var(--nhs-border); background: transparent; color: var(--nhs-mid);
+    border-radius: 10px; padding: 9px; width: 100%; font-size: 12.5px; font-weight: 600;
+    font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 7px; transition: background .15s, border-color .15s; margin: 2px 0 18px;
+  }
+  .add-stop:hover { background: var(--nhs-pale); border-color: var(--nhs-soft); }
+  .add-stop svg { width: 15px; height: 15px; }
+  .add-stop[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+  /* ── Return-to controls ── */
+  .return-box {
+    border: 1.5px solid var(--border); border-radius: 12px; padding: 14px;
+    background: var(--nhs-pale-2); margin-bottom: 18px;
+  }
+  .return-box .rb-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 10px; }
+  .radio-row { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 9px; cursor: pointer; }
+  .radio-row:last-of-type { margin-bottom: 0; }
+  .radio-row input { margin-top: 2px; accent-color: var(--nhs-dk); width: 16px; height: 16px; }
+  .radio-row .rr-text { font-size: 13px; font-weight: 500; }
+  .radio-row .rr-text small { display: block; font-size: 11px; color: var(--ink-soft); font-weight: 400; }
+  #return-other-wrap { margin-top: 10px; position: relative; }
+  #return-other-wrap.hidden { display: none; }
+
+  /* ── Profile toggle ── */
+  .profile-toggle { display: flex; gap: 6px; margin-bottom: 18px; }
+  .profile-toggle button {
+    flex: 1; padding: 9px 6px; border: 1.5px solid var(--border); background: #fff;
+    border-radius: 9px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--ink-soft);
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    transition: all .15s;
+  }
+  .profile-toggle button svg { width: 17px; height: 17px; }
+  .profile-toggle button.active { border-color: var(--nhs-dk); background: var(--nhs-pale); color: var(--nhs-dk); }
+
+  /* ── Generate button ── */
+  .generate-btn {
+    width: 100%; padding: 13px; border: none; border-radius: 11px; cursor: pointer;
+    background: var(--nhs-dk); color: #fff; font-family: inherit; font-size: 14.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    box-shadow: 0 4px 12px rgba(7,95,80,0.25); transition: background .15s, transform .1s;
+  }
+  .generate-btn:hover { background: var(--nhs-dark); }
+  .generate-btn:active { transform: translateY(1px); }
+  .generate-btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+  .generate-btn svg { width: 17px; height: 17px; }
+  .gen-spin { width: 16px; height: 16px; border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .form-error {
+    margin-top: 12px; padding: 10px 12px; border-radius: 9px; font-size: 12.5px; font-weight: 600;
+    background: var(--red-tint); color: var(--red); border: 1px solid #F0C5BC; display: none;
+  }
+  .form-error.show { display: block; }
+
+  /* ── Map ── */
+  .map-col { position: relative; }
+  #map { position: absolute; inset: 0; }
+  @media (max-width: 940px) { .map-col { height: 60vh; } #map { position: relative; height: 100%; } }
+
+  /* token-missing overlay */
+  .token-overlay {
+    position: absolute; inset: 0; z-index: 20; background: var(--nhs-pale-2);
+    display: grid; place-items: center; padding: 30px; text-align: center;
+  }
+  .token-overlay .card {
+    max-width: 460px; background: #fff; border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px; box-shadow: var(--shadow);
+  }
+  .token-overlay svg { width: 38px; height: 38px; color: var(--gold-dark); margin-bottom: 12px; }
+  .token-overlay h3 { margin: 0 0 8px; font-size: 17px; }
+  .token-overlay p { margin: 0 0 12px; color: var(--ink-soft); font-size: 13px; }
+  .token-overlay code {
+    display: block; background: var(--ink); color: #EAF4EF; padding: 10px 12px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: left; margin-top: 8px;
+    white-space: pre-wrap; word-break: break-all;
+  }
+
+  /* ── Route summary card (floats over map) ── */
+  .route-summary {
+    position: absolute; left: 16px; top: 16px; z-index: 15; width: 320px; max-width: calc(100% - 32px);
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: var(--shadow-lift); overflow: hidden; display: none;
+  }
+  .route-summary.show { display: block; }
+  .rs-head {
+    background: var(--nhs-dk); color: #fff; padding: 14px 16px;
+  }
+  .rs-head .for { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .rs-head .totals { display: flex; gap: 18px; margin-top: 6px; }
+  .rs-head .totals div .n { font-size: 20px; font-weight: 800; line-height: 1; }
+  .rs-head .totals div .u { font-size: 11px; opacity: 0.85; }
+  .rs-legs { max-height: 240px; overflow-y: auto; padding: 6px 0; }
+  .rs-leg { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; padding: 9px 16px; align-items: center; }
+  .rs-leg .lbadge { width: 24px; height: 24px; border-radius: 50%; background: var(--nhs-soft); color: #fff; font-weight: 800; font-size: 11px; display: grid; place-items: center; }
+  .rs-leg .lname { font-size: 12.5px; font-weight: 600; line-height: 1.25; }
+  .rs-leg .lname small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 11px; }
+  .rs-leg .ldist { font-size: 11.5px; color: var(--ink-soft); font-weight: 600; text-align: right; white-space: nowrap; }
+  .rs-actions { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); }
+  .rs-actions a, .rs-actions button {
+    flex: 1; text-decoration: none; text-align: center; font-family: inherit; font-size: 12px; font-weight: 700;
+    padding: 9px; border-radius: 9px; cursor: pointer; border: 1.5px solid var(--border); background: #fff; color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background .15s;
+  }
+  .rs-actions a:hover, .rs-actions button:hover { background: var(--nhs-pale); }
+  .rs-actions a.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .rs-actions a.primary:hover { background: var(--blue-dark); }
+  .rs-actions svg { width: 14px; height: 14px; }
+
+  .empty-hint {
+    position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; padding: 30px;
+  }
+  .empty-hint .eh {
+    text-align: center; color: var(--ink-mute); max-width: 320px;
+  }
+  .empty-hint svg { width: 44px; height: 44px; opacity: 0.5; margin-bottom: 10px; }
+  .empty-hint .title { font-size: 15px; font-weight: 700; color: var(--ink-soft); }
+
+  @media print {
+    header.appbar, .staff-strip, .panel, .rs-actions { display: none !important; }
+    .planner { grid-template-columns: 1fr; }
+    .route-summary { position: static; width: 100%; box-shadow: none; margin: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── App bar ─── -->
+<header class="appbar">
+  <div class="brand">
+    <span class="nhs-wordmark" aria-label="New Home Solutions">
+      <span class="wm-row-1">NEW HOME</span>
+      <span class="wm-row-2">SOLUTIONS</span>
+    </span>
+    <div class="brand-divider"></div>
+    <div class="brand-text">
+      <div class="title">Route Planner</div>
+      <div class="brand-meta">Staff field tool</div>
+    </div>
+  </div>
+  <div class="right-actions">
+    <a href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Address Finder
+    </a>
+  </div>
+</header>
+
+<!-- ─── Staff-only banner ─── -->
+<div class="staff-strip">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>
+  Staff use only · The staff directory isn't connected yet, so enter the driver's name manually below.
+</div>
+
+<!-- ─── Planner ─── -->
+<div class="planner">
+
+  <!-- Form panel -->
+  <div class="panel">
+    <h1>Plan a route</h1>
+    <p class="lede">Add the stops in visiting order, then generate a driving route on the map.</p>
+
+    <!-- Staff name (manual until the directory is wired up) -->
+    <div class="field">
+      <label for="staff-name">Staff name</label>
+      <input type="text" id="staff-name" class="inp" placeholder="e.g. Sam Patel" autocomplete="off" />
+    </div>
+
+    <!-- Stops -->
+    <div class="stops-head">
+      <span class="lbl">Stops (in order)</span>
+    </div>
+    <div id="stops"></div>
+    <button class="add-stop" id="add-stop" onclick="addStop()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add another stop
+    </button>
+
+    <!-- Return -->
+    <div class="return-box">
+      <div class="rb-title">Return journey</div>
+      <label class="radio-row">
+        <input type="radio" name="return-mode" value="none" checked onchange="onReturnModeChange()" />
+        <span class="rr-text">No return<small>End the route at the last stop</small></span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="return-mode" value="start" onchange="onReturnModeChange()" />
+        <span class="rr-text">Return to start (A)<small>Loop back to the first stop</small></span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="return-mode" value="other" onchange="onReturnModeChange()" />
+        <span class="rr-text">Return to another address<small>e.g. the depot or office</small></span>
+      </label>
+      <div id="return-other-wrap" class="hidden">
+        <div class="inp-wrap" style="position:relative">
+          <input type="text" id="return-other" class="inp" placeholder="Return address or postcode" autocomplete="off" />
+          <div class="suggest" id="suggest-return"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Travel profile -->
+    <div class="profile-toggle" id="profile-toggle">
+      <button class="active" data-profile="driving" onclick="setProfile('driving', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l1.5-4.5A2 2 0 018.4 7h7.2a2 2 0 011.9 1.5L19 13"/><path d="M3 13h18v4a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H6v1a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="7" cy="16" r="0.5"/><circle cx="17" cy="16" r="0.5"/></svg>
+        Driving
+      </button>
+      <button data-profile="cycling" onclick="setProfile('cycling', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17l4-9h4l3 9M9 8h4"/></svg>
+        Cycling
+      </button>
+      <button data-profile="walking" onclick="setProfile('walking', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13" cy="4" r="1.6"/><path d="M11 21l1.5-6L9 12l1-5 4 2 2 2M9 14l-1 7"/></svg>
+        Walking
+      </button>
+    </div>
+
+    <button class="generate-btn" id="generate-btn" onclick="generateRoute()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 11 22 2 13 21 11 13 3 11"/></svg>
+      <span>Generate route</span>
+    </button>
+    <div class="form-error" id="form-error"></div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-col">
+    <div id="map"></div>
+
+    <!-- Shown only until a route is generated -->
+    <div class="empty-hint" id="empty-hint">
+      <div class="eh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 20l-5.5 2V6L9 4m0 16l6-2m-6 2V4m6 14l5.5 2V4l-5.5-2m0 16V2m0 2L9 4"/></svg>
+        <div class="title">Your route will appear here</div>
+        <div>Fill in the stops on the left and press <strong>Generate route</strong>.</div>
+      </div>
+    </div>
+
+    <!-- Token-missing overlay (only if MAPBOX_TOKEN hasn't been set) -->
+    <div class="token-overlay" id="token-overlay" style="display:none">
+      <div class="card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <h3>Add your Mapbox access token</h3>
+        <p>The map and routing need a Mapbox token. Create a free one at <strong>account.mapbox.com</strong> (a public <code style="display:inline;padding:1px 5px;margin:0">pk.…</code> token), then add it in <strong>Vercel → Settings → Environment Variables</strong>:</p>
+        <code>MAPBOX_TOKEN = pk.your_token_here</code>
+        <p style="margin-top:14px;font-size:12px">Redeploy after setting it. Tip: restrict the token to your site's URL in the Mapbox dashboard so it can't be reused elsewhere. (Locally, run the dev server with <code style="display:inline;padding:1px 5px;margin:0">MAPBOX_TOKEN=… node scripts/dev-server.js</code>.)</p>
+      </div>
+    </div>
+
+    <!-- Route summary -->
+    <div class="route-summary" id="route-summary">
+      <div class="rs-head">
+        <div class="for" id="rs-for">Route</div>
+        <div class="totals">
+          <div><span class="n" id="rs-dist">—</span> <span class="u" id="rs-dist-u">mi</span></div>
+          <div><span class="n" id="rs-time">—</span> <span class="u">total</span></div>
+          <div><span class="n" id="rs-stops">—</span> <span class="u">stops</span></div>
+        </div>
+      </div>
+      <div class="rs-legs" id="rs-legs"></div>
+      <div class="rs-actions">
+        <a id="rs-gmaps" href="#" target="_blank" rel="noopener" class="primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Open in Google Maps
+        </a>
+        <button onclick="window.print()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   Route Planner — staff field tool
+   ---------------------------------------------------------------------
+   · Map + routing via Mapbox GL JS, Directions API and Geocoding API v6.
+   · Staff directory isn't wired up yet, so the driver name is typed in.
+   · Stops are geocoded (free-text address or postcode, GB-biased) with a
+     typeahead; the route is A → B → C … with an optional return leg.
+   ===================================================================== */
+
+// ── Mapbox access token ──────────────────────────────────────────────
+// The token is NOT stored in this file (GitHub secret scanning blocks that,
+// and it keeps the key out of source control). It's served at runtime from
+// the MAPBOX_TOKEN Vercel env var via /api/mapbox/token — set it in the
+// Vercel dashboard (Settings → Environment Variables) to a PUBLIC "pk.…"
+// token, restricted to your site's URL.
+const TOKEN_URL = '/api/mapbox/token';
+let MAPBOX_TOKEN = '';
+// ─────────────────────────────────────────────────────────────────────
+
+const GEOCODE_URL   = 'https://api.mapbox.com/search/geocode/v6/forward';
+const DIRECTIONS_URL = 'https://api.mapbox.com/directions/v5/mapbox';
+
+// Same OS Places proxy the Address Finder uses — keeps OS_KEY server-side.
+// Hit only when a full UK postcode is typed, to pull authoritative addresses.
+const OS_PLACES_URL = '/api/os/places';
+const UK_POSTCODE_RE = /\b([A-Z]{1,2}\d[A-Z\d]?)\s*(\d[A-Z]{2})\b/i;
+
+let map = null;
+let profile = 'driving';
+let stopSeq = 0;                 // monotonically increasing id for stop rows
+const stops = [];                // [{ id, label, query, coords:[lng,lat]|null, el }]
+let returnResolved = null;       // resolved coords for "return to other"
+let routeMarkers = [];
+
+const $ = (id) => document.getElementById(id);
+
+// ── Boot ─────────────────────────────────────────────────────────────
+async function boot() {
+  // Pull the public Mapbox token from the server-side env var.
+  try {
+    const res = await fetch(TOKEN_URL);
+    if (res.ok) MAPBOX_TOKEN = (await res.json()).token || '';
+  } catch { /* falls through to the not-configured overlay below */ }
+
+  if (!/^pk\./.test(MAPBOX_TOKEN)) {
+    $('token-overlay').style.display = 'grid';
+    $('generate-btn').disabled = true;
+    $('add-stop').disabled = true;
+    // still build the three default stop rows so the form looks complete
+    addStop(); addStop(); addStop();
+    return;
+  }
+  mapboxgl.accessToken = MAPBOX_TOKEN;
+  map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v12',
+    center: [-1.5, 52.6],        // England, roughly centred
+    zoom: 5.4
+  });
+  map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+  map.on('load', () => {
+    map.addSource('route', { type: 'geojson', data: emptyFc() });
+    map.addLayer({
+      id: 'route-casing', type: 'line', source: 'route',
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': '#053f34', 'line-width': 8, 'line-opacity': 0.25 }
+    });
+    map.addLayer({
+      id: 'route-line', type: 'line', source: 'route',
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': '#075F50', 'line-width': 5 }
+    });
+  });
+
+  // three default stops: A (start), B, C
+  addStop(); addStop(); addStop();
+}
+
+const emptyFc = () => ({ type: 'FeatureCollection', features: [] });
+
+// ── Stop rows ────────────────────────────────────────────────────────
+const labelFor = (i) => String.fromCharCode(65 + i); // 0->A, 1->B …
+
+function addStop() {
+  if (stops.length >= 12) return;          // Directions API caps at 25 waypoints
+  const id = ++stopSeq;
+  const row = document.createElement('div');
+  row.className = 'stop';
+  row.dataset.id = id;
+  row.innerHTML =
+      '<div class="badge"></div>'
+    + '<div class="inp-wrap">'
+    +   '<input type="text" class="inp" placeholder="Address or postcode" autocomplete="off" />'
+    +   '<svg class="geo-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+    +   '<div class="suggest"></div>'
+    + '</div>'
+    + '<button class="rm" title="Remove stop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+
+  const stop = { id, query: '', coords: null, el: row };
+  stops.push(stop);
+  $('stops').appendChild(row);
+
+  const input = row.querySelector('.inp');
+  const suggestBox = row.querySelector('.suggest');
+  attachGeocoder(input, suggestBox, (q, coords) => {
+    stop.query = q;
+    stop.coords = coords;
+    row.classList.toggle('resolved', !!coords);
+  });
+  row.querySelector('.rm').onclick = () => removeStop(id);
+
+  relabel();
+}
+
+function removeStop(id) {
+  if (stops.length <= 2) return;           // need at least A and B
+  const idx = stops.findIndex(s => s.id === id);
+  if (idx === -1) return;
+  stops[idx].el.remove();
+  stops.splice(idx, 1);
+  relabel();
+}
+
+function relabel() {
+  stops.forEach((s, i) => {
+    const badge = s.el.querySelector('.badge');
+    badge.textContent = labelFor(i);
+    s.el.classList.toggle('is-start', i === 0);
+    s.el.querySelector('.rm').disabled = stops.length <= 2;
+  });
+  $('add-stop').disabled = stops.length >= 12;
+  syncReturnStartLabel();
+}
+
+// ── Geocoder typeahead (Mapbox Geocoding v6, GB-biased) ───────────────
+function attachGeocoder(input, box, onResolve) {
+  let timer = null;
+  let activeIdx = -1;
+  let items = [];
+
+  const close = () => { box.classList.remove('open'); box.innerHTML = ''; activeIdx = -1; items = []; };
+
+  input.addEventListener('input', () => {
+    onResolve(input.value.trim(), null);   // typing invalidates a prior match
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (q.length < 3) { close(); return; }
+    // Hybrid: a complete UK postcode → authoritative OS list; otherwise Mapbox.
+    const pc = q.match(UK_POSTCODE_RE);
+    timer = setTimeout(() => {
+      if (pc) runOsLookup(pc[1].toUpperCase() + ' ' + pc[2].toUpperCase(), q);
+      else runGeocode(q);
+    }, 250);
+  });
+
+  // Authoritative property-level addresses from Ordnance Survey (same source
+  // as the Address Finder). Falls back to Mapbox if the proxy is unreachable.
+  async function runOsLookup(postcode, q) {
+    try {
+      const res = await fetch(OS_PLACES_URL + '?postcode=' + encodeURIComponent(postcode) + '&maxresults=100');
+      if (!res.ok) return runGeocode(q);
+      const data = await res.json();
+      const feats = (data.results || [])
+        .map(r => r.DPA || r.LPI).filter(Boolean)
+        .filter(f => f.LAT != null && f.LNG != null && f.LAT !== 0 && f.LNG !== 0);
+      if (!feats.length) return runGeocode(q);
+      items = feats.slice(0, 8).map(f => ({
+        name: osTitleCase(f.ADDRESS),
+        coords: [f.LNG, f.LAT],                    // OS proxy returns EPSG:4326
+        source: 'os'
+      }));
+      render('Ordnance Survey · pick the exact property');
+    } catch { runGeocode(q); }
+  }
+
+  async function runGeocode(q) {
+    try {
+      const url = GEOCODE_URL
+        + '?q=' + encodeURIComponent(q)
+        + '&country=gb&autocomplete=true&limit=5'
+        + '&types=address,postcode,street,place,locality,neighborhood'
+        + '&access_token=' + MAPBOX_TOKEN;
+      const res = await fetch(url);
+      if (!res.ok) { close(); return; }
+      const data = await res.json();
+      items = (data.features || []).map(f => ({
+        name: f.properties.full_address || f.properties.name || q,
+        coords: f.geometry.coordinates           // [lng, lat]
+      }));
+      render();
+    } catch { close(); }
+  }
+
+  function render(headerLabel) {
+    if (!items.length) { close(); return; }
+    const head = headerLabel
+      ? '<div class="s-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg>' + escapeHtml(headerLabel) + '</div>'
+      : '';
+    box.innerHTML = head + items.map((it, i) =>
+      '<button data-i="' + i + '"><span class="s-main">' + escapeHtml(firstLine(it.name))
+      + '</span><span class="s-sub">' + escapeHtml(restLine(it.name)) + '</span></button>'
+    ).join('');
+    box.classList.add('open');
+    box.querySelectorAll('button').forEach(b => {
+      b.onmousedown = (e) => { e.preventDefault(); choose(parseInt(b.dataset.i, 10)); };
+    });
+  }
+
+  function choose(i) {
+    const it = items[i];
+    input.value = it.name;
+    onResolve(it.name, it.coords);
+    close();
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (!box.classList.contains('open')) return;
+    const btns = box.querySelectorAll('button');
+    if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, btns.length - 1); mark(btns); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); mark(btns); }
+    else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); choose(activeIdx); }
+    else if (e.key === 'Escape') { close(); }
+  });
+  function mark(btns) { btns.forEach((b, i) => b.classList.toggle('active', i === activeIdx)); }
+  input.addEventListener('blur', () => setTimeout(close, 150));
+}
+
+const firstLine = (s) => s.split(',')[0];
+const restLine  = (s) => s.split(',').slice(1).join(',').trim();
+
+// OS ADDRESS is ALL CAPS ("10, DOWNING STREET, LONDON, SW1A 2AA"). Title-case
+// the words but leave any token with a digit untouched (house numbers, postcode).
+const osTitleCase = (addr) => String(addr || '')
+  .toLowerCase()
+  .replace(/\b([a-z])([a-z']*)/g, (_, a, b) => a.toUpperCase() + b)
+  .replace(/\b([a-z]{1,2}\d[a-z\d]?)\s+(\d[a-z]{2})\b/i, (_, o, i) => (o + ' ' + i).toUpperCase());
+
+// ── Return-journey controls ──────────────────────────────────────────
+function onReturnModeChange() {
+  const mode = document.querySelector('input[name="return-mode"]:checked').value;
+  $('return-other-wrap').classList.toggle('hidden', mode !== 'other');
+}
+
+function syncReturnStartLabel() {
+  // keep the "Return to start (A)" radio honest — A is always the first stop
+  const radio = document.querySelector('input[name="return-mode"][value="start"]');
+  if (radio) radio.parentElement.querySelector('.rr-text').firstChild.textContent = 'Return to start (A)';
+}
+
+// wire the return-other geocoder once
+(function wireReturnOther() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = $('return-other');
+    const box = $('suggest-return');
+    if (input && box) {
+      attachGeocoder(input, box, (q, coords) => { returnResolved = coords ? { name: q, coords } : null; });
+    }
+  });
+})();
+
+// ── Travel profile ───────────────────────────────────────────────────
+function setProfile(p, btn) {
+  profile = p;
+  document.querySelectorAll('#profile-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Generate the route ───────────────────────────────────────────────
+async function generateRoute() {
+  const errEl = $('form-error');
+  errEl.classList.remove('show');
+
+  const name = $('staff-name').value.trim();
+  if (!name) return showError('Enter the staff name first.');
+
+  // resolve every stop (use the picked suggestion, else geocode the typed text)
+  const ordered = [];
+  for (let i = 0; i < stops.length; i++) {
+    const s = stops[i];
+    const typed = s.el.querySelector('.inp').value.trim();
+    if (!typed) {
+      if (i < 2) return showError('Stops A and B are required.');
+      continue;                            // skip an empty optional stop
+    }
+    let coords = s.coords;
+    if (!coords) coords = await geocodeOne(typed);
+    if (!coords) return showError('Couldn’t find a location for stop ' + labelFor(i) + ' (“' + typed + '”).');
+    ordered.push({ label: labelFor(ordered.length), name: typed, coords });
+  }
+  if (ordered.length < 2) return showError('Add at least two stops to build a route.');
+
+  // optional return leg
+  const mode = document.querySelector('input[name="return-mode"]:checked').value;
+  if (mode === 'start') {
+    ordered.push({ label: 'A', name: ordered[0].name, coords: ordered[0].coords, isReturn: true });
+  } else if (mode === 'other') {
+    const typed = $('return-other').value.trim();
+    if (!typed) return showError('Enter the return address, or choose a different return option.');
+    let coords = returnResolved && returnResolved.coords;
+    if (!coords) coords = await geocodeOne(typed);
+    if (!coords) return showError('Couldn’t find the return address (“' + typed + '”).');
+    ordered.push({ label: 'Return', name: typed, coords, isReturn: true });
+  }
+
+  setBusy(true);
+  try {
+    const route = await fetchDirections(ordered.map(o => o.coords));
+    if (!route) { showError('No route could be found between those stops.'); return; }
+    drawRoute(route, ordered, name, mode);
+  } catch (e) {
+    showError('Routing failed: ' + e.message);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function geocodeOne(q) {
+  try {
+    const url = GEOCODE_URL + '?q=' + encodeURIComponent(q)
+      + '&country=gb&limit=1&access_token=' + MAPBOX_TOKEN;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.features && data.features[0] ? data.features[0].geometry.coordinates : null;
+  } catch { return null; }
+}
+
+async function fetchDirections(coordList) {
+  const coordStr = coordList.map(c => c[0] + ',' + c[1]).join(';');
+  const prof = profile === 'driving' ? 'driving-traffic' : profile;
+  const url = DIRECTIONS_URL + '/' + prof + '/' + coordStr
+    + '?alternatives=false&geometries=geojson&overview=full&steps=false'
+    + '&access_token=' + MAPBOX_TOKEN;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (data.code !== 'Ok' || !data.routes || !data.routes.length) return null;
+  return data.routes[0];
+}
+
+// ── Draw + summarise ─────────────────────────────────────────────────
+function drawRoute(route, ordered, name, mode) {
+  $('empty-hint').style.display = 'none';
+
+  // route geometry
+  map.getSource('route').setData({
+    type: 'Feature', geometry: route.geometry, properties: {}
+  });
+
+  // markers
+  routeMarkers.forEach(m => m.remove());
+  routeMarkers = [];
+  // Fit to the whole drawn line (not just the stops) so detours stay in view.
+  const bounds = new mapboxgl.LngLatBounds();
+  (route.geometry.coordinates || []).forEach(c => bounds.extend(c));
+  ordered.forEach((o) => {
+    const el = document.createElement('div');
+    el.style.cssText = 'width:30px;height:30px;border-radius:50%;display:grid;place-items:center;'
+      + 'font-weight:800;font-size:13px;color:#fff;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);'
+      + 'background:' + (o.isReturn ? '#8E743A' : (o.label === 'A' ? '#075F50' : '#6B9080'));
+    el.textContent = o.isReturn ? '↩' : o.label;
+    const marker = new mapboxgl.Marker({ element: el })
+      .setLngLat(o.coords)
+      .setPopup(new mapboxgl.Popup({ offset: 18 }).setText(o.name))
+      .addTo(map);
+    routeMarkers.push(marker);
+    bounds.extend(o.coords);
+  });
+  map.fitBounds(bounds, { padding: { top: 90, bottom: 70, left: 380, right: 80 }, maxZoom: 13.5 });
+
+  // summary card
+  $('rs-for').textContent = 'Route for ' + name;
+  $('rs-dist').textContent = (route.distance / 1609.344).toFixed(1);
+  $('rs-dist-u').textContent = 'mi';
+  $('rs-time').textContent = fmtDuration(route.duration);
+  $('rs-stops').textContent = ordered.length;
+
+  // per-leg breakdown (legs come back in waypoint order)
+  const legsEl = $('rs-legs');
+  legsEl.innerHTML = '';
+  ordered.forEach((o, i) => {
+    const legDist = (i > 0 && route.legs[i - 1]) ? (route.legs[i - 1].distance / 1609.344).toFixed(1) + ' mi' : 'start';
+    legsEl.insertAdjacentHTML('beforeend',
+      '<div class="rs-leg">'
+      + '<div class="lbadge" style="background:' + (o.isReturn ? '#8E743A' : (o.label === 'A' ? '#075F50' : '#6B9080')) + '">'
+        + (o.isReturn ? '↩' : o.label) + '</div>'
+      + '<div class="lname">' + escapeHtml(firstLine(o.name))
+        + '<small>' + escapeHtml(restLine(o.name)) + '</small></div>'
+      + '<div class="ldist">' + legDist + '</div>'
+      + '</div>');
+  });
+
+  // Google Maps handover link (for phone navigation on the road)
+  $('rs-gmaps').href = googleMapsUrl(ordered);
+
+  $('route-summary').classList.add('show');
+}
+
+function googleMapsUrl(ordered) {
+  const pt = (o) => o.coords[1] + ',' + o.coords[0];   // Google wants lat,lng
+  const origin = pt(ordered[0]);
+  const dest = pt(ordered[ordered.length - 1]);
+  const mid = ordered.slice(1, -1).map(pt).join('|');
+  let url = 'https://www.google.com/maps/dir/?api=1&origin=' + origin + '&destination=' + dest;
+  if (mid) url += '&waypoints=' + encodeURIComponent(mid);
+  const gmode = profile === 'driving' ? 'driving' : (profile === 'cycling' ? 'bicycling' : 'walking');
+  url += '&travelmode=' + gmode;
+  return url;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────
+function fmtDuration(sec) {
+  const m = Math.round(sec / 60);
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60), r = m % 60;
+  return h + 'h' + (r ? ' ' + r + 'm' : '');
+}
+function showError(msg) {
+  const el = $('form-error');
+  el.textContent = msg;
+  el.classList.add('show');
+  return false;
+}
+function setBusy(busy) {
+  const btn = $('generate-btn');
+  btn.disabled = busy;
+  btn.innerHTML = busy
+    ? '<div class="gen-spin"></div><span>Building route…</span>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 11 22 2 13 21 11 13 3 11"/></svg><span>Generate route</span>';
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+boot();
+</script>
+</body>
+</html>

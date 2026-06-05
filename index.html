@@ -109,6 +109,13 @@
     font-size: 12.5px;
   }
   header.appbar .right-actions a:hover { background: rgba(255,255,255,0.10); color: #fff; }
+  /* Route Planner — staff tool, gold-accented to stand apart from the partner link */
+  header.appbar .right-actions a.route-link {
+    color: #FFF8E7; background: rgba(201,168,76,0.18); border: 1px solid rgba(201,168,76,0.45);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  header.appbar .right-actions a.route-link:hover { background: rgba(201,168,76,0.30); color: #fff; }
+  header.appbar .right-actions a.route-link svg { width: 14px; height: 14px; }
 
   /* ── Hero ───────────────────────────────────────────── */
   .hero {
@@ -1787,6 +1794,10 @@
     </div>
   </div>
   <div class="right-actions">
+    <a class="route-link" href="route-planner.html" title="Staff route planner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></svg>
+      Route Planner
+    </a>
     <a href="nhs-portals-hub.html">Partner portals →</a>
   </div>
 </header>
