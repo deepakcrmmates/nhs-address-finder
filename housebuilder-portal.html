@@ -122,6 +122,12 @@
     font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;
   }
   .tab.active .tab-count{background:rgba(255,255,255,0.22);color:#fff}
+  /* Morph the home chooser's four buttons into these tabs on navigation */
+  @view-transition { navigation: auto; }
+  .tab[data-stage="valuations"]{view-transition-name:vt-valuations}
+  .tab[data-stage="market"]{view-transition-name:vt-market}
+  .tab[data-stage="offers"]{view-transition-name:vt-offers}
+  .tab[data-stage="progression"]{view-transition-name:vt-progression}
   /* Valuations sub-tabs — second tier of the SAME tab bar.
      When sub-tabs are showing, the main tab row drops its divider/shadow so
      the two rows merge into one elevated white bar. */
@@ -981,7 +987,9 @@
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  render('valuations');
+  // Open the tab passed from the home chooser (?tab=…), else default to Valuations
+  const _wantTab = new URLSearchParams(location.search).get('tab');
+  render(['valuations','market','offers','progression'].includes(_wantTab) ? _wantTab : 'valuations');
 </script>
 </body>
 </html>
