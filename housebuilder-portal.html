@@ -509,8 +509,8 @@
     <a href="#">Support</a>
   </div>
   <div class="user-chip">
-    <span>Wain Homes — North West</span>
-    <div class="user-avatar">WH</div>
+    <span id="c-name">Wain Homes — North West</span>
+    <div class="user-avatar" id="c-initials">WH</div>
   </div>
   <a href="housebuilder.html" title="Sign out" style="display:inline-flex;align-items:center;gap:6px;margin-left:10px;text-decoration:none;color:#fff;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;font-size:12.5px;line-height:1;padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);white-space:nowrap" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</a>
 </nav>
@@ -519,7 +519,7 @@
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-welcome">Welcome back</div>
-    <h1 class="hero-title">Wain Homes — Your Applications</h1>
+    <h1 class="hero-title" id="c-hero">Wain Homes — Your Applications</h1>
     <p class="hero-sub">Track every vendor property through the NHS valuation &amp; sale journey — from application received to sales progression.</p>
     <div class="kpi-row">
       <div class="kpi">
@@ -568,6 +568,7 @@
 <!-- ═══ VALUATIONS SUB-TABS (shown only on the Valuations tab) ═══ -->
 <div class="subtabs" id="val-subtabs">
   <button class="subtab active" data-sub="ongoing">Ongoing <span class="c">3</span></button>
+  <button class="subtab" data-sub="discussion" id="subtab-discussion">Vendor/NHS in discussion <span class="c">2</span></button>
   <button class="subtab" data-sub="historic">Historic / Returned <span class="c">2</span></button>
   <button class="subtab" data-sub="instructed">Instructed <span class="c">4</span></button>
   <button class="subtab" data-sub="lost">Lost Opportunities <span class="c">2</span></button>
@@ -626,6 +627,16 @@
         </div>
       </div>
       <span class="property-pill" id="d-pill">In Valuation</span>
+    </div>
+
+    <!-- NHS / vendor discussion notes (only for the 'Vendor/NHS in discussion' stage) -->
+    <div class="card" id="d-notes-card" style="display:none;margin-bottom:18px;border-left:3px solid var(--gold,#C9A84C)">
+      <div class="card-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        NHS — vendor discussion
+        <span style="margin-left:auto;font-size:11px;font-weight:600;color:#8E743A;background:#FFF8E7;border:1px solid #EAD9A8;padding:2px 10px;border-radius:20px">NHS updates · builder view is read-only</span>
+      </div>
+      <div id="d-notes"></div>
     </div>
 
     <div class="detail-grid">
@@ -846,6 +857,7 @@
 </div>
 
 <footer>
+  <p id="client-switch" style="margin-bottom:8px"></p>
   <p>© 2026 New Home Solutions Ltd · Housebuilder Portal · <a href="#">Support</a> · <a href="#">Terms</a> · <a href="#">Privacy</a></p>
 </footer>
 
@@ -856,9 +868,19 @@
   // demo; row click drills into the detail view.
   const STAGE_NAMES = { valuations:'Valuations', market:'On Market', offers:'Offers', progression:'Sales Progression' };
 
+  // ── Client config — the Vendor/NHS-in-discussion stage is a selected-housebuilder
+  //    feature. ?client=ascot shows a client without it; default is Wain (with it). ──
+  const CLIENTS = {
+    wain:  { name:'Wain Homes — North West', short:'Wain Homes', initials:'WH', discussion:true },
+    ascot: { name:'Ascot Homes — Yorkshire', short:'Ascot Homes', initials:'AH', discussion:false }
+  };
+  const CLIENT_ID = (new URLSearchParams(location.search).get('client') === 'ascot') ? 'ascot' : 'wain';
+  const CLIENT = CLIENTS[CLIENT_ID];
+
   const COLUMNS = {
     valuations:  ['Property','Vendor','App Received','Vendor Contacted','Agents Booked','Chasing Figures','Figures Returned','Status'],
     instructed:  ['Property','Vendor','Instructed','Agent','Asking Price','Stage'],
+    discussion:  ['Property','Vendor','Figures Returned','Latest update','Status'],
     market:      ['Property','Vendor','Listed','Agent','Asking Price','Days on Market','Status'],
     offers:      ['Property','Vendor','Asking Price','Offers','Highest Offer','Status'],
     progression: ['Property','Vendor','Agreed Price','Solicitor','Exchange','Completion','Status']
@@ -887,6 +909,20 @@
       instructed:'27 Feb', agent:'Reeds Rains', asking:'£245,000', status:['Sold STC','green'] },
     { stage:'valuations', sub:'instructed', address:'9 Kings Mead, LS17 8RT', meta:'Brookes View 2 · Plot 9', vendor:'David Pearson', app:'App-2026-006',
       instructed:'9 Feb', agent:'Manning Stainton', asking:'£418,000', status:['Completed','sage'] },
+    // ── Valuations · Vendor/NHS in discussion (figures back; file with NHS to discuss) ──
+    { stage:'valuations', sub:'discussion', address:'27 Sandy Lane, LS18 4PQ', meta:'The View · Plot 27', vendor:'Rachel Owen', app:'App-2026-040',
+      figReturned:'14 May', guide:'£368,000', status:['Awaiting terms','amber'],
+      notes:[['Figures returned — average £372,000','14 May'],
+             ['Left voicemail for vendor','2 Jun'],
+             ['Spoke with vendor — proceeding at £368,000','4 Jun'],
+             ['Vendor has a query re garden boundary','5 Jun'],
+             ['Awaiting signed terms','6 Jun']] },
+    { stage:'valuations', sub:'discussion', address:'3 Maple Drive, LS19 7QF', meta:'Brookes View 1 · Plot 3', vendor:'Liam Foster', app:'App-2026-039',
+      figReturned:'9 May', guide:'£415,000 (under review)', status:['Vendor query','blue'],
+      notes:[['Figures returned — average £415,000','9 May'],
+             ['Discussed with vendor by phone','30 May'],
+             ['Vendor wants to wait for the spring market','3 Jun'],
+             ['Reviewing recommended asking price with vendor','6 Jun']] },
     // ── Valuations · Lost Opportunities ──
     { stage:'valuations', address:'30 Elm Road, LS11 8QE', meta:'The View · Plot 2', vendor:'Robert Field', app:'App-2026-011', sub:'lost',
       steps:[['done','12 Feb'],['done','14 Feb'],['done','18 Feb'],['pending'],['pending']], status:['Vendor withdrew','red'] },
@@ -932,6 +968,12 @@
     let cells;
     if (a.stage==='valuations' && a.sub==='instructed')
       cells = td(a.instructed)+td(a.agent)+td(a.asking,true)+'<td>'+pill(a.status)+'</td>';
+    else if (a.stage==='valuations' && a.sub==='discussion'){
+      const latest = a.notes[a.notes.length-1];
+      cells = td(a.figReturned)
+        + '<td style="max-width:300px;color:#1F3D34">'+latest[0]+' <span style="color:#9AA8A2;white-space:nowrap">· '+latest[1]+'</span></td>'
+        + '<td>'+pill(a.status)+'</td>';
+    }
     else if (a.stage==='valuations') cells = a.steps.map(stageCell).join('') + '<td>'+pill(a.status)+'</td>';
     else if (a.stage==='market') cells = td(a.listed)+td(a.agent)+td(a.asking,true)+td(a.days)+'<td>'+pill(a.status)+'</td>';
     else if (a.stage==='offers') cells = td(a.asking,true)+td(a.offers)+'<td style="font-weight:700;color:#075F50">'+a.highest+'</td><td>'+pill(a.status)+'</td>';
@@ -941,7 +983,7 @@
 
   let currentStage = 'valuations';
   let currentSub = 'ongoing';
-  const SUB_NAMES = { ongoing:'Ongoing', historic:'Historic / Returned', instructed:'Instructed', lost:'Lost Opportunities' };
+  const SUB_NAMES = { ongoing:'Ongoing', discussion:'Vendor/NHS in discussion', historic:'Historic / Returned', instructed:'Instructed', lost:'Lost Opportunities' };
 
   function render(stage){
     currentStage = stage;
@@ -958,9 +1000,11 @@
       });
     }
     const isInstructed = isVal && currentSub==='instructed';
-    const cols = COLUMNS[isInstructed ? 'instructed' : stage];
+    const isDiscussion = isVal && currentSub==='discussion';
+    const cols = COLUMNS[isInstructed ? 'instructed' : isDiscussion ? 'discussion' : stage];
+    const pipelineCols = isVal && !isInstructed && !isDiscussion;
     document.getElementById('apps-thead').innerHTML =
-      '<tr>'+cols.map((c,i)=>'<th'+(isVal && !isInstructed && i>=2&&i<7?' class="stage-col"':'')+'>'+c+'</th>').join('')+'</tr>';
+      '<tr>'+cols.map((c,i)=>'<th'+(pipelineCols && i>=2&&i<7?' class="stage-col"':'')+'>'+c+'</th>').join('')+'</tr>';
     const q = (document.getElementById('app-search').value||'').trim().toLowerCase();
     let pool = APPS.filter(a=>a.stage===stage);
     if (isVal) pool = pool.filter(a=>a.sub===currentSub);
@@ -1002,6 +1046,7 @@
       if (s.includes('under offer')) return 5;
       return 4;                                                         // on the market
     }
+    if (a.sub==='discussion') return 4;                                 // figures back, NHS in discussion
     if (a.sub==='historic') return 4;                                   // figures back
     if (a.sub==='lost') return Math.min((a.steps||[]).filter(s=>s[0]==='done').length, 3);
     const cur = (a.steps||[]).findIndex(s=>s[0]==='current');          // ongoing
@@ -1032,13 +1077,30 @@
     pillEl.textContent = a.status[0];
     pillEl.style.background = pc[0]; pillEl.style.color = pc[1]; pillEl.style.border = '1px solid '+pc[2];
     set('d-dev', dev); set('d-plot', plot); set('d-vendor', a.vendor);
-    set('d-stage', a.sub==='instructed' ? 'Instructed · '+a.status[0] : STAGE_NAMES[a.stage]);
-    set('d-expect', a.asking || a.agreed || a.highest || '—');
+    set('d-stage', a.sub==='instructed' ? 'Instructed · '+a.status[0]
+                 : a.sub==='discussion' ? 'Vendor/NHS in discussion'
+                 : STAGE_NAMES[a.stage]);
+    set('d-expect', a.guide || a.asking || a.agreed || a.highest || '—');
     document.getElementById('d-timeline').innerHTML = timelineHtml(a);
     // valuation-specific cards only make sense for in-progress valuations
     const show = (a.stage==='valuations' && a.sub!=='instructed') ? '' : 'none';
     const ac = document.getElementById('d-agents-card'); if (ac) ac.style.display = show;
     const vc = document.getElementById('d-val-card'); if (vc) vc.style.display = show;
+    // NHS / vendor discussion notes — only for the 'discussion' stage
+    const nc = document.getElementById('d-notes-card');
+    if (nc){
+      if (a.sub==='discussion' && a.notes){
+        document.getElementById('d-notes').innerHTML = a.notes.map((n,i)=>{
+          const last = i === a.notes.length-1;
+          return '<div style="display:flex;gap:12px;padding:9px 2px;border-bottom:1px solid var(--divider)">'
+            + '<div style="width:9px;height:9px;border-radius:50%;margin-top:4px;flex:0 0 auto;background:'+(last?'var(--nhs-dk,#075F50)':'#C5DCCC')+'"></div>'
+            + '<div style="flex:1;font-size:13px;font-weight:'+(last?'700':'500')+';color:#1F3D34">'+n[0]
+              +(last?' <span style="font-size:10px;font-weight:700;color:#075F50;background:#EAF4EF;padding:1px 7px;border-radius:9px;margin-left:4px">Latest</span>':'')+'</div>'
+            + '<div style="font-size:11px;color:#5A6B7C;white-space:nowrap;margin-top:2px">'+n[1]+'</div></div>';
+        }).join('');
+        nc.style.display = '';
+      } else nc.style.display = 'none';
+    }
   }
   function openDetail(appId){
     const a = APPS.find(x=>x.app===appId);
@@ -1056,6 +1118,24 @@
     render(currentStage);   // restores the table + sub-tab visibility
     window.scrollTo({top:0,behavior:'smooth'});
   }
+
+  // ── Apply the selected client + gate the Vendor/NHS-discussion feature ──
+  document.getElementById('c-name').textContent = CLIENT.name;
+  document.getElementById('c-initials').textContent = CLIENT.initials;
+  document.getElementById('c-hero').textContent = CLIENT.short + ' — Your Applications';
+  if (!CLIENT.discussion){
+    const dt = document.getElementById('subtab-discussion');
+    if (dt) dt.style.display = 'none';
+  }
+  // Footer link to switch between the two example clients
+  (function(){
+    const otherId = CLIENT_ID==='wain' ? 'ascot' : 'wain', o = CLIENTS[otherId];
+    const sw = document.getElementById('client-switch');
+    if (sw) sw.innerHTML = 'Example: <strong>'+CLIENT.short+'</strong> '
+      + (CLIENT.discussion ? '— with Vendor/NHS discussion' : '— standard (no Vendor/NHS discussion)')
+      + ' &nbsp;·&nbsp; <a href="?client='+otherId+'" style="color:var(--nhs-dk,#075F50);font-weight:700">Switch to '+o.short+' '
+      + (o.discussion ? '(with discussion)' : '(without)') + ' →</a>';
+  })();
 
   // Open the tab passed from the home chooser (?tab=…), else default to Valuations
   const _wantTab = new URLSearchParams(location.search).get('tab');
