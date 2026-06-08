@@ -122,6 +122,10 @@
     font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;
   }
   .tab.active .tab-count{background:rgba(255,255,255,0.22);color:#fff}
+  /* greyed-out tabs — scheduled for a later development phase */
+  .tab.soon{color:#A7B3AD;cursor:not-allowed;pointer-events:none}
+  .tab.soon .tab-count{display:none}
+  .tab-soon{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9AA8A2;background:#EEF2F0;padding:2px 7px;border-radius:9px}
   /* Morph the home chooser's four buttons into these tabs on navigation */
   @view-transition { navigation: auto; }
   .tab[data-stage="valuations"]{view-transition-name:vt-valuations}
@@ -544,20 +548,20 @@
     Valuations
     <span class="tab-count">3</span>
   </button>
-  <button class="tab" data-stage="market">
+  <button class="tab soon" data-stage="market" disabled title="Scheduled for the next development phase">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     On Market
-    <span class="tab-count">3</span>
+    <span class="tab-soon">Soon</span>
   </button>
-  <button class="tab" data-stage="offers">
+  <button class="tab soon" data-stage="offers" disabled title="Scheduled for the next development phase">
     <span style="font-size:16px;font-weight:800;line-height:1;width:16px;text-align:center;display:inline-block">£</span>
     Offers
-    <span class="tab-count">2</span>
+    <span class="tab-soon">Soon</span>
   </button>
-  <button class="tab" data-stage="progression">
+  <button class="tab soon" data-stage="progression" disabled title="Scheduled for the next development phase">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
     Sales Progression
-    <span class="tab-count">2</span>
+    <span class="tab-soon">Soon</span>
   </button>
 </div>
 
