@@ -565,7 +565,7 @@
 <div class="subtabs" id="val-subtabs">
   <button class="subtab active" data-sub="ongoing">Ongoing <span class="c">3</span></button>
   <button class="subtab" data-sub="historic">Historic / Returned <span class="c">2</span></button>
-  <button class="subtab" data-sub="instructed">Instructed <span class="c">1</span></button>
+  <button class="subtab" data-sub="instructed">Instructed <span class="c">4</span></button>
   <button class="subtab" data-sub="lost">Lost Opportunities <span class="c">2</span></button>
 </div>
 
@@ -854,6 +854,7 @@
 
   const COLUMNS = {
     valuations:  ['Property','Vendor','App Received','Vendor Contacted','Agents Booked','Chasing Figures','Figures Returned','Status'],
+    instructed:  ['Property','Vendor','Instructed','Agent','Asking Price','Stage'],
     market:      ['Property','Vendor','Listed','Agent','Asking Price','Days on Market','Status'],
     offers:      ['Property','Vendor','Asking Price','Offers','Highest Offer','Status'],
     progression: ['Property','Vendor','Agreed Price','Solicitor','Exchange','Completion','Status']
@@ -872,9 +873,16 @@
       steps:[['done','2 Mar'],['done','3 Mar'],['done','6 Mar'],['done','11 Mar'],['done','16 Mar']], status:['Recommendation sent','green'] },
     { stage:'valuations', address:'14 Oakwood Grove, LS9 7TT', meta:'Brookes View 2 · Plot 4', vendor:'Daniel Carter', app:'App-2026-015', sub:'historic',
       steps:[['done','24 Feb'],['done','26 Feb'],['done','1 Mar'],['done','6 Mar'],['done','10 Mar']], status:['Figures returned','green'] },
-    // ── Valuations · Instructed (agent instructed to market) ──
-    { stage:'valuations', address:'5 Beech Court, LS16 5DP', meta:'Riverside · Plot 11', vendor:'Aisha Khan', app:'App-2026-021', sub:'instructed',
-      steps:[['done','4 Mar'],['done','5 Mar'],['done','9 Mar'],['done','14 Mar'],['done','19 Mar']], status:['Instructed · Manning Stainton','blue'] },
+    // ── Valuations · Instructed (agent instructed — these stay here long-term;
+    //    the Stage column shows where each one is now: on market → sold → completed) ──
+    { stage:'valuations', sub:'instructed', address:'5 Beech Court, LS16 5DP', meta:'Riverside · Plot 11', vendor:'Aisha Khan', app:'App-2026-021',
+      instructed:'19 Mar', agent:'Manning Stainton', asking:'£298,000', status:['On the market','blue'] },
+    { stage:'valuations', sub:'instructed', address:'18 Crown Point, LS10 1EH', meta:'The View · Plot 18', vendor:'Tom Beresford', app:'App-2026-017',
+      instructed:'6 Mar', agent:'Dacre Son &amp; Hartley', asking:'£352,000', status:['Under offer','amber'] },
+    { stage:'valuations', sub:'instructed', address:'44 Willow Bank, BD4 9PT', meta:'Riverside · Plot 44', vendor:'Sophie Hall', app:'App-2026-013',
+      instructed:'27 Feb', agent:'Reeds Rains', asking:'£245,000', status:['Sold STC','green'] },
+    { stage:'valuations', sub:'instructed', address:'9 Kings Mead, LS17 8RT', meta:'Brookes View 2 · Plot 9', vendor:'David Pearson', app:'App-2026-006',
+      instructed:'9 Feb', agent:'Manning Stainton', asking:'£418,000', status:['Completed','sage'] },
     // ── Valuations · Lost Opportunities ──
     { stage:'valuations', address:'30 Elm Road, LS11 8QE', meta:'The View · Plot 2', vendor:'Robert Field', app:'App-2026-011', sub:'lost',
       steps:[['done','12 Feb'],['done','14 Feb'],['done','18 Feb'],['pending'],['pending']], status:['Vendor withdrew','red'] },
@@ -918,7 +926,9 @@
     const prop = '<td><div class="app-address">'+a.address+'</div><div class="app-meta">'+a.meta+'</div></td>';
     const vend = '<td><div class="app-vendor">'+a.vendor+'</div><div class="app-vendor-sub">'+a.app+'</div></td>';
     let cells;
-    if (a.stage==='valuations') cells = a.steps.map(stageCell).join('') + '<td>'+pill(a.status)+'</td>';
+    if (a.stage==='valuations' && a.sub==='instructed')
+      cells = td(a.instructed)+td(a.agent)+td(a.asking,true)+'<td>'+pill(a.status)+'</td>';
+    else if (a.stage==='valuations') cells = a.steps.map(stageCell).join('') + '<td>'+pill(a.status)+'</td>';
     else if (a.stage==='market') cells = td(a.listed)+td(a.agent)+td(a.asking,true)+td(a.days)+'<td>'+pill(a.status)+'</td>';
     else if (a.stage==='offers') cells = td(a.asking,true)+td(a.offers)+'<td style="font-weight:700;color:#075F50">'+a.highest+'</td><td>'+pill(a.status)+'</td>';
     else cells = td(a.agreed,true)+td(a.solicitor)+td(a.exchange)+td(a.completion)+'<td>'+pill(a.status)+'</td>';
@@ -943,9 +953,10 @@
         if (c) c.textContent = APPS.filter(a=>a.stage==='valuations' && a.sub===st.dataset.sub).length;
       });
     }
-    const cols = COLUMNS[stage];
+    const isInstructed = isVal && currentSub==='instructed';
+    const cols = COLUMNS[isInstructed ? 'instructed' : stage];
     document.getElementById('apps-thead').innerHTML =
-      '<tr>'+cols.map((c,i)=>'<th'+(isVal&&i>=2&&i<7?' class="stage-col"':'')+'>'+c+'</th>').join('')+'</tr>';
+      '<tr>'+cols.map((c,i)=>'<th'+(isVal && !isInstructed && i>=2&&i<7?' class="stage-col"':'')+'>'+c+'</th>').join('')+'</tr>';
     const q = (document.getElementById('app-search').value||'').trim().toLowerCase();
     let pool = APPS.filter(a=>a.stage===stage);
     if (isVal) pool = pool.filter(a=>a.sub===currentSub);
@@ -980,7 +991,14 @@
     if (a.stage==='market') return 4;
     if (a.stage==='offers') return 5;
     if (a.stage==='progression') return 6;
-    if (a.sub==='historic' || a.sub==='instructed') return 4;          // figures back
+    if (a.sub==='instructed'){                                          // show live stage
+      const s = (a.status[0]||'').toLowerCase();
+      if (s.includes('complete')) return 7;                             // all done
+      if (s.includes('sold')) return 6;
+      if (s.includes('under offer')) return 5;
+      return 4;                                                         // on the market
+    }
+    if (a.sub==='historic') return 4;                                   // figures back
     if (a.sub==='lost') return Math.min((a.steps||[]).filter(s=>s[0]==='done').length, 3);
     const cur = (a.steps||[]).findIndex(s=>s[0]==='current');          // ongoing
     return cur < 0 ? 3 : Math.min(cur, 3);
@@ -1010,11 +1028,11 @@
     pillEl.textContent = a.status[0];
     pillEl.style.background = pc[0]; pillEl.style.color = pc[1]; pillEl.style.border = '1px solid '+pc[2];
     set('d-dev', dev); set('d-plot', plot); set('d-vendor', a.vendor);
-    set('d-stage', STAGE_NAMES[a.stage]);
+    set('d-stage', a.sub==='instructed' ? 'Instructed · '+a.status[0] : STAGE_NAMES[a.stage]);
     set('d-expect', a.asking || a.agreed || a.highest || '—');
     document.getElementById('d-timeline').innerHTML = timelineHtml(a);
-    // valuation-specific cards only make sense on the Valuations stage
-    const show = a.stage==='valuations' ? '' : 'none';
+    // valuation-specific cards only make sense for in-progress valuations
+    const show = (a.stage==='valuations' && a.sub!=='instructed') ? '' : 'none';
     const ac = document.getElementById('d-agents-card'); if (ac) ac.style.display = show;
     const vc = document.getElementById('d-val-card'); if (vc) vc.style.display = show;
   }
