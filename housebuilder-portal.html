@@ -618,15 +618,15 @@
         <svg width="30" height="30" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       </div>
       <div class="property-text">
-        <div class="property-address">555 Tong Road, Leeds LS12 5AT</div>
-        <div class="property-meta">
+        <div class="property-address" id="d-address">555 Tong Road, Leeds LS12 5AT</div>
+        <div class="property-meta" id="d-meta">
           <span>Plot 5</span>
           <span>The View development</span>
           <span>Application #2026-042</span>
           <span>Vendor: Jordan Edmondson</span>
         </div>
       </div>
-      <span class="property-pill">In Valuation</span>
+      <span class="property-pill" id="d-pill">In Valuation</span>
     </div>
 
     <div class="detail-grid">
@@ -637,7 +637,7 @@
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           Application Journey
         </div>
-        <div class="timeline">
+        <div class="timeline" id="d-timeline">
 
           <div class="milestone done">
             <div class="milestone-dot">✓</div>
@@ -723,15 +723,15 @@
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Property details
           </div>
-          <div class="info-row"><span class="info-label">Development</span><span class="info-value">The View</span></div>
-          <div class="info-row"><span class="info-label">Plot</span><span class="info-value">5</span></div>
-          <div class="info-row"><span class="info-label">Vendor</span><span class="info-value">Jordan Edmondson</span></div>
-          <div class="info-row"><span class="info-label">ALCD</span><span class="info-value">28 May 2026</span></div>
-          <div class="info-row"><span class="info-label">Client expectations</span><span class="info-value">£405,000</span></div>
+          <div class="info-row"><span class="info-label">Development</span><span class="info-value" id="d-dev">The View</span></div>
+          <div class="info-row"><span class="info-label">Plot</span><span class="info-value" id="d-plot">5</span></div>
+          <div class="info-row"><span class="info-label">Vendor</span><span class="info-value" id="d-vendor">Jordan Edmondson</span></div>
+          <div class="info-row"><span class="info-label">Stage</span><span class="info-value" id="d-stage">Valuation</span></div>
+          <div class="info-row"><span class="info-label">Guide price</span><span class="info-value" id="d-expect">£405,000</span></div>
           <div class="info-row"><span class="info-label">Scheme</span><span class="info-value">Part Exchange</span></div>
         </div>
 
-        <div class="card">
+        <div class="card" id="d-agents-card">
           <div class="card-title">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Estate Agents
@@ -762,7 +762,7 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="d-val-card">
           <div class="card-title">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 7c0-5.333-8-5.333-8 0"/><path d="M10 7v12"/><path d="M6 13h8"/><path d="M6 19h12"/></svg>
             Valuation summary
@@ -927,7 +927,7 @@
     else if (a.stage==='market') cells = td(a.listed)+td(a.agent)+td(a.asking,true)+td(a.days)+'<td>'+pill(a.status)+'</td>';
     else if (a.stage==='offers') cells = td(a.asking,true)+td(a.offers)+'<td style="font-weight:700;color:#075F50">'+a.highest+'</td><td>'+pill(a.status)+'</td>';
     else cells = td(a.agreed,true)+td(a.solicitor)+td(a.exchange)+td(a.completion)+'<td>'+pill(a.status)+'</td>';
-    return '<tr onclick="openDetail()">'+prop+vend+cells+'</tr>';
+    return '<tr onclick="openDetail(\''+a.app+'\')">'+prop+vend+cells+'</tr>';
   }
 
   let currentStage = 'valuations';
@@ -971,8 +971,61 @@
   });
   document.getElementById('app-search').addEventListener('input', ()=>render(currentStage));
 
-  // Drill-down: row → property detail, and back
-  function openDetail(){
+  // ── Detail drill-down — fills the detail view from the clicked application ──
+  const MILES = [
+    ['Application Received','Valuation request submitted with property details and access arrangements.'],
+    ['Vendor Contacted','Vendor contacted to agree visit availability windows.'],
+    ['Agents Booked','Local estate agents booked to attend and value the property.'],
+    ['Valuation Figures','Agents return their valuation figures and reports for review.'],
+    ['On Market','Property goes live with the chosen agent once the recommendation is agreed.'],
+    ['Offers','Offers received are logged and tracked with the NHS team’s recommendation.'],
+    ['Sales Progression','From accepted offer through exchange of contracts to completion.']
+  ];
+  function currentMilestone(a){
+    if (a.stage==='market') return 4;
+    if (a.stage==='offers') return 5;
+    if (a.stage==='progression') return 6;
+    if (a.sub==='historic' || a.sub==='instructed') return 4;          // figures back
+    if (a.sub==='lost') return Math.min((a.steps||[]).filter(s=>s[0]==='done').length, 3);
+    const cur = (a.steps||[]).findIndex(s=>s[0]==='current');          // ongoing
+    return cur < 0 ? 3 : Math.min(cur, 3);
+  }
+  function timelineHtml(a){
+    const cur = currentMilestone(a), lost = a.sub==='lost';
+    return MILES.map((m,i)=>{
+      let state, dot, status;
+      if (i < cur){ state='done'; dot='✓'; status='<span class="milestone-status done">Complete</span>'; }
+      else if (i === cur && lost){ state='current'; dot='✕'; status='<span class="milestone-status" style="background:#FCEAE6;color:#B8341F">Stopped · '+a.status[0]+'</span>'; }
+      else if (i === cur){ state='current'; dot='●'; status='<span class="milestone-status current">In progress</span>'; }
+      else { state='upcoming'; dot='○'; status=''; }
+      return '<div class="milestone '+state+'"><div class="milestone-dot">'+dot+'</div>'
+        + '<div class="milestone-heading">'+m[0]+' '+status+'</div>'
+        + '<p class="milestone-desc">'+m[1]+'</p></div>';
+    }).join('');
+  }
+  function fillDetail(a){
+    const parts = (a.meta||'').split('·').map(s=>s.trim());
+    const dev = parts[0] || '—';
+    const plot = (parts[1] || '').replace(/plot\s*/i,'') || '—';
+    const set = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+    set('d-address', a.address);
+    document.getElementById('d-meta').innerHTML =
+      '<span>Plot '+plot+'</span><span>'+dev+'</span><span>Application '+a.app+'</span><span>Vendor: '+a.vendor+'</span>';
+    const pillEl = document.getElementById('d-pill'), pc = PILL[a.status[1]] || PILL.sage;
+    pillEl.textContent = a.status[0];
+    pillEl.style.background = pc[0]; pillEl.style.color = pc[1]; pillEl.style.border = '1px solid '+pc[2];
+    set('d-dev', dev); set('d-plot', plot); set('d-vendor', a.vendor);
+    set('d-stage', STAGE_NAMES[a.stage]);
+    set('d-expect', a.asking || a.agreed || a.highest || '—');
+    document.getElementById('d-timeline').innerHTML = timelineHtml(a);
+    // valuation-specific cards only make sense on the Valuations stage
+    const show = a.stage==='valuations' ? '' : 'none';
+    const ac = document.getElementById('d-agents-card'); if (ac) ac.style.display = show;
+    const vc = document.getElementById('d-val-card'); if (vc) vc.style.display = show;
+  }
+  function openDetail(appId){
+    const a = APPS.find(x=>x.app===appId);
+    if (a) fillDetail(a);
     document.getElementById('view-overview').classList.remove('active');
     document.getElementById('view-detail').classList.add('active');
     document.getElementById('stage-tabs').style.display = 'none';
