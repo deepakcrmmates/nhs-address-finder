@@ -77,6 +77,16 @@
   .choice:hover .go{opacity:1;transform:translateX(0);background:var(--nhs-dk);color:#fff}
   .choice .go svg{width:13px;height:13px}
 
+  /* greyed-out options — scheduled for a later development phase */
+  .choice.soon{background:#F3F6F4;border-color:#E6EBE8;box-shadow:none;cursor:not-allowed;pointer-events:none}
+  .choice.soon .ico{background:#E9EEEB;color:#A7B3AD}
+  .choice.soon .label{color:#8B968F}
+  .choice.soon .pound{color:#A7B3AD}
+  .choice.soon .soon-badge{
+    font-size:10px;font-weight:700;color:#7E8A84;background:#E9EEEB;
+    padding:3px 11px;border-radius:20px;text-transform:uppercase;letter-spacing:0.05em;
+  }
+
   /* staggered entrance */
   @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
   .choice{animation:rise .5s cubic-bezier(.2,.7,.3,1) both}
@@ -130,23 +140,20 @@
       <span class="label">Valuations</span>
       <span class="count">3 active</span>
     </a>
-    <a class="choice v-market" href="housebuilder-portal?tab=market">
-      <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="9 18 15 12 9 6"/></svg></span>
+    <a class="choice v-market soon" aria-disabled="true" title="Scheduled for the next development phase">
       <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
       <span class="label">On Market</span>
-      <span class="count">3 active</span>
+      <span class="soon-badge">Coming soon</span>
     </a>
-    <a class="choice v-offers" href="housebuilder-portal?tab=offers">
-      <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="9 18 15 12 9 6"/></svg></span>
+    <a class="choice v-offers soon" aria-disabled="true" title="Scheduled for the next development phase">
       <span class="ico"><span class="pound">£</span></span>
       <span class="label">Offers</span>
-      <span class="count">2 active</span>
+      <span class="soon-badge">Coming soon</span>
     </a>
-    <a class="choice v-progression" href="housebuilder-portal?tab=progression">
-      <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="9 18 15 12 9 6"/></svg></span>
+    <a class="choice v-progression soon" aria-disabled="true" title="Scheduled for the next development phase">
       <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
       <span class="label">Sales Progression</span>
-      <span class="count">2 active</span>
+      <span class="soon-badge">Coming soon</span>
     </a>
   </div>
 </main>
