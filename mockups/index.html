@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instruction to Market — Screen Mock | NHS</title>
+<style>
+  :root{
+    --nhs-dk:#4A6B5E; --nhs-mid:#6B9080; --nhs-pale:#EAF4EF; --nhs-border:#C5DCCC;
+    --nhs-white:#fff; --nhs-text:#1C2B24; --nhs-text-mid:#374151; --nhs-text-muted:#6B7280;
+    --navy:#0D1E4A; --line:#EDF1ED; --bg:#F5F7F5;
+    --agent1-bg:#EAF4EF; --agent1-border:#A4C3B2; --agent1-header:#4A6B5E;
+    --agent2-bg:#EBF3FB; --agent2-border:#93C4E0; --agent2-header:#1A4F7A;
+    --agent3-bg:#F3EEF9; --agent3-border:#C4A8E0; --agent3-header:#5B3A8A;
+    --ok:#16A34A; --ok-bg:#DCFCE7; --warn:#D97706; --warn-bg:#FEF3C7; --warn-bd:#FDE68A;
+    --danger:#DC2626; --danger-bg:#FEF2F2; --teal:#075F50;
+    --font-sans:'Aptos','Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--nhs-text); font-family:var(--font-sans); font-size:14px; line-height:1.5;}
+  .shell{max-width:1180px; margin:0 auto; padding:18px 18px 70px;}
+  a{color:var(--nhs-dk);}
+  /* breadcrumb */
+  .crumbs{font-size:12px; color:var(--nhs-text-muted); margin:2px 0 14px;}
+  .crumbs span{color:var(--nhs-dk); font-weight:600;}
+
+  /* ===== Page header ===== */
+  .pg-head{background:var(--nhs-white); border:1px solid var(--nhs-border); border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); overflow:hidden; margin-bottom:16px;}
+  .pg-head-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:16px 22px; background:linear-gradient(135deg,var(--nhs-dk),var(--nhs-mid)); color:#fff;}
+  .pg-title h1{margin:0; font-size:21px; font-weight:700; letter-spacing:.2px;}
+  .pg-title .sub{font-size:12.5px; opacity:.9; margin-top:3px;}
+  .rt-chip{background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.32); padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; white-space:nowrap;}
+  .pg-meta{display:flex; flex-wrap:wrap; gap:0; padding:0; }
+  .pg-meta .m{flex:1 1 0; min-width:140px; padding:11px 22px; border-right:1px solid var(--line);}
+  .pg-meta .m:last-child{border-right:none;}
+  .field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--nhs-text-muted); font-weight:700;}
+  .field-value{font-size:15px; font-weight:600; color:var(--nhs-text); margin-top:2px;}
+  .field-value.big{font-size:18px; color:var(--nhs-dk);}
+
+  /* status badge / pills */
+  .status-badge{display:inline-block; background:var(--nhs-pale); color:var(--nhs-dk); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:4px 11px; border-radius:20px; white-space:nowrap;}
+  .status-badge.live{background:var(--ok-bg); color:var(--ok);}
+  .status-badge.prep{background:var(--warn-bg); color:var(--warn);}
+  .status-badge.hold{background:var(--danger-bg); color:var(--danger);}
+
+  /* ===== Layout ===== */
+  .grid{display:grid; grid-template-columns:1.55fr 1fr; gap:16px; align-items:start;}
+  @media(max-width:880px){.grid{grid-template-columns:1fr;}}
+  .col{display:flex; flex-direction:column; gap:16px;}
+
+  /* ===== Card ===== */
+  .card{background:var(--nhs-white); border-radius:10px; border:1px solid var(--nhs-border); box-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02); overflow:hidden;}
+  .card-header{display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:2px solid var(--nhs-dk); background:var(--nhs-pale);}
+  .card-header h2{margin:0; font-size:14px; font-weight:700; color:var(--nhs-dk); display:flex; align-items:center; gap:9px; text-transform:none;}
+  .card-title-dot{width:9px; height:9px; border-radius:50%; background:var(--nhs-mid); flex:0 0 auto;}
+  .card-body{padding:16px 18px;}
+  .info-row{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--line);}
+  .info-row:last-child{border-bottom:none;}
+  .info-row .l{color:var(--nhs-text-muted); font-size:12.5px;}
+  .info-row .v{font-weight:600; font-size:13px;}
+
+  /* ===== Lifecycle stepper ===== */
+  .stepper{display:flex; flex-wrap:wrap; gap:6px;}
+  .stepper .s{flex:1 1 86px; min-width:78px; text-align:center; padding:8px 6px; border-radius:8px; background:#F3F6F4; border:1px solid var(--line); font-size:11px; color:var(--nhs-text-muted); position:relative;}
+  .stepper .s .n{display:block; font-size:9px; font-weight:700; color:var(--nhs-mid);}
+  .stepper .s.done{background:var(--nhs-pale); border-color:var(--nhs-border); color:var(--nhs-dk); font-weight:600;}
+  .stepper .s.done .n{color:var(--nhs-dk);}
+  .stepper .s.current{background:var(--warn-bg); border-color:var(--warn-bd); color:var(--warn); font-weight:700; box-shadow:0 0 0 3px rgba(217,119,6,.12);}
+  .stepper .s.current .n{color:var(--warn);}
+  .stepper .s.live{background:var(--ok-bg); border-color:#BBE6C6; color:var(--ok); font-weight:700;}
+
+  /* ===== Readiness checklist + ring ===== */
+  .ready-wrap{display:flex; gap:18px; align-items:center; flex-wrap:wrap;}
+  .ring{--p:50; width:96px; height:96px; border-radius:50%; flex:0 0 auto;
+        background:conic-gradient(var(--nhs-dk) calc(var(--p)*1%), var(--nhs-pale) 0); position:relative;}
+  .ring::after{content:''; position:absolute; inset:11px; background:#fff; border-radius:50%;}
+  .ring .rt{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:1;}
+  .ring .rt b{font-size:22px; color:var(--nhs-dk); line-height:1;}
+  .ring .rt small{font-size:9.5px; color:var(--nhs-text-muted); text-transform:uppercase; letter-spacing:.4px;}
+  .checklist{flex:1 1 240px; display:grid; grid-template-columns:1fr 1fr; gap:6px 14px;}
+  @media(max-width:520px){.checklist{grid-template-columns:1fr;}}
+  .chk{display:flex; align-items:center; gap:8px; font-size:12.5px; padding:5px 0;}
+  .chk .box{width:18px; height:18px; border-radius:5px; flex:0 0 auto; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;}
+  .chk.on .box{background:var(--ok); color:#fff;}
+  .chk.off .box{background:#fff; border:1.5px solid var(--nhs-border); color:transparent;}
+  .chk.on .txt{color:var(--nhs-text);}
+  .chk.off .txt{color:var(--nhs-text-muted);}
+  .chk .dt{margin-left:auto; font-size:11px; color:var(--nhs-text-muted);}
+
+  /* ===== Certificates ===== */
+  .cert-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media(max-width:520px){.cert-grid{grid-template-columns:1fr;}}
+  .cert{border:1px solid var(--nhs-border); border-radius:8px; padding:10px 12px; background:#FAFDFB;}
+  .cert .top{display:flex; justify-content:space-between; align-items:center;}
+  .cert .name{font-weight:700; font-size:13px; color:var(--nhs-text);}
+  .cert .who{font-size:11px; color:var(--nhs-text-muted); margin-top:5px;}
+  .cert.muted{opacity:.6;}
+  .tag{display:inline-block; font-size:10px; font-weight:700; padding:3px 8px; border-radius:12px; text-transform:uppercase; letter-spacing:.3px;}
+  .tag.ord{background:var(--warn-bg); color:var(--warn);}
+  .tag.rcv{background:var(--ok-bg); color:var(--ok);}
+  .tag.na{background:#EEF0F1; color:var(--nhs-text-muted);}
+
+  /* ===== Agents (3-col colour coded) ===== */
+  .agent-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  @media(max-width:680px){.agent-grid{grid-template-columns:1fr;}}
+  .agent-col{border-radius:10px; overflow:hidden;}
+  .agent-col-1{background:var(--agent1-bg); border:1.5px solid var(--agent1-border);}
+  .agent-col-2{background:var(--agent2-bg); border:1.5px solid var(--agent2-border);}
+  .agent-col-3{background:var(--agent3-bg); border:1.5px solid var(--agent3-border);}
+  .agent-header{padding:10px 12px; display:flex; align-items:center; gap:9px;}
+  .agent-header-1{background:var(--agent1-header);} .agent-header-2{background:var(--agent2-header);} .agent-header-3{background:var(--agent3-header);}
+  .agent-num{font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:rgba(255,255,255,.7);}
+  .agent-name{font-size:13px; font-weight:700; color:#fff; flex:1;}
+  .agent-body{padding:11px 12px; font-size:12px;}
+  .agent-body .r{display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid rgba(0,0,0,.05);}
+  .agent-body .r:last-child{border-bottom:none;}
+  .agent-body .r .k{color:var(--nhs-text-muted);}
+  .inst-flag{display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:11px;}
+  .inst-flag.yes{color:var(--ok);} .inst-flag.no{color:var(--nhs-text-muted);}
+  .offer-link{font-size:11px; color:var(--nhs-dk); text-decoration:none; font-weight:600;}
+
+  /* ===== Price timeline ===== */
+  .timeline{display:flex; gap:6px; align-items:stretch; flex-wrap:wrap;}
+  .tl{flex:1 1 110px; min-width:100px; border:1px solid var(--nhs-border); border-radius:8px; padding:9px 11px; background:#FAFDFB;}
+  .tl.set{background:var(--nhs-pale);}
+  .tl .lab{font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--nhs-text-muted); font-weight:700;}
+  .tl .pr{font-size:15px; font-weight:700; color:var(--nhs-dk); margin-top:3px;}
+  .tl .dt{font-size:10.5px; color:var(--nhs-text-muted); margin-top:1px;}
+  .tl.empty .pr{color:#C9D5CB;}
+
+  /* weekly updates mini */
+  .wk{border:1px solid var(--nhs-border); border-radius:8px; margin-top:10px; overflow:hidden;}
+  .wk-h{background:var(--nhs-pale); padding:7px 12px; font-size:11px; font-weight:700; color:var(--nhs-dk); display:flex; justify-content:space-between;}
+  .wk-b{padding:9px 12px; font-size:12px; color:var(--nhs-text-mid);}
+
+  /* ===== Quick actions ===== */
+  .qa-list{display:flex; flex-direction:column; gap:8px;}
+  .qa-btn{display:flex; align-items:center; gap:9px; padding:10px 14px; border:none; border-radius:6px; background:var(--nhs-dk); font-family:var(--font-sans); font-size:12.5px; font-weight:600; color:#fff; cursor:pointer; width:100%; text-align:left;}
+  .qa-btn:hover{background:#3D5A4F;}
+  .qa-btn.alt{background:var(--nhs-white); color:var(--nhs-dk); border:1.5px solid var(--nhs-border);}
+  .qa-btn .ic{width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,.18); display:inline-flex; align-items:center; justify-content:center; font-size:12px; flex:0 0 auto;}
+  .qa-btn.alt .ic{background:var(--nhs-pale);}
+
+  .note{font-size:11.5px; color:var(--nhs-text-muted); margin-top:10px; padding:9px 11px; background:#FAFDFB; border:1px dashed var(--nhs-border); border-radius:8px;}
+
+  /* ===== Notes (Vendor-Notes pattern) ===== */
+  .vn-textarea{width:100%; min-height:62px; border:1.5px solid var(--nhs-border); border-radius:8px; padding:9px 11px; font-family:var(--font-sans); font-size:13px; resize:vertical; background:#FAFDFB; color:var(--nhs-text);}
+  .vn-textarea:focus{border-color:var(--nhs-dk); box-shadow:0 0 0 3px var(--nhs-pale); background:#fff; outline:none;}
+  .vn-actions{display:flex; justify-content:flex-end; margin-top:10px;}
+  .vn-save{display:inline-flex; align-items:center; gap:7px; padding:8px 16px; border:none; border-radius:6px; background:var(--nhs-dk); color:#fff; font-family:var(--font-sans); font-size:12.5px; font-weight:600; cursor:pointer;}
+  .vn-save:hover{background:#3D5A4F;}
+  .vn-divider{height:1px; background:#CCE3D8; margin:14px 0;}
+  .vn-note{padding:10px 0; border-bottom:1px solid var(--line);}
+  .vn-note:last-child{border-bottom:none;}
+  .vn-note-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;}
+  .vn-note-author{font-size:12px; font-weight:700; color:var(--navy);}
+  .vn-note-author .ag{display:inline-block; width:20px; height:20px; border-radius:50%; background:var(--nhs-pale); color:var(--nhs-dk); font-size:10px; font-weight:800; text-align:center; line-height:20px; margin-right:7px;}
+  .vn-note-date{font-size:11px; color:var(--nhs-text-muted);}
+  .vn-note-body{font-size:13px; color:var(--nhs-text-mid); line-height:1.5; margin:0;}
+  .vn-paging{display:flex; justify-content:space-between; align-items:center; margin-top:6px;}
+  .vn-paging-label{font-size:11px; color:var(--nhs-text-muted); font-weight:600;}
+  .mock-tag{position:fixed; right:12px; bottom:12px; background:var(--navy); color:#fff; font-size:11px; padding:6px 12px; border-radius:20px; opacity:.85;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="crumbs">Applications &rsaquo; <span>Instruction to Market</span> &rsaquo; 60 Littlebeck Way, TS25 2FS</div>
+
+  <!-- ===== PAGE HEADER ===== -->
+  <div class="pg-head">
+    <div class="pg-head-top">
+      <div class="pg-title">
+        <h1>60 Littlebeck Way, Hartlepool, TS25 2FS</h1>
+        <div class="sub">Persimmon Teesside · Part Exchange · Vendor: Mr &amp; Mrs Dawson</div>
+      </div>
+      <div class="rt-chip">Instruction to Market</div>
+    </div>
+    <div class="pg-meta">
+      <div class="m"><div class="field-label">Instruction Received</div><div class="field-value">08 Jun 2026</div></div>
+      <div class="m"><div class="field-label">Marketing Price</div><div class="field-value big">£140,000</div></div>
+      <div class="m"><div class="field-label">Scheme</div><div class="field-value">PX</div></div>
+      <div class="m"><div class="field-label">Days in Instruction</div><div class="field-value">9</div></div>
+      <div class="m"><div class="field-label">Status</div><div class="field-value"><span class="status-badge prep">Photos In Holding</span></div></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- ================= MAIN COLUMN ================= -->
+    <div class="col">
+
+      <!-- Lifecycle -->
+      <div class="card">
+        <div class="card-header">
+          <h2><span class="card-title-dot"></span>Instruction Lifecycle</h2>
+          <span class="status-badge prep">Step 4 of 9</span>
+        </div>
+        <div class="card-body">
+          <div class="stepper">
+            <div class="s done"><span class="n">01</span>Instructed</div>
+            <div class="s done"><span class="n">02</span>Need Photos</div>
+            <div class="s done"><span class="n">03</span>Photos Booked</div>
+            <div class="s current"><span class="n">04</span>Photos In Holding</div>
+            <div class="s"><span class="n">05</span>Brochure Sent</div>
+            <div class="s"><span class="n">06</span>Vendor Approval</div>
+            <div class="s"><span class="n">07</span>Ready on EA</div>
+            <div class="s"><span class="n">08</span>Signed Terms</div>
+            <div class="s live"><span class="n">09</span>★ Live</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Marketing readiness -->
+      <div class="card">
+        <div class="card-header">
+          <h2><span class="card-title-dot"></span>Marketing Readiness</h2>
+          <span class="status-badge">3 of 6 complete</span>
+        </div>
+        <div class="card-body">
+          <div class="ready-wrap">
+            <div class="ring" style="--p:50">
+              <div class="rt"><b>50%</b><small>Ready</small></div>
+            </div>
+            <div class="checklist">
+              <div class="chk on"><span class="box">&check;</span><span class="txt">Photos Booked</span><span class="dt">04 Jun</span></div>
+              <div class="chk on"><span class="box">&check;</span><span class="txt">Photos Received</span><span class="dt">08 Jun</span></div>
+              <div class="chk on"><span class="box">&check;</span><span class="txt">Floorplan Received</span><span class="dt">08 Jun</span></div>
+              <div class="chk off"><span class="box">&check;</span><span class="txt">Brochure Sent to Vendor</span><span class="dt">—</span></div>
+              <div class="chk off"><span class="box">&check;</span><span class="txt">Vendor Approved Marketing</span><span class="dt">—</span></div>
+              <div class="chk off"><span class="box">&check;</span><span class="txt">Ready on EA</span><span class="dt">—</span></div>
+            </div>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="status-badge">For-Sale Board: Ordered</span>
+            <span class="status-badge">Photos Validated</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Asking price & reductions -->
+      <div class="card">
+        <div class="card-header">
+          <h2><span class="card-title-dot"></span>Asking Price &amp; Reductions</h2>
+          <span class="status-badge">Instructions to Market · IM-001284</span>
+        </div>
+        <div class="card-body">
+          <div class="timeline">
+            <div class="tl set"><div class="lab">Instructed</div><div class="pr">£140,000</div><div class="dt">08 Jun 2026</div></div>
+            <div class="tl empty"><div class="lab">1st Reduction</div><div class="pr">—</div><div class="dt">pending</div></div>
+            <div class="tl empty"><div class="lab">2nd Reduction</div><div class="pr">—</div><div class="dt">pending</div></div>
+            <div class="tl empty"><div class="lab">3rd Reduction</div><div class="pr">—</div><div class="dt">pending</div></div>
+            <div class="tl empty"><div class="lab">4th Reduction</div><div class="pr">—</div><div class="dt">pending</div></div>
+          </div>
+          <div class="wk">
+            <div class="wk-h"><span>Weekly Updates</span><span>Week-1 · 12 Jun 2026</span></div>
+            <div class="wk-b">Awaiting go-live — brochure with vendor for approval. Diary booked photos 04 Jun; received and in holding file. No viewings yet (not live).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agents instructed (3-col) -->
+      <div class="card">
+        <div class="card-header">
+          <h2><span class="card-title-dot"></span>Agents Instructed to Market</h2>
+          <span class="status-badge">Not yet dispatched</span>
+        </div>
+        <div class="card-body">
+          <div class="agent-grid">
+            <div class="agent-col agent-col-1">
+              <div class="agent-header agent-header-1"><span class="agent-num">Agent 1</span><span class="agent-name">Reeds Rains, Hartlepool</span></div>
+              <div class="agent-body">
+                <div class="r"><span class="k">Instructed</span><span class="inst-flag no">● Pending</span></div>
+                <div class="r"><span class="k">Initial Asking</span><span>£140,000</span></div>
+                <div class="r"><span class="k">Offer form</span><a class="offer-link" href="#">View ›</a></div>
+              </div>
+            </div>
+            <div class="agent-col agent-col-2">
+              <div class="agent-header agent-header-2"><span class="agent-num">Agent 2</span><span class="agent-name">Manners &amp; Harrison</span></div>
+              <div class="agent-body">
+                <div class="r"><span class="k">Instructed</span><span class="inst-flag no">● Pending</span></div>
+                <div class="r"><span class="k">Initial Asking</span><span>£139,950</span></div>
+                <div class="r"><span class="k">Offer form</span><a class="offer-link" href="#">View ›</a></div>
+              </div>
+            </div>
+            <div class="agent-col agent-col-3">
+              <div class="agent-header agent-header-3"><span class="agent-num">Agent 3</span><span class="agent-name">Robinsons Estate Agents</span></div>
+              <div class="agent-body">
+                <div class="r"><span class="k">Instructed</span><span class="inst-flag no">● Pending</span></div>
+                <div class="r"><span class="k">Initial Asking</span><span>£142,500</span></div>
+                <div class="r"><span class="k">Offer form</span><a class="offer-link" href="#">View ›</a></div>
+              </div>
+            </div>
+          </div>
+          <div class="note">Instruction letter (0.75% + VAT, max £2,500 · live within 4 working days · min 10 photos + floorplan) issues to all instructed agents on dispatch. Offers return to <b>offer@newhomesolutions.co.uk</b>.</div>
+        </div>
+      </div>
+
+      <!-- Notes / running log -->
+      <div class="card">
+        <div class="card-header">
+          <h2><span class="card-title-dot"></span>Instruction Notes</h2>
+          <span class="status-badge">4 entries</span>
+        </div>
+        <div class="card-body">
+          <textarea class="vn-textarea" placeholder="Add an update… (e.g. chased vendor for brochure approval, booked photos, LVM)"></textarea>
+          <div class="vn-actions"><button class="vn-save"><span>✎</span> Add Note</button></div>
+          <div class="vn-divider"></div>
+
+          <div class="vn-note">
+            <div class="vn-note-header">
+              <span class="vn-note-author"><span class="ag">GB</span>Gina Brookes</span>
+              <span class="vn-note-date">12 Jun 2026 · 09:24</span>
+            </div>
+            <p class="vn-note-body">Brochure with vendor for approval — chased Marketing to send over. LVM for vendor to confirm happy to go live once received.</p>
+          </div>
+
+          <div class="vn-note">
+            <div class="vn-note-header">
+              <span class="vn-note-author"><span class="ag">ROC</span>R. O'Connor</span>
+              <span class="vn-note-date">10 Jun 2026 · 14:02</span>
+            </div>
+            <p class="vn-note-body">Photos in holding file. Ready to prep on EA once brochure approved by vendor. No marketing-approved photos from builder, used our own.</p>
+          </div>
+
+          <div class="vn-note">
+            <div class="vn-note-header">
+              <span class="vn-note-author"><span class="ag">OC</span>O. Clarke</span>
+              <span class="vn-note-date">08 Jun 2026 · 16:41</span>
+            </div>
+            <p class="vn-note-body">Photos received back from diary team and added to holding file. Floorplan included.</p>
+          </div>
+
+          <div class="vn-note">
+            <div class="vn-note-header">
+              <span class="vn-note-author"><span class="ag">BM</span>B. Marsh</span>
+              <span class="vn-note-date">08 Jun 2026 · 08:15</span>
+            </div>
+            <p class="vn-note-body">Instruction received from Persimmon Teesside (PX, £140,000). Need to book in for marketing photos — sent to diary team.</p>
+          </div>
+
+          <div class="vn-paging">
+            <span class="vn-paging-label">Showing 1–4 of 4</span>
+            <span class="status-badge">Newest first</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= SIDEBAR ================= -->
+    <div class="col">
+
+      <!-- Quick actions -->
+      <div class="card">
+        <div class="card-header"><h2><span class="card-title-dot"></span>Quick Actions</h2></div>
+        <div class="card-body">
+          <div class="qa-list">
+            <button class="qa-btn"><span class="ic">✉</span>Send Brochure to Vendor</button>
+            <button class="qa-btn"><span class="ic">✓</span>Record Vendor Approval</button>
+            <button class="qa-btn"><span class="ic">▲</span>Mark Ready on EA</button>
+            <button class="qa-btn"><span class="ic">★</span>Make Live &amp; Instruct Agents</button>
+            <button class="qa-btn alt"><span class="ic">⤓</span>Generate Instruction Letter</button>
+            <button class="qa-btn alt"><span class="ic">⏸</span>Place On Hold</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificates -->
+      <div class="card">
+        <div class="card-header">
+          <h2><span class="card-title-dot"></span>Certificates</h2>
+          <span class="status-badge">1 in progress</span>
+        </div>
+        <div class="card-body">
+          <div class="cert-grid">
+            <div class="cert">
+              <div class="top"><span class="name">EPC</span><span class="tag ord">Ordered</span></div>
+              <div class="who">Order: LME (Emma Stanley) · Pay: Builder</div>
+            </div>
+            <div class="cert muted">
+              <div class="top"><span class="name">HBR</span><span class="tag na">N/A</span></div>
+              <div class="who">Not required for this scheme</div>
+            </div>
+            <div class="cert muted">
+              <div class="top"><span class="name">Gas · CP12</span><span class="tag na">N/A</span></div>
+              <div class="who">Not required</div>
+            </div>
+            <div class="cert muted">
+              <div class="top"><span class="name">Electric · EICR</span><span class="tag na">N/A</span></div>
+              <div class="who">Not required</div>
+            </div>
+          </div>
+          <div class="note">Defaults seeded from Persimmon Teesside certificate-routing on the House Builder. EPC rating returns to <b>EPC_Rating__c</b> on receipt.</div>
+        </div>
+      </div>
+
+      <!-- Terms of business -->
+      <div class="card">
+        <div class="card-header">
+          <h2><span class="card-title-dot"></span>Terms of Business</h2>
+          <span class="status-badge hold">Not Signed</span>
+        </div>
+        <div class="card-body">
+          <div class="info-row"><span class="l">Terms Signed</span><span class="v" style="color:var(--danger)">No</span></div>
+          <div class="info-row"><span class="l">Signed Date</span><span class="v">—</span></div>
+          <div class="info-row"><span class="l">Commission Fee</span><span class="v">0.75% + VAT</span></div>
+          <div class="info-row"><span class="l">Max Fee (inc VAT)</span><span class="v">£2,500</span></div>
+          <div class="info-row"><span class="l">Admin / Set-up Fee</span><span class="v">£50 + VAT</span></div>
+          <div class="info-row"><span class="l">Exchange Window</span><span class="v">28 days</span></div>
+        </div>
+      </div>
+
+      <!-- Builder hand-off -->
+      <div class="card">
+        <div class="card-header"><h2><span class="card-title-dot"></span>Builder &amp; Comms</h2></div>
+        <div class="card-body">
+          <div class="info-row"><span class="l">House Builder</span><span class="v">Persimmon Teesside</span></div>
+          <div class="info-row"><span class="l">Builder kept informed</span><span class="v" style="color:var(--ok)">Yes · 08 Jun</span></div>
+          <div class="info-row"><span class="l">Vendor SMS sent</span><span class="v">Pending</span></div>
+          <div class="info-row"><span class="l">Agents dispatch email</span><span class="v">On go-live</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="mock-tag">Static mock · nhsInstructionDetail</div>
+</body>
+</html>
