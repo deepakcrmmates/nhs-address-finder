@@ -243,9 +243,9 @@
 
       <svg id="gauge" viewBox="0 0 320 190" style="width:100%;max-width:340px;margin:6px auto 0;display:block"></svg>
       <div class="legend">
-        <span><i style="background:#E3B5AE"></i> Below range</span>
-        <span><i style="background:#BFE0D4"></i> Fair range (−20%)</span>
-        <span><i style="background:#075F50"></i> Local average</span>
+        <span><i style="background:#E0574A"></i> Below range</span>
+        <span><i style="background:#EFC04B"></i> Fair range (−20%)</span>
+        <span><i style="background:#46A578"></i> At / above average</span>
       </div>
 
       <div class="kpis">
@@ -612,11 +612,11 @@ function drawGauge(offer,avg,floor,accepted){
   // every segment spans <180°, so the arc large-flag is always 0; sweep=1 draws over the top
   const arc=(v1,v2,color,w)=>{const[x1,y1]=pol(v1),[x2,y2]=pol(v2);return`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${color}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;};
   let s='';
-  // track (light) then the three coloured zones on top
+  // track (light) then the three traffic-light zones on top: red → yellow → green
   s+=arc(0,max,'#E8EFEB',22);
-  s+=arc(0,floor,'#E3B5AE',22);
-  s+=arc(floor,avg,'#BFE0D4',22);
-  s+=arc(avg,max,'#EFE2C9',22);
+  s+=arc(0,floor,'#E0574A',22);      // below fair floor — too low
+  s+=arc(floor,avg,'#EFC04B',22);    // fair range (within 20% of average)
+  s+=arc(avg,max,'#46A578',22);      // at / above average — strong
   // average marker
   const[ax,ay]=pol(avg); s+=`<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="7" fill="#075F50" stroke="#fff" stroke-width="2"/>`;
   // needle to the offer
