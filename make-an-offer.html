@@ -194,7 +194,7 @@
       </div>
 
       <div class="field">
-        <label class="fld">Property type</label>
+        <label class="fld">Property type <span class="hint" id="typeAuto"></span></label>
         <select id="ptype">
           <option value="D">Detached</option>
           <option value="S">Semi-Detached</option>
@@ -469,26 +469,44 @@ function demoList(q){
   box.innerHTML=hits.map(a=>`<div onclick="pick('${esc(a.line)}, ${a.pc}','${a.pc}',${a.avg})">${a.line} <span class="pc">${a.pc}</span></div>`).join('');
   box.classList.add('open');acIdx=-1;
 }
+let osResults=[];
 async function lookupOS(postcode){
   const box=document.getElementById('ac');
   try{
     const r=await fetch(`${OS_PLACES_URL}?postcode=${encodeURIComponent(postcode)}&maxresults=100`);
     if(!r.ok) throw new Error('os '+r.status);
     const data=await r.json();
-    const results=(data.results||[]).map(x=>x.DPA).filter(Boolean);
-    if(!results.length){demoList(postcode);return;}
-    box.innerHTML=results.slice(0,10).map(d=>{
-      const line=d.ADDRESS||'';const pc=d.POSTCODE||postcode;
-      return `<div onclick="pick('${esc(line)}','${pc}',null)">${niceCase(line)}</div>`;
-    }).join('');
+    osResults=(data.results||[]).map(x=>x.DPA).filter(Boolean).slice(0,10);
+    if(!osResults.length){demoList(postcode);return;}
+    box.innerHTML=osResults.map((d,i)=>`<div onclick="pickOS(${i})">${niceCase(d.ADDRESS||'')}</div>`).join('');
     box.classList.add('open');acIdx=-1;
   }catch(e){ demoList(postcode); }
+}
+function pickOS(i){
+  const d=osResults[i]; if(!d)return;
+  pick(niceCase(d.ADDRESS||''), d.POSTCODE||'', null);
+  autoDetectType(d.CLASSIFICATION_CODE);
 }
 function pick(line,pc,demoAvg){
   selected={line,pc,demoAvg};
   document.getElementById('addr').value=line;
   document.getElementById('ac').classList.remove('open');
   document.getElementById('addrErr').classList.remove('show');
+}
+/* Map OS AddressBase classification → our property-type dropdown.
+   RD02 Detached · RD03 Semi-Detached · RD04 Terraced · RD06 Self-Contained Flat/Maisonette */
+function autoDetectType(code){
+  const hint=document.getElementById('typeAuto');
+  const map={RD02:'D',RD03:'S',RD04:'T',RD06:'F'};
+  const t=map[(code||'').slice(0,4)];
+  if(t){
+    document.getElementById('ptype').value=t;
+    hint.textContent='· auto-detected from Ordnance Survey (edit if wrong)';
+    hint.style.color='var(--nhs-dk)';
+  }else{
+    hint.textContent='· please confirm';
+    hint.style.color='var(--muted)';
+  }
 }
 function acKey(e){
   const box=document.getElementById('ac');
@@ -582,22 +600,30 @@ function renderResult(){
   go('s-result');
 }
 
-/* semicircular gauge: 0 → 1.3× average across 180° */
+/* semicircular gauge across 180° (left = £0, right = top of scale) */
 function drawGauge(offer,avg,floor,accepted){
   const svg=document.getElementById('gauge');
-  const cx=160,cy=165,r=130,max=avg*1.3;
+  const cx=160,cy=165,r=125;
+  // adaptive top-of-scale so neither the average nor the offer is pinned to the edge
+  const max=Math.max(avg*1.35, offer*1.08);
   const pol=v=>{const f=Math.max(0,Math.min(1,v/max));const ang=Math.PI-(f*Math.PI);return[cx+r*Math.cos(ang),cy-r*Math.sin(ang)];};
-  const arc=(v1,v2,color,w)=>{const[x1,y1]=pol(v1),[x2,y2]=pol(v2);const large=(v2-v1)/max>0.5?1:0;return`<path d="M${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}" stroke="${color}" stroke-width="${w}" fill="none"/>`;};
+  // every segment spans <180°, so the arc large-flag is always 0; sweep=1 draws over the top
+  const arc=(v1,v2,color,w)=>{const[x1,y1]=pol(v1),[x2,y2]=pol(v2);return`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${color}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;};
   let s='';
+  // track (light) then the three coloured zones on top
+  s+=arc(0,max,'#E8EFEB',22);
   s+=arc(0,floor,'#E3B5AE',22);
   s+=arc(floor,avg,'#BFE0D4',22);
   s+=arc(avg,max,'#EFE2C9',22);
-  const[ax,ay]=pol(avg); s+=`<circle cx="${ax}" cy="${ay}" r="7" fill="#075F50"/>`;
+  // average marker
+  const[ax,ay]=pol(avg); s+=`<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="7" fill="#075F50" stroke="#fff" stroke-width="2"/>`;
+  // needle to the offer
   const[nx,ny]=pol(Math.min(offer,max));
-  s+=`<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="${accepted?'#075F50':'#C9822A'}" stroke-width="4" stroke-linecap="round"/>`;
+  s+=`<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${accepted?'#075F50':'#C9822A'}" stroke-width="4" stroke-linecap="round"/>`;
   s+=`<circle cx="${cx}" cy="${cy}" r="9" fill="${accepted?'#075F50':'#C9822A'}"/>`;
-  s+=`<text x="${cx}" y="${cy-38}" text-anchor="middle" font-size="22" font-weight="800" fill="#182420">£${Math.round(offer/1000)}k</text>`;
-  s+=`<text x="${cx}" y="${cy-20}" text-anchor="middle" font-size="11" fill="#6B7C76">your offer</text>`;
+  // centred offer label
+  s+=`<text x="${cx}" y="${cy-42}" text-anchor="middle" font-size="24" font-weight="800" fill="#182420">£${Math.round(offer/1000)}k</text>`;
+  s+=`<text x="${cx}" y="${cy-24}" text-anchor="middle" font-size="11" fill="#6B7C76">your offer</text>`;
   svg.innerHTML=s;
 }
 
