@@ -1,10 +1,12 @@
-# Make an Offer — parked next steps
+# Make an Offer — full journey (BUILT)
 
-Status: **PARKED** (not built). Current live page `make-an-offer.html` covers:
-choice → address + offer + type → live HMLR meter check → soft-accept.
+Status: **BUILT** in `make-an-offer.html`. Full flow:
+choice → address + offer + type → live HMLR meter check → soft-accept →
+Step 1 Applicants Details → Step 2 Finances → Step 3 Contact/Consent → Step 4 Solicitor → done.
 
-The screens below come **after** the meter soft-accept, turning it into a full
-multi-step buyer journey (4-step progress bar seen bottom of each screen).
+The 4 steps below (with the 4-step progress bar) are now implemented. Remaining
+work = backend wiring only (see "Open decisions"). Dropdown options used are
+placeholders — confirm with NHS.
 
 ---
 
