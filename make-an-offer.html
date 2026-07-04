@@ -57,13 +57,14 @@
   .input:focus,input:focus,select:focus{outline:none;border-color:var(--nhs-dk);background:#fff;box-shadow:0 0 0 3px rgba(7,95,80,.12)}
   .field{margin-bottom:22px;position:relative}
 
-  .ac{position:absolute;left:0;right:0;top:100%;z-index:20;background:#fff;border:1px solid var(--nhs-border);border-top:none;border-radius:0 0 10px 10px;box-shadow:var(--shadow);max-height:240px;overflow:auto;display:none}
+  .ac{position:absolute;left:0;right:0;top:100%;z-index:20;background:#fff;border:1px solid var(--nhs-border);border-top:none;border-radius:0 0 10px 10px;box-shadow:var(--shadow);max-height:320px;overflow-y:auto;overscroll-behavior:contain;display:none}
   .ac.open{display:block}
   .ac div{padding:11px 14px;cursor:pointer;font-size:14px;border-top:1px solid var(--nhs-pale)}
   .ac div:first-child{border-top:none}
   .ac div:hover,.ac div.act{background:var(--nhs-pale)}
   .ac .pc{color:var(--muted);font-size:12.5px}
   .ac .load{color:var(--muted);font-style:italic;cursor:default}
+  .ac .ac-count{position:sticky;bottom:0;background:var(--nhs-pale-2);color:var(--muted);font-size:11.5px;text-align:center;padding:7px;cursor:default;border-top:1px solid var(--nhs-border)}
 
   .btn{width:100%;padding:15px;border:none;border-radius:10px;background:var(--nhs-pale);color:var(--nhs-dk);font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:.15s;font-family:inherit}
   .btn:hover{background:var(--nhs-sage)}
@@ -476,9 +477,10 @@ async function lookupOS(postcode){
     const r=await fetch(`${OS_PLACES_URL}?postcode=${encodeURIComponent(postcode)}&maxresults=100`);
     if(!r.ok) throw new Error('os '+r.status);
     const data=await r.json();
-    osResults=(data.results||[]).map(x=>x.DPA).filter(Boolean).slice(0,10);
+    osResults=(data.results||[]).map(x=>x.DPA).filter(Boolean);
     if(!osResults.length){demoList(postcode);return;}
-    box.innerHTML=osResults.map((d,i)=>`<div onclick="pickOS(${i})">${niceCase(d.ADDRESS||'')}</div>`).join('');
+    box.innerHTML=osResults.map((d,i)=>`<div onclick="pickOS(${i})">${niceCase(d.ADDRESS||'')}</div>`).join('')
+      + `<div class="ac-count">${osResults.length} addresses · scroll for more</div>`;
     box.classList.add('open');acIdx=-1;
   }catch(e){ demoList(postcode); }
 }
@@ -510,7 +512,7 @@ function autoDetectType(code){
 }
 function acKey(e){
   const box=document.getElementById('ac');
-  const items=[...box.querySelectorAll('div:not(.load)')];
+  const items=[...box.querySelectorAll('div:not(.load):not(.ac-count)')];
   if(!items.length)return;
   if(e.key==='ArrowDown'){acIdx=Math.min(acIdx+1,items.length-1);e.preventDefault();}
   else if(e.key==='ArrowUp'){acIdx=Math.max(acIdx-1,0);e.preventDefault();}
