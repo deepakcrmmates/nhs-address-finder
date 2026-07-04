@@ -116,6 +116,13 @@
   }
   header.appbar .right-actions a.route-link:hover { background: rgba(201,168,76,0.30); color: #fff; }
   header.appbar .right-actions a.route-link svg { width: 14px; height: 14px; }
+  /* Send Offer — buyer-facing primary CTA, solid white to pop against the green bar */
+  header.appbar .right-actions a.send-offer {
+    color: var(--green, #075F50); background: #fff; border: 1px solid #fff; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  header.appbar .right-actions a.send-offer:hover { background: #EAF4EF; color: #053f34; }
+  header.appbar .right-actions a.send-offer svg { width: 14px; height: 14px; }
 
   /* ── Hero ───────────────────────────────────────────── */
   .hero {
@@ -1794,6 +1801,10 @@
     </div>
   </div>
   <div class="right-actions">
+    <a class="send-offer" href="make-an-offer.html" title="Place an offer on a property">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+      Send Offer
+    </a>
     <a class="route-link" href="route-planner.html" title="Staff route planner">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></svg>
       Route Planner

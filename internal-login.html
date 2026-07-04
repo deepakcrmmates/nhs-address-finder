@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign in · Internal Portal · New Home Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --nhs-dk:#075F50; --nhs-dark:#053f34; --nhs-mid:#4A6B5E; --nhs-soft:#6B9080;
+    --nhs-sage:#C9D5CB; --nhs-pale:#EAF4EF; --nhs-pale-2:#F4F9F6; --nhs-border:#C5DCCC;
+    --gold:#C9A84C; --ink:#1F3D34; --ink-soft:#5A6B7C; --ink-mute:#9AA8A2; --border:#DDE5E1;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(107,144,128,0.20), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(201,168,76,0.12), transparent 55%),
+      linear-gradient(160deg, #F4F9F6 0%, #EAF4EF 100%);
+  }
+  .login-shell{
+    width:100%; max-width:420px; background:#fff; border:1px solid var(--border);
+    border-radius:18px; box-shadow:0 24px 60px rgba(7,95,80,0.16), 0 6px 18px rgba(15,23,42,0.06);
+    overflow:hidden;
+  }
+  /* Brand header */
+  .login-head{ background:var(--nhs-dk); color:#fff; padding:26px 28px 22px; }
+  .login-head .brand{ display:flex; align-items:center; gap:13px; }
+  .nhs-box{
+    width:44px; height:44px; border-radius:9px; background:#fff; color:var(--nhs-dk);
+    display:grid; place-items:center; font-weight:900; font-size:15px; letter-spacing:0.02em;
+  }
+  .login-head .brand-name{ font-size:15px; font-weight:800; line-height:1.2; }
+  .login-head .brand-sub{ font-size:11.5px; opacity:0.8; letter-spacing:0.04em; text-transform:uppercase; font-weight:600; margin-top:2px; }
+  .login-head .welcome{ margin-top:18px; font-size:19px; font-weight:800; letter-spacing:-0.01em; }
+  .login-head .welcome-sub{ font-size:12.5px; opacity:0.82; margin-top:3px; }
+
+  /* Form */
+  form{ padding:24px 28px 26px; }
+  .field{ margin-bottom:15px; }
+  .field label{ display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-bottom:6px; }
+  .inp-wrap{ position:relative; }
+  .inp-wrap svg{ position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--ink-mute); }
+  .field input{
+    width:100%; padding:11px 13px 11px 38px; font-size:14px; font-family:inherit;
+    border:1.5px solid var(--border); border-radius:10px; background:var(--nhs-pale-2); color:var(--ink);
+    transition:border-color .15s, box-shadow .15s, background .15s;
+  }
+  .field input:focus{ outline:none; border-color:var(--nhs-soft); background:#fff; box-shadow:0 0 0 3px rgba(107,144,128,0.15); }
+  .row-between{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .remember{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-soft); cursor:pointer; }
+  .remember input{ width:15px; height:15px; accent-color:var(--nhs-dk); }
+  .forgot{ font-size:12.5px; color:var(--nhs-dk); text-decoration:none; font-weight:600; }
+  .forgot:hover{ text-decoration:underline; }
+  .signin-btn{
+    width:100%; padding:13px; border:none; border-radius:11px; cursor:pointer;
+    background:var(--nhs-dk); color:#fff; font-family:inherit; font-size:14.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:9px;
+    box-shadow:0 6px 16px rgba(7,95,80,0.25); transition:background .15s, transform .1s;
+  }
+  .signin-btn:hover{ background:var(--nhs-dark); }
+  .signin-btn:active{ transform:translateY(1px); }
+  .signin-btn svg{ width:16px; height:16px; }
+  .demo-note{
+    margin-top:16px; padding:9px 12px; border-radius:9px; background:var(--gold-tint,#FFF8E7);
+    border:1px solid #EAD9A8; color:#8E743A; font-size:11.5px; font-weight:600; text-align:center;
+  }
+  .login-foot{
+    padding:14px 28px; border-top:1px solid var(--border); background:var(--nhs-pale-2);
+    display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--ink-soft);
+  }
+  .login-foot a{ color:var(--nhs-dk); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:5px; }
+  .login-foot a:hover{ text-decoration:underline; }
+  .login-foot svg{ width:13px; height:13px; }
+</style>
+</head>
+<body>
+
+<div class="login-shell">
+  <div class="login-head">
+    <div class="brand">
+      <div class="nhs-box">NHS</div>
+      <div>
+        <div class="brand-name">New Home Solutions</div>
+        <div class="brand-sub">Internal Portal</div>
+      </div>
+    </div>
+    <div class="welcome">Sign in to your portal</div>
+    <div class="welcome-sub">Manage your assigned property visits, photos and on-site tasks.</div>
+  </div>
+
+  <form onsubmit="return signIn(event)">
+    <div class="field">
+      <label for="email">Work email</label>
+      <div class="inp-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+        <input type="email" id="email" name="email" placeholder="you@newhomesolutions.co.uk" value="mike.patel@newhomesolutions.co.uk" autocomplete="username" required />
+      </div>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="inp-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" id="password" name="password" placeholder="••••••••" value="demo" autocomplete="current-password" required />
+      </div>
+    </div>
+    <div class="row-between">
+      <label class="remember"><input type="checkbox" checked /> Keep me signed in</label>
+      <a class="forgot" href="#" onclick="return false">Forgot password?</a>
+    </div>
+    <button type="submit" class="signin-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      Sign in
+    </button>
+    <div class="demo-note">Demo portal · any details will sign you in</div>
+  </form>
+
+  <div class="login-foot">
+    <span>NHS Field Staff Access</span>
+    <a href="nhs-portals-hub.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      NHS Portal Hub
+    </a>
+  </div>
+</div>
+
+<script>
+  // No backend yet — front-end demo. Any details sign you in and land on the
+  // NHS Internal Portal (field-staff workspace).
+  function signIn(e){
+    e.preventDefault();
+    window.location.href = 'photographer-portal.html';
+    return false;
+  }
+</script>
+</body>
+</html>
