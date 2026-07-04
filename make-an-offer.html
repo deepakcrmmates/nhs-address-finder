@@ -255,10 +255,157 @@
 
       <div class="note" id="resultNote"></div>
 
-      <button class="btn primary" id="submitBtn" onclick="finalSubmit()">Submit Offer <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <button class="btn primary" id="submitBtn" onclick="go('s-step1')">Continue with this offer <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       <button class="btn" style="margin-top:10px" onclick="go('s-form')">Edit my offer</button>
     </div>
     <p class="foot">Based on <span id="compCount">0</span> comparable sales within 1 mile · <span id="dataSrc" class="datasrc">HM Land Registry Price Paid Data</span></p>
+  </section>
+
+  <!-- ===== STEP 1 of 4: APPLICANTS DETAILS ===== -->
+  <section id="s-step1" class="screen">
+    <button class="back" onclick="go('s-result')">← Back</button>
+    <h1>Applicants Details</h1>
+    <p class="lede">Please carefully fill out all the details accurately.</p>
+    <div class="card">
+      <div class="field">
+        <label class="fld">Full Name of Applicants <span class="hint">/ both names if buying together</span></label>
+        <input type="text" id="applicants" placeholder="Names of Applicants" />
+        <div class="err" id="applicantsErr">Please enter the applicant name(s).</div>
+      </div>
+      <div class="field">
+        <label class="fld">Current Address</label>
+        <input type="text" id="currentAddr" placeholder="Full Address if applicable" />
+      </div>
+      <div class="field">
+        <label class="fld">Buying Position <span class="hint">i.e. First Time Buyer</span></label>
+        <select id="buyPos" onchange="toggleSSTC()">
+          <option value="">Please select</option>
+          <option>First Time Buyer</option>
+          <option>Homeowner — not yet on the market</option>
+          <option>Homeowner — on the market</option>
+          <option value="SSTC">Sold STC (SSTC)</option>
+          <option>Cash Buyer</option>
+          <option>Buy-to-Let Investor</option>
+          <option>Other</option>
+        </select>
+        <div class="err" id="buyPosErr">Please select a buying position.</div>
+      </div>
+      <div class="field conditional" id="sstcWrap">
+        <label class="fld">If SSTC — Name of Estate Agent required</label>
+        <input type="text" id="sstcAgent" placeholder="Name of Agent" />
+      </div>
+      <button class="btn primary" onclick="nextStep(1)">Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+    <div class="progress"><span class="done"></span><span></span><span></span><span></span></div>
+    <div class="logo word">NEW HOME<small>SOLUTIONS</small></div>
+  </section>
+
+  <!-- ===== STEP 2 of 4: APPLICANTS FINANCES ===== -->
+  <section id="s-step2" class="screen">
+    <button class="back" onclick="go('s-step1')">← Back</button>
+    <h1>Applicants Finances</h1>
+    <p class="lede">Please fill out the required information below.</p>
+    <div class="card">
+      <div class="field">
+        <label class="fld">Mortgage Required — Yes or No</label>
+        <select id="mortgage">
+          <option value="">Please select</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+        <div class="err" id="mortgageErr">Please select an option.</div>
+      </div>
+      <div class="field">
+        <label class="fld">Deposit (£) Amount if applicable</label>
+        <input type="number" id="deposit" placeholder="£" min="0" step="1000" />
+      </div>
+      <div class="field">
+        <label class="fld">Do you have a Decision In Principle? Yes or No</label>
+        <select id="dip" onchange="toggleDIP()">
+          <option value="">Please select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field conditional" id="dipWrap">
+        <label class="fld">Please upload a copy or screenshot of your Decision in Principle</label>
+        <div class="drop" id="drop" onclick="document.getElementById('dipFile').click()">
+          <div id="dropIdle"><b>Drop your file here or click</b><small>Accepts png, jpeg, pdf</small></div>
+          <div class="fname" id="dropName" style="display:none"></div>
+        </div>
+        <input type="file" id="dipFile" accept=".png,.jpg,.jpeg,.pdf" style="display:none" onchange="fileChosen(this)" />
+      </div>
+      <button class="btn primary" onclick="nextStep(2)">Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+    <div class="progress"><span class="done"></span><span class="done"></span><span></span><span></span></div>
+    <div class="logo word">NEW HOME<small>SOLUTIONS</small></div>
+  </section>
+
+  <!-- ===== STEP 3 of 4: SUBMIT YOUR OFFER (CONTACT) ===== -->
+  <section id="s-step3" class="screen">
+    <button class="back" onclick="go('s-step2')">← Back</button>
+    <h1>Submit your Offer Now</h1>
+    <p class="lede">Once your offer has been submitted we will then put forward to the vendors for their consideration. We will be back in touch within 2 hours to discuss your offer in more detail — Thank You.</p>
+    <div class="card">
+      <div class="field">
+        <div class="row2">
+          <input type="text" id="firstName" placeholder="First name" />
+          <input type="text" id="lastName" placeholder="Last name" />
+        </div>
+        <div class="err" id="nameErr">Please enter your first and last name.</div>
+      </div>
+      <div class="field">
+        <label class="consent" for="consent">
+          <input type="checkbox" id="consent" />
+          <span>I agree to be contacted by New Home Solutions on the contact details provided for the purpose of discussing my offer.</span>
+        </label>
+        <div class="err" id="consentErr">Please tick to agree before continuing.</div>
+      </div>
+      <div class="field">
+        <div class="icon-input">
+          <span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+          <input type="email" id="email" placeholder="Email address" />
+        </div>
+        <div class="err" id="emailErr">Please enter a valid email address.</div>
+      </div>
+      <div class="field">
+        <div class="icon-input">
+          <span class="flag">🇬🇧 <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:var(--muted);fill:none;stroke-width:2"><path d="M6 9l6 6 6-6"/></svg></span>
+          <input type="tel" id="phone" placeholder="+44 0000 000000" />
+        </div>
+        <div class="err" id="phoneErr">Please enter a contact number.</div>
+      </div>
+      <button class="btn primary" onclick="nextStep(3)">Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+    <div class="progress"><span class="done"></span><span class="done"></span><span class="done"></span><span></span></div>
+    <div class="logo word">NEW HOME<small>SOLUTIONS</small></div>
+  </section>
+
+  <!-- ===== STEP 4 of 4: SOLICITOR / CONVEYANCING ===== -->
+  <section id="s-step4" class="screen">
+    <button class="back" onclick="go('s-step3')">← Back</button>
+    <h1>Solicitor / Conveyancing</h1>
+    <p class="lede">To purchase a house you will need to instruct a solicitor. Please follow the instructions below.</p>
+    <div class="card">
+      <p style="text-align:center;font-size:14px;color:var(--ink);margin:0 0 4px">A good solicitor is of upmost importance. Please see the below exclusive Conveyancing Quote from one of our preferred panelled solicitors.</p>
+      <div class="quote">
+        <p class="lead">*** Our recommended Conveyancers Quote is shown below ***</p>
+        <div class="price">£1375<small>ALL INCLUSIVE</small></div>
+      </div>
+      <div class="field">
+        <label class="fld">Please confirm if you would like to use our panel solicitors</label>
+        <select id="solicitor">
+          <option value="">Please select</option>
+          <option>Yes — please have your solicitor contact me</option>
+          <option>No — I will use my own solicitor</option>
+          <option>Not decided yet</option>
+        </select>
+        <div class="err" id="solicitorErr">Please select an option.</div>
+      </div>
+      <button class="btn primary" onclick="finalSubmit()">Submit <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+    </div>
+    <div class="progress"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span></div>
+    <div class="logo word">NEW HOME<small>SOLUTIONS</small></div>
   </section>
 
   <!-- ===== SCREEN 5: DONE ===== -->
@@ -454,7 +601,73 @@ function drawGauge(offer,avg,floor,accepted){
   svg.innerHTML=s;
 }
 
-function finalSubmit(){ go('s-done'); }
+/* ---------- conditional fields ---------- */
+function toggleSSTC(){
+  const on=document.getElementById('buyPos').value==='SSTC';
+  document.getElementById('sstcWrap').classList.toggle('show',on);
+}
+function toggleDIP(){
+  const on=document.getElementById('dip').value==='Yes';
+  document.getElementById('dipWrap').classList.toggle('show',on);
+}
+function fileChosen(input){
+  const f=input.files&&input.files[0];
+  const idle=document.getElementById('dropIdle');
+  const name=document.getElementById('dropName');
+  const drop=document.getElementById('drop');
+  if(f){
+    idle.style.display='none';drop.classList.add('has');
+    name.style.display='flex';name.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> '+f.name;
+    analysis.dipFile=f.name;
+  }
+}
+
+/* ---------- per-step validation & progression ---------- */
+function err(id,show){document.getElementById(id).classList.toggle('show',show);return !show;}
+function val(id){return (document.getElementById(id).value||'').trim();}
+
+function nextStep(step){
+  if(step===1){
+    let ok=true;
+    ok=err('applicantsErr',!val('applicants'))&&ok;
+    ok=err('buyPosErr',!val('buyPos'))&&ok;
+    if(!ok)return;
+    Object.assign(analysis,{
+      applicants:val('applicants'), currentAddr:val('currentAddr'),
+      buyPos:val('buyPos'), sstcAgent:val('sstcAgent')
+    });
+    go('s-step2');
+  }else if(step===2){
+    let ok=true;
+    ok=err('mortgageErr',!val('mortgage'))&&ok;
+    if(!ok)return;
+    Object.assign(analysis,{
+      mortgage:val('mortgage'), deposit:val('deposit'),
+      dip:val('dip'), dipFile:analysis.dipFile||null
+    });
+    go('s-step3');
+  }else if(step===3){
+    let ok=true;
+    ok=err('nameErr',!(val('firstName')&&val('lastName')))&&ok;
+    ok=err('consentErr',!document.getElementById('consent').checked)&&ok;
+    ok=err('emailErr',!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val('email')))&&ok;
+    ok=err('phoneErr',!val('phone'))&&ok;
+    if(!ok)return;
+    Object.assign(analysis,{
+      firstName:val('firstName'), lastName:val('lastName'),
+      consent:true, email:val('email'), phone:val('phone')
+    });
+    go('s-step4');
+  }
+}
+
+function finalSubmit(){
+  if(!err('solicitorErr',!val('solicitor')))return;
+  analysis.solicitor=val('solicitor');
+  // TODO: POST `analysis` to Salesforce (create Offer/Lead) + upload DIP to Box.
+  console.log('OFFER SUBMITTED', analysis);
+  go('s-done');
+}
 
 /* ---------- helpers ---------- */
 function typeLabel(t){return {D:'Detached',S:'Semi-Detached',T:'Terraced',F:'Flat / Maisonette'}[t]||'Property';}
@@ -463,6 +676,15 @@ function niceCase(s){return s.replace(/\w\S*/g,w=>w.length<=3&&/^[A-Z0-9]+$/.tes
 
 document.getElementById('viewed').valueAsDate=new Date();
 document.addEventListener('click',e=>{ if(!e.target.closest('.field')) document.getElementById('ac').classList.remove('open'); });
+
+/* drag-and-drop for the DIP upload */
+(function(){
+  const drop=document.getElementById('drop'), file=document.getElementById('dipFile');
+  if(!drop)return;
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+  drop.addEventListener('drop',e=>{ if(e.dataTransfer.files.length){ file.files=e.dataTransfer.files; fileChosen(file); } });
+})();
 </script>
 </body>
 </html>
