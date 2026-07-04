@@ -593,6 +593,7 @@ function submitOffer(){
     postcode:selected.pc,
     type:document.getElementById('ptype').value,
     offer:offer,
+    dateViewed:document.getElementById('viewed').value||null,
     avg:null, comps:0, live:false
   };
   document.getElementById('anAddr').textContent=`${analysis.address} · ${typeLabel(analysis.type)}`;
@@ -676,8 +677,6 @@ function drawGauge(offer,avg,floor,accepted){
   s+=arc(0,floor,'#E0574A',22);      // below fair floor — too low
   s+=arc(floor,avg,'#EFC04B',22);    // fair range (within 20% of average)
   s+=arc(avg,max,'#46A578',22);      // at / above average — strong
-  // average marker
-  const[ax,ay]=pol(avg); s+=`<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="7" fill="#075F50" stroke="#fff" stroke-width="2"/>`;
   // needle to the offer
   const[nx,ny]=pol(Math.min(offer,max));
   s+=`<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${accepted?'#075F50':'#C9822A'}" stroke-width="4" stroke-linecap="round"/>`;
