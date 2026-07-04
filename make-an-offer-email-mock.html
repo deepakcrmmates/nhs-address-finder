@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>New Offer Received — email mock</title>
+<title>New Offer Received — email template</title>
 </head>
 <!-- ============================================================
-     EMAIL MOCK — "New Offer Received" team notification
+     EMAIL TEMPLATE — "New Offer Received" team notification
      Email-client-safe: table layout + inline styles only.
-     Sample data shown; real send would merge the submitted offer.
+     Data-bound: reads the submitted offer from sessionStorage
+     ('nhsOffer'); if absent, shows the sample values baked in below.
      ============================================================ -->
 <body style="margin:0;padding:0;background:#eef3f0;font-family:Arial,Helvetica,sans-serif;color:#182420;">
   <center style="width:100%;background:#eef3f0;padding:26px 12px;">
-    <!-- preheader -->
-    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">New offer of £210,000 on 15 Oakfield Road, Solihull — respond within 2 hours.</div>
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">A new offer has been submitted — respond within 2 hours.</div>
 
     <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 8px 26px rgba(7,95,80,.12);">
 
-      <!-- ===== Header ===== -->
+      <!-- Header -->
       <tr>
         <td style="background:#075F50;padding:26px 30px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -25,88 +25,85 @@
               <td style="color:#ffffff;font-size:13px;font-weight:700;letter-spacing:2px;line-height:1.3;">
                 NEW HOME<br/><span style="font-weight:400;letter-spacing:4px;font-size:11px;">SOLUTIONS</span>
               </td>
-              <td align="right" style="color:#BFE0D4;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
-                Make an Offer
-              </td>
+              <td align="right" style="color:#BFE0D4;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Make an Offer</td>
             </tr>
           </table>
         </td>
       </tr>
 
-      <!-- ===== Title band ===== -->
+      <!-- Title band -->
       <tr>
         <td style="padding:26px 30px 6px;">
-          <div style="display:inline-block;background:#EAF4EF;color:#075F50;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:6px 12px;border-radius:20px;">🟢 Offer looks strong</div>
+          <div id="statusPill" style="display:inline-block;background:#EAF4EF;color:#075F50;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:6px 12px;border-radius:20px;">🟢 Offer looks strong</div>
           <h1 style="margin:14px 0 4px;font-size:24px;color:#182420;">New offer received</h1>
-          <p style="margin:0;color:#6B7C76;font-size:14px;">Submitted 4 Jul 2026, 14:32 · please respond within <b style="color:#182420;">2 hours</b></p>
+          <p style="margin:0;color:#6B7C76;font-size:14px;">Submitted <span id="submittedAt">—</span> · please respond within <b style="color:#182420;">2 hours</b></p>
         </td>
       </tr>
 
-      <!-- ===== Headline offer figure ===== -->
+      <!-- Headline figures -->
       <tr>
         <td style="padding:18px 30px 4px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F4F9F6;border:1px solid #C5DCCC;border-radius:12px;">
             <tr>
               <td style="padding:18px 20px;">
                 <div style="color:#6B7C76;font-size:11px;text-transform:uppercase;letter-spacing:.6px;">Offer amount</div>
-                <div style="color:#075F50;font-size:30px;font-weight:800;line-height:1.1;margin-top:2px;">£210,000</div>
+                <div id="offerBig" style="color:#075F50;font-size:30px;font-weight:800;line-height:1.1;margin-top:2px;">£210,000</div>
               </td>
               <td align="right" style="padding:18px 20px;">
                 <div style="color:#6B7C76;font-size:11px;text-transform:uppercase;letter-spacing:.6px;">Local average</div>
-                <div style="color:#182420;font-size:18px;font-weight:700;margin-top:4px;">£209,375</div>
-                <div style="color:#46A578;font-size:12px;font-weight:700;margin-top:2px;">+0.3% vs average</div>
+                <div id="avgVal" style="color:#182420;font-size:18px;font-weight:700;margin-top:4px;">£209,375</div>
+                <div id="pctVal" style="color:#46A578;font-size:12px;font-weight:700;margin-top:2px;">+0.3% vs average</div>
               </td>
             </tr>
           </table>
         </td>
       </tr>
 
-      <!-- ===== SECTION: Property ===== -->
+      <!-- Property -->
       <tr><td style="padding:20px 30px 0;"><div style="font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#075F50;border-bottom:2px solid #EAF4EF;padding-bottom:6px;">Property viewed</div></td></tr>
       <tr><td style="padding:6px 30px 0;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
-          <tr><td style="padding:8px 0;color:#6B7C76;width:190px;">Address</td><td style="padding:8px 0;color:#182420;font-weight:600;">15 Oakfield Road, Solihull, B91 3ST</td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Property type</td><td style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Semi-Detached <span style="color:#6B7C76;font-size:12px;">(auto-detected · OS)</span></td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Date viewed</td><td style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">2 Jul 2026</td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Market check</td><td style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Within 20% of average · based on <b>24</b> comparable sales within 1 mile (HM Land Registry)</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;width:190px;">Address</td><td id="mAddress" style="padding:8px 0;color:#182420;font-weight:600;">15 Oakfield Road, Solihull, B91 3ST</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Property type</td><td id="mType" style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Semi-Detached</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Date viewed</td><td id="mDateViewed" style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">2 Jul 2026</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Market check</td><td id="mMarket" style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Within 20% of average · based on <b>24</b> comparable sales within 1 mile (HM Land Registry)</td></tr>
         </table>
       </td></tr>
 
-      <!-- ===== SECTION: Applicant ===== -->
+      <!-- Applicant -->
       <tr><td style="padding:22px 30px 0;"><div style="font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#075F50;border-bottom:2px solid #EAF4EF;padding-bottom:6px;">Applicant details</div></td></tr>
       <tr><td style="padding:6px 30px 0;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
-          <tr><td style="padding:8px 0;color:#6B7C76;width:190px;">Applicant(s)</td><td style="padding:8px 0;color:#182420;font-weight:600;">Deepak Whitwell</td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Current address</td><td style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">72 Doniford House, Healum Avenue, UB2 4WQ</td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Buying position</td><td style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Sold STC (SSTC)</td></tr>
-          <!-- shown only when Buying position = SSTC -->
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Estate agent (SSTC)</td><td style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Connells, Solihull</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;width:190px;">Applicant(s)</td><td id="mApplicants" style="padding:8px 0;color:#182420;font-weight:600;">Deepak Whitwell</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Current address</td><td id="mCurrentAddr" style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">72 Doniford House, Healum Avenue, UB2 4WQ</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Buying position</td><td id="mBuyPos" style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">First Time Buyer</td></tr>
+          <tr id="rowSSTC" style="display:none"><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Estate agent (SSTC)</td><td id="mSSTC" style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;"></td></tr>
         </table>
       </td></tr>
 
-      <!-- ===== SECTION: Finances ===== -->
+      <!-- Finances -->
       <tr><td style="padding:22px 30px 0;"><div style="font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#075F50;border-bottom:2px solid #EAF4EF;padding-bottom:6px;">Finances</div></td></tr>
       <tr><td style="padding:6px 30px 0;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
-          <tr><td style="padding:8px 0;color:#6B7C76;width:190px;">Mortgage required</td><td style="padding:8px 0;color:#182420;font-weight:600;">Yes</td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Deposit</td><td style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">£42,000</td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Decision in Principle</td><td style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Yes &nbsp;<span style="display:inline-block;background:#EAF4EF;color:#075F50;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;">📎 DIP_screenshot.pdf</span></td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;width:190px;">Mortgage required</td><td id="mMortgage" style="padding:8px 0;color:#182420;font-weight:600;">Yes</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Deposit</td><td id="mDeposit" style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">£42,000</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Decision in Principle</td><td id="mDIP" style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Yes &nbsp;<span style="display:inline-block;background:#EAF4EF;color:#075F50;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;">📎 DIP_screenshot.pdf</span></td></tr>
         </table>
       </td></tr>
 
-      <!-- ===== SECTION: Contact ===== -->
+      <!-- Contact -->
       <tr><td style="padding:22px 30px 0;"><div style="font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#075F50;border-bottom:2px solid #EAF4EF;padding-bottom:6px;">Contact &amp; consent</div></td></tr>
       <tr><td style="padding:6px 30px 0;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
-          <tr><td style="padding:8px 0;color:#6B7C76;width:190px;">Name</td><td style="padding:8px 0;color:#182420;font-weight:600;">Deepak Whitwell</td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Email</td><td style="padding:8px 0;border-top:1px solid #EEF4F2;"><a href="mailto:deepak@crmmates.com" style="color:#075F50;font-weight:600;text-decoration:none;">deepak@crmmates.com</a></td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Phone</td><td style="padding:8px 0;border-top:1px solid #EEF4F2;"><a href="tel:+447915905858" style="color:#075F50;font-weight:600;text-decoration:none;">+44 7915 905858</a></td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Consent to contact</td><td style="padding:8px 0;color:#46A578;font-weight:700;border-top:1px solid #EEF4F2;">✓ Agreed</td></tr>
-          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Panel solicitors</td><td style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Yes — please have your solicitor contact me <span style="color:#6B7C76;font-size:12px;">(£1375 all-inclusive)</span></td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;width:190px;">Name</td><td id="mName" style="padding:8px 0;color:#182420;font-weight:600;">Deepak Whitwell</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Email</td><td style="padding:8px 0;border-top:1px solid #EEF4F2;"><a id="mEmail" href="mailto:deepak@crmmates.com" style="color:#075F50;font-weight:600;text-decoration:none;">deepak@crmmates.com</a></td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Phone</td><td style="padding:8px 0;border-top:1px solid #EEF4F2;"><a id="mPhone" href="tel:+447915905858" style="color:#075F50;font-weight:600;text-decoration:none;">+44 7915 905858</a></td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Consent to contact</td><td id="mConsent" style="padding:8px 0;color:#46A578;font-weight:700;border-top:1px solid #EEF4F2;">✓ Agreed</td></tr>
+          <tr><td style="padding:8px 0;color:#6B7C76;border-top:1px solid #EEF4F2;">Panel solicitors</td><td id="mSolicitor" style="padding:8px 0;color:#182420;border-top:1px solid #EEF4F2;">Yes — please have your solicitor contact me <span style="color:#6B7C76;font-size:12px;">(£1375 all-inclusive)</span></td></tr>
         </table>
       </td></tr>
 
-      <!-- ===== CTA ===== -->
+      <!-- CTA -->
       <tr>
         <td style="padding:26px 30px 8px;">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
@@ -117,7 +114,7 @@
         </td>
       </tr>
 
-      <!-- ===== Footer ===== -->
+      <!-- Footer -->
       <tr>
         <td style="padding:16px 30px 28px;">
           <p style="margin:0;color:#9AA8A2;font-size:11.5px;line-height:1.6;text-align:center;">
@@ -129,5 +126,74 @@
 
     </table>
   </center>
+
+<!-- Data binding (browser preview only — a real send merges these server-side) -->
+<script>
+(function(){
+  let d=null;
+  // 1) preferred: data passed in the URL hash (works on file:// and Vercel)
+  try{ const m=location.hash.match(/(?:^#|&)data=([^&]+)/); if(m) d=JSON.parse(decodeURIComponent(m[1])); }catch(e){ d=null; }
+  // 2) fallback: storage
+  if(!d){ try{ d=JSON.parse(localStorage.getItem('nhsOffer')||sessionStorage.getItem('nhsOffer')||'null'); }catch(e){ d=null; } }
+  if(!d) return; // nothing submitted → keep the baked-in sample
+
+  const TYPE={D:'Detached',S:'Semi-Detached',T:'Terraced',F:'Flat / Maisonette'};
+  const money=n=>(n||n===0)?'£'+Number(n).toLocaleString('en-GB'):'—';
+  const fmtDate=s=>{ if(!s)return '—'; const p=s.split('-'); if(p.length!==3)return s;
+    const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return parseInt(p[2],10)+' '+m[parseInt(p[1],10)-1]+' '+p[0]; };
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el&&v!=null&&v!=='') el.textContent=v; };
+  const setHTML=(id,v)=>{ const el=document.getElementById(id); if(el) el.innerHTML=v; };
+
+  const offer=Number(d.offer)||0, avg=Number(d.avg)||0, floor=Math.round(avg*0.8);
+  const accepted = avg? offer>=floor : true;
+  const pct = avg? ((offer-avg)/avg*100) : 0;
+
+  // status + timestamp
+  const pill=document.getElementById('statusPill');
+  if(accepted){ pill.innerHTML='🟢 Offer looks strong'; pill.style.background='#EAF4EF'; pill.style.color='#075F50'; }
+  else{ pill.innerHTML='🟠 Below fair range'; pill.style.background='#FCEEDD'; pill.style.color='#9A6008'; }
+  set('submittedAt', new Date().toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}));
+
+  // headline
+  set('offerBig', money(offer));
+  set('avgVal', money(avg));
+  const pv=document.getElementById('pctVal');
+  if(pv){ const up=pct>=0; pv.textContent=(up?'+':'')+pct.toFixed(1)+'% vs average'; pv.style.color=up?'#46A578':'#C9822A'; }
+
+  // property
+  set('mAddress', d.address);
+  set('mType', TYPE[d.type]||d.type||'—');
+  set('mDateViewed', fmtDate(d.dateViewed));
+  setHTML('mMarket', (accepted?'Within 20% of average':'Below the −20% fair floor')+' · based on <b>'+(d.comps||0)+'</b> comparable sales within 1 mile (HM Land Registry'+(d.live?', live':'')+')');
+
+  // applicant
+  set('mApplicants', d.applicants);
+  set('mCurrentAddr', d.currentAddr||'—');
+  set('mBuyPos', d.buyPos);
+  if(d.buyPos==='SSTC' || (d.sstcAgent&&d.sstcAgent.trim())){
+    document.getElementById('rowSSTC').style.display='';
+    set('mSSTC', d.sstcAgent||'—');
+    if(d.buyPos==='SSTC') set('mBuyPos','Sold STC (SSTC)');
+  }
+
+  // finances
+  set('mMortgage', d.mortgage);
+  set('mDeposit', d.deposit?money(d.deposit):'Not provided');
+  const dipEl=document.getElementById('mDIP');
+  if(dipEl){
+    if(d.dip==='Yes'){
+      dipEl.innerHTML='Yes'+(d.dipFile?' &nbsp;<span style="display:inline-block;background:#EAF4EF;color:#075F50;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;">📎 '+d.dipFile+'</span>':' <span style="color:#6B7C76;font-size:12px;">(no file attached)</span>');
+    } else { dipEl.textContent = d.dip||'—'; }
+  }
+
+  // contact
+  set('mName', ((d.firstName||'')+' '+(d.lastName||'')).trim()||'—');
+  const em=document.getElementById('mEmail'); if(em&&d.email){ em.textContent=d.email; em.href='mailto:'+d.email; }
+  const ph=document.getElementById('mPhone'); if(ph&&d.phone){ ph.textContent=d.phone; ph.href='tel:'+d.phone.replace(/\s/g,''); }
+  set('mConsent', d.consent?'✓ Agreed':'✗ Not agreed');
+  set('mSolicitor', d.solicitor);
+})();
+</script>
 </body>
 </html>
