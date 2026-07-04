@@ -117,14 +117,14 @@
   .consent input{width:20px;height:20px;flex:none;margin-top:1px;accent-color:var(--nhs-dk)}
   .consent span{font-size:13.5px;color:var(--ink)}
 
-  /* input with leading icon */
-  .icon-input{display:flex;align-items:stretch;border:1px solid var(--nhs-border);border-radius:10px;overflow:hidden;background:var(--nhs-pale-2);transition:.15s}
+  /* input with leading icon / country selector */
+  .icon-input{display:flex;align-items:center;border:1px solid var(--nhs-border);border-radius:10px;overflow:hidden;background:var(--nhs-pale-2);transition:.15s}
   .icon-input:focus-within{border-color:var(--nhs-dk);background:#fff;box-shadow:0 0 0 3px rgba(7,95,80,.12)}
-  .icon-input .ic{display:flex;align-items:center;justify-content:center;padding:0 13px;color:var(--muted);border-right:1px solid var(--nhs-border)}
+  .icon-input .ic{display:flex;align-items:center;justify-content:center;padding-left:14px;color:var(--muted)}
   .icon-input .ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8}
-  .icon-input .flag{padding:0 10px;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:5px;white-space:nowrap}
-  .icon-input input{border:none;background:transparent;box-shadow:none!important;flex:1}
-  .icon-input input:focus{box-shadow:none}
+  .icon-input .flag{padding:0 12px;font-size:15px;color:var(--ink);display:flex;align-items:center;gap:6px;white-space:nowrap;align-self:stretch;border-right:1px solid var(--nhs-border)}
+  .icon-input input{border:none!important;background:transparent!important;box-shadow:none!important;flex:1;padding:13px 14px;min-width:0}
+  .icon-input input:focus{border:none!important;background:transparent!important;box-shadow:none!important}
 
   /* file drop */
   .drop{border:2px dashed var(--nhs-border);border-radius:12px;padding:26px 16px;text-align:center;cursor:pointer;transition:.15s;background:var(--nhs-pale-2)}
@@ -274,8 +274,9 @@
         <div class="err" id="applicantsErr">Please enter the applicant name(s).</div>
       </div>
       <div class="field">
-        <label class="fld">Current Address</label>
-        <input type="text" id="currentAddr" placeholder="Full Address if applicable" />
+        <label class="fld">Current Address <span class="hint">(type a postcode, then pick)</span></label>
+        <input type="text" id="currentAddr" autocomplete="off" placeholder="Full Address if applicable" oninput="caSearch(this.value)" onkeydown="caKey(event)" />
+        <div class="ac" id="ca-ac"></div>
       </div>
       <div class="field">
         <label class="fld">Buying Position <span class="hint">i.e. First Time Buyer</span></label>
@@ -520,6 +521,49 @@ function acKey(e){
   items.forEach((it,i)=>it.classList.toggle('act',i===acIdx));
 }
 
+/* ---------- Current Address search (step 1) — independent OS autocomplete ---------- */
+let caResults=[], caIdx=-1, caTimer=null;
+function caSearch(q){
+  const box=document.getElementById('ca-ac');
+  q=q.trim();
+  clearTimeout(caTimer);
+  if(q.length<2){box.classList.remove('open');box.innerHTML='';return;}
+  const pcMatch=q.match(PC_RE);
+  if(pcMatch){
+    box.innerHTML='<div class="load">Searching addresses…</div>';box.classList.add('open');
+    caTimer=setTimeout(()=>caLookupOS(pcMatch[0]),250);
+  }else{
+    box.innerHTML='<div class="load">Keep typing your postcode to search…</div>';box.classList.add('open');
+  }
+}
+async function caLookupOS(postcode){
+  const box=document.getElementById('ca-ac');
+  try{
+    const r=await fetch(`${OS_PLACES_URL}?postcode=${encodeURIComponent(postcode)}&maxresults=100`);
+    if(!r.ok) throw new Error('os '+r.status);
+    const data=await r.json();
+    caResults=(data.results||[]).map(x=>x.DPA).filter(Boolean);
+    if(!caResults.length){box.innerHTML='<div class="load">No addresses found — you can type it manually.</div>';return;}
+    box.innerHTML=caResults.map((d,i)=>`<div onclick="caPick(${i})">${niceCase(d.ADDRESS||'')}</div>`).join('')
+      + `<div class="ac-count">${caResults.length} addresses · scroll for more</div>`;
+    box.classList.add('open');caIdx=-1;
+  }catch(e){ box.innerHTML='<div class="load">Search unavailable — you can type it manually.</div>'; }
+}
+function caPick(i){
+  const d=caResults[i]; if(!d)return;
+  document.getElementById('currentAddr').value=niceCase(d.ADDRESS||'');
+  document.getElementById('ca-ac').classList.remove('open');
+}
+function caKey(e){
+  const box=document.getElementById('ca-ac');
+  const items=[...box.querySelectorAll('div:not(.load):not(.ac-count)')];
+  if(!items.length)return;
+  if(e.key==='ArrowDown'){caIdx=Math.min(caIdx+1,items.length-1);e.preventDefault();}
+  else if(e.key==='ArrowUp'){caIdx=Math.max(caIdx-1,0);e.preventDefault();}
+  else if(e.key==='Enter'){if(caIdx>=0){items[caIdx].click();e.preventDefault();}return;}
+  items.forEach((it,i)=>it.classList.toggle('act',i===caIdx));
+}
+
 /* ---------- submit → analyse ---------- */
 function submitOffer(){
   const offer=parseFloat(document.getElementById('offer').value);
@@ -703,7 +747,7 @@ function esc(s){return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;');}
 function niceCase(s){return s.replace(/\w\S*/g,w=>w.length<=3&&/^[A-Z0-9]+$/.test(w)?w:w.charAt(0)+w.slice(1).toLowerCase());}
 
 document.getElementById('viewed').valueAsDate=new Date();
-document.addEventListener('click',e=>{ if(!e.target.closest('.field')) document.getElementById('ac').classList.remove('open'); });
+document.addEventListener('click',e=>{ if(!e.target.closest('.field')) document.querySelectorAll('.ac').forEach(a=>a.classList.remove('open')); });
 
 /* drag-and-drop for the DIP upload */
 (function(){
